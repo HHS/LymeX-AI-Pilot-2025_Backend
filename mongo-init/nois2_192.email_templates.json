@@ -1,0 +1,40 @@
+[{
+  "_id": {
+    "$oid": "67e7deb7da55d4795fc24189"
+  },
+  "subject": "Reset password",
+  "body": "<p>Click the link below to reset your password:</p><p><a href='{{reset_url}}'>Reset</a></p>",
+  "from_name": "Support Team",
+  "from_email": "support@hothienlac.com",
+  "template_name": "reset_password"
+},
+{
+  "_id": {
+    "$oid": "67e84533da55d4795fc2418d"
+  },
+  "subject": "{{ subject }}",
+  "body": "{{ body }}",
+  "from_name": "{{ from_name }}",
+  "from_email": "{{ from_email }}",
+  "template_name": "empty"
+},
+{
+  "_id": {
+    "$oid": "67eb8decda55d4795fc241a0"
+  },
+  "subject": "Verify Email",
+  "body": "<h2>Hello, {{ name }}</h2>\n<p>\n  Please verify your email address by clicking the button below:\n</p>\n<p>\n  <a href=\"{{ verify_email_url }}\">Verify Email</a>\n</p>\n<p>If the button above doesn't work, copy and paste this URL into your browser:</p>\n<p><a href=\"{{ verify_email_url }}\">{{ verify_email_url }}</a></p>\n<div>\n  Thank you,<br />\n  The Team\n</div>",
+  "from_email": "security@hothienlac.com",
+  "from_name": "Ho Thien Lac Security",
+  "template_name": "verify_email"
+},
+{
+  "_id": {
+    "$oid": "67ec1bdbda55d4795fc241ac"
+  },
+  "subject": "Forgot password",
+  "body": "<h2>Hello, {{ name }}</h2>\n<p>\n  You can forgot your password by clicking the button below:\n</p>\n<p>\n  <a href=\"{{ forgot_password_url }}\">Forgot password</a>\n</p>\n<p>If the button above doesn't work, copy and paste this URL into your browser:</p>\n<p><a href=\"{{ forgot_password_url }}\">{{ forgot_password_url }}</a></p>\n<div>\n  Thank you,<br />\n  The Team\n</div>",
+  "from_email": "security@hothienlac.com",
+  "from_name": "Ho Thien Lac Security",
+  "template_name": "forgot_password"
+}]
