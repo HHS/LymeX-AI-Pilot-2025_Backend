@@ -7,10 +7,18 @@ from typing import Optional
 # -------- Request DTOs --------
 class UserCreateRequest(BaseModel):
     first_name: str = Field(
-        ..., min_length=1, max_length=50, description="First name of the user", examples=["John"]
+        ...,
+        min_length=1,
+        max_length=50,
+        description="First name of the user",
+        examples=["John"],
     )
     last_name: str = Field(
-        ..., min_length=1, max_length=50, description="Last name of the user", examples=["Doe"]
+        ...,
+        min_length=1,
+        max_length=50,
+        description="Last name of the user",
+        examples=["Doe"],
     )
     email: EmailStr = Field(
         ..., description="Email address of the user", examples=["example@domain.com"]
@@ -38,7 +46,9 @@ class UserUpdateRequest(BaseModel):
         None, min_length=1, max_length=50, description="Updated last name of the user"
     )
     phone: Optional[str] = Field(
-        None, pattern=r"^\+?[1-9]\d{1,14}$", description="Updated phone number of the user"
+        None,
+        pattern=r"^\+?[1-9]\d{1,14}$",
+        description="Updated phone number of the user",
     )
 
 
@@ -47,7 +57,10 @@ class UserUpdatePasswordRequest(BaseModel):
         ..., min_length=8, max_length=128, description="Current password of the user"
     )
     new_password: str = Field(
-        ..., min_length=8, max_length=128, description="New password for the user account"
+        ...,
+        min_length=8,
+        max_length=128,
+        description="New password for the user account",
     )
 
 
@@ -57,8 +70,20 @@ class UserResponse(BaseModel):
     email: EmailStr = Field(..., description="Email address of the user")
     first_name: str = Field(..., description="First name of the user")
     last_name: str = Field(..., description="Last name of the user")
-    verified_at: Optional[datetime] = Field(None, description="Indicates if the user's email is verified")
+    avatar: str = Field(..., description="Avatar URL of the user")
+    phone: Optional[str] = Field(None, description="Phone number of the user")
+    title: Optional[str] = Field(None, description="Title of the user")
+    verified_at: Optional[datetime] = Field(
+        None, description="Indicates if the user's email is verified"
+    )
     deleted_at: Optional[datetime] = None
+    locked_until: Optional[datetime] = None
     created_at: datetime = datetime.now(timezone.utc)
     updated_at: datetime = datetime.now(timezone.utc)
 
+
+class UpdateAvatarUrlResponse(BaseModel):
+    url: str = Field(
+        ...,
+        description="URL to upload the avatar, using put method. Expires in 5 minutes",
+    )

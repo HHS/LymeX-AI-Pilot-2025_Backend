@@ -4,8 +4,10 @@ from fastapi import HTTPException, status
 from passlib.context import CryptContext
 from .schemas import UserCreateRequest, UserUpdatePasswordRequest, UserUpdateRequest
 from .models import User
+import bcrypt
 
-
+# attr-defined: ignore
+bcrypt.__about__ = bcrypt
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
@@ -48,4 +50,6 @@ async def check_email_password(email: str, password: str) -> User:
     user = await User.find_one(User.email == email)
     if user and verify_password(password, user.password):
         return user
-    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Wrong email or password")
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED, detail="Wrong email or password"
+    )

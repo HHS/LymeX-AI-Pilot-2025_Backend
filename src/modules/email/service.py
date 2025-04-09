@@ -6,7 +6,9 @@ from fastapi import HTTPException
 
 
 async def get_template_by_name(template_name: str) -> EmailTemplate:
-    template = await EmailTemplate.find_one(EmailTemplate.template_name == template_name)
+    template = await EmailTemplate.find_one(
+        EmailTemplate.template_name == template_name
+    )
     if not template:
         raise HTTPException(404, f"Email template '{template_name}' not found")
     return template

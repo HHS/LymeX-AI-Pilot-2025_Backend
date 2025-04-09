@@ -3,8 +3,6 @@ from src.modules.user.models import User
 from src.environment import environment
 
 
-
-
 def create_access_token(user: User) -> str:
     access_token = encode_jwt(
         user=user,
@@ -35,6 +33,23 @@ async def decode_refresh_token(token: str) -> User:
     user = await decode_jwt(
         token=token,
         secret=environment.refresh_token_secret,
+    )
+    return user
+
+
+def create_totp_login_token(user: User) -> str:
+    totp_login_token = encode_jwt(
+        user=user,
+        secret=environment.totp_login_token_secret,
+        expiration_seconds=environment.totp_login_token_expiration_seconds,
+    )
+    return totp_login_token
+
+
+async def decode_totp_login_token(token: str) -> User:
+    user = await decode_jwt(
+        token=token,
+        secret=environment.totp_login_token_secret,
     )
     return user
 

@@ -38,11 +38,18 @@ def encode_jwt(user: User, secret: str, expiration_seconds: int) -> str:
 
 
 async def decode_jwt(token: str, secret: str) -> User:
-    payload = jwt.get_unverified_claims(token)
+    try:
+        payload = jwt.get_unverified_claims(token)
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token."
+        )
     parsed_payload = TokenPayload(**payload)
     user = await get_user_by_id(parsed_payload.sub)
     if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found.")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found."
+        )
     secret = combine_secret(user.secret_token, secret)
     try:
         jwt.decode(
@@ -53,6 +60,11 @@ async def decode_jwt(token: str, secret: str) -> User:
         )
         return user
     except (JWTError, ValueError) as e:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token.")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token."
+        )
     except Exception as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error") from e
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error",
+        ) from e
