@@ -84,7 +84,7 @@ async def create_company(payload: CreateCompanyRequest, user: User) -> Company:
     await created_company.insert()
     company_member = CompanyMember(
         status=CompanyMemberStatus.ACTIVE,
-        role=CompanyRoles.ADMIN,
+        role=CompanyRoles.ADMINISTRATOR,
         company_id=str(created_company.id),
         user_id=str(user.id),
         created_at=datetime.now(timezone.utc),
@@ -198,3 +198,18 @@ async def update_company_member_role(
         )
     company_member.role = role
     await company_member.save()
+
+
+async def get_company_administrators(company: Company) -> list[User]:
+    company_members = await CompanyMember.find(
+        CompanyMember.company_id == str(company.id),
+        CompanyMember.role == CompanyRoles.ADMINISTRATOR,
+        CompanyMember.status == CompanyMemberStatus.ACTIVE,
+    ).to_list()
+    company_admins = await User.find(
+        In(
+            User.id,
+            [ObjectId(company_member.user_id) for company_member in company_members],
+        ),
+    ).to_list()
+    return company_admins

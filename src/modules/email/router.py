@@ -12,7 +12,7 @@ async def login_user():
             "subject": "NOIS2-192 TEST",
             "body": "TEST BODY",
             "from_name": "NOIS2-192 Project",
-            "from_email": "nois2.192.do.not.reply@gmail.com",
+            "from_email": "noise2.192.do.not.reply@gmail.com",
         },
-        "nois2.192.do.not.reply@gmail.com",
+        "noise2.192.do.not.reply@gmail.com",
     )

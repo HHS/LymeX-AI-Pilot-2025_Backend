@@ -24,3 +24,15 @@ async def generate_put_object_presigned_url(
         object_name=object_name,
         expires=timedelta(seconds=expiration_seconds),
     )
+
+
+async def generate_get_object_presigned_url(
+    object_name: str,
+    expiration_seconds=300,
+) -> str:
+    return await asyncio.to_thread(
+        minio_client.presigned_get_object,
+        bucket_name=environment.minio_bucket,
+        object_name=object_name,
+        expires=timedelta(seconds=expiration_seconds),
+    )

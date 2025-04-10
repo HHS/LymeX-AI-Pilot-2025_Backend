@@ -44,7 +44,7 @@ async def get_companies_handler(
     status: CompanyMemberStatus = CompanyMemberStatus.ACTIVE,
 ) -> list[CompanyResponse]:
     companies = await get_companies(current_user, status)
-    return [company.to_company_response() for company in companies]
+    return [await company.to_company_response() for company in companies]
 
 
 @router.post("/")
@@ -53,14 +53,14 @@ async def create_company_handler(
     current_user: Annotated[User, Depends(get_current_user)],
 ) -> CompanyResponse:
     created_company = await create_company(payload, current_user)
-    return created_company.to_company_response()
+    return await created_company.to_company_response()
 
 
 @router.get("/")
 async def get_company_handler(
     current_company: Annotated[Company, Depends(get_current_company)],
 ) -> CompanyResponse:
-    return current_company.to_company_response()
+    return await current_company.to_company_response()
 
 
 @router.get("/role")
@@ -79,7 +79,7 @@ async def update_company_handler(
     _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.ADMINISTRATOR))],
 ) -> CompanyResponse:
     await current_company.update(Set(payload.model_dump(exclude_unset=True)))
-    return current_company.to_company_response()
+    return await current_company.to_company_response()
 
 
 @router.delete("/")
