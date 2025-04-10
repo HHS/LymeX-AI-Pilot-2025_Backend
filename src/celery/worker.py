@@ -5,6 +5,7 @@ from src.environment import environment
 from loguru import logger
 from celery.signals import worker_process_init
 
+
 @worker_process_init.connect
 def beanie_worker_init(**kwargs):
     logger.info("Initializing Beanie for Celery worker")

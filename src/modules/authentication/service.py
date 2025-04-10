@@ -1,17 +1,32 @@
+from .schemas import AccessTokenRefreshTokenResponse, TOTPLoginResponse
 from src.celery.tasks.send_email import send_email_task
 from src.environment import environment
-from src.infrastructure.security import create_forgot_password_token, create_verify_email_token
+from src.infrastructure.security import (
+    create_access_token,
+    create_forgot_password_token,
+    create_refresh_token,
+    create_totp_login_token,
+    create_verify_email_token,
+)
 from src.modules.user.models import User
-from .models import Session
 
 
-async def create_session(user_id: str, ip_address: str, user_agent: str) -> Session:
-    session = Session(
-        user_id=user_id,
-        ip_address=ip_address,
-        user_agent=user_agent,
+def generate_access_token_refresh_token_response(
+    user: User,
+) -> AccessTokenRefreshTokenResponse:
+    access_token = create_access_token(user)
+    refresh_token = create_refresh_token(user)
+    return AccessTokenRefreshTokenResponse(
+        access_token=access_token,
+        refresh_token=refresh_token,
     )
-    return await session.insert()
+
+
+def generate_totp_login_response(user: User) -> TOTPLoginResponse:
+    totp_login_token = create_totp_login_token(user)
+    return TOTPLoginResponse(
+        totp_login_token=totp_login_token,
+    )
 
 
 def create_verify_email_url(user: User) -> str:

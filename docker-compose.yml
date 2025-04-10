@@ -6,10 +6,13 @@ services:
     container_name: nois2_192_mongodb
     ports:
       - "47017:27017"
+    env_file:
+      - .env.prod
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: 123123123
     volumes:
+      - mongo-data:/data/db
       - ./mongo-init:/docker-entrypoint-initdb.d
 
   rabbitmq:
@@ -18,9 +21,13 @@ services:
     ports:
       - "6672:5672"
       - "25672:15672"
+    env_file:
+      - .env.prod
     environment:
       RABBITMQ_DEFAULT_USER: rabbitmq
       RABBITMQ_DEFAULT_PASS: 123123123
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
 
   server:
     build:
@@ -47,3 +54,8 @@ services:
     depends_on:
       - mongodb
       - rabbitmq
+
+volumes:
+  mongo-data:
+  rabbitmq-data:
+  minio-data:

@@ -9,10 +9,10 @@ async def login_user():
     send_email_task.delay(
         "empty",
         {
-            "subject": "HO THIEN LAC TEST",
+            "subject": "NOIS2-192 TEST",
             "body": "TEST BODY",
-            "from_name": "Ho Thien Lac",
-            "from_email": "hothienlac@hothienlac.com",
+            "from_name": "NOIS2-192 Project",
+            "from_email": "nois2.192.do.not.reply@gmail.com",
         },
-        "hothienlac@gmail.com",
+        "nois2.192.do.not.reply@gmail.com",
     )

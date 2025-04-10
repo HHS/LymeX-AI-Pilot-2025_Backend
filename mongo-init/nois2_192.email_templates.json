@@ -24,8 +24,8 @@
   },
   "subject": "Verify Email",
   "body": "<h2>Hello, {{ name }}</h2>\n<p>\n  Please verify your email address by clicking the button below:\n</p>\n<p>\n  <a href=\"{{ verify_email_url }}\">Verify Email</a>\n</p>\n<p>If the button above doesn't work, copy and paste this URL into your browser:</p>\n<p><a href=\"{{ verify_email_url }}\">{{ verify_email_url }}</a></p>\n<div>\n  Thank you,<br />\n  The Team\n</div>",
-  "from_email": "security@hothienlac.com",
-  "from_name": "Ho Thien Lac Security",
+  "from_email": "nois2.192.do.not.reply@gmail.com",
+  "from_name": "NOIS2-192 Project",
   "template_name": "verify_email"
 },
 {
@@ -34,7 +34,17 @@
   },
   "subject": "Forgot password",
   "body": "<h2>Hello, {{ name }}</h2>\n<p>\n  You can forgot your password by clicking the button below:\n</p>\n<p>\n  <a href=\"{{ forgot_password_url }}\">Forgot password</a>\n</p>\n<p>If the button above doesn't work, copy and paste this URL into your browser:</p>\n<p><a href=\"{{ forgot_password_url }}\">{{ forgot_password_url }}</a></p>\n<div>\n  Thank you,<br />\n  The Team\n</div>",
-  "from_email": "security@hothienlac.com",
-  "from_name": "Ho Thien Lac Security",
+  "from_email": "nois2.192.do.not.reply@gmail.com",
+  "from_name": "NOIS2-192 Project",
   "template_name": "forgot_password"
+},
+{
+  "_id": {
+    "$oid": "67f221b2b3b328449905391c"
+  },
+  "subject": "Invitation To Company",
+  "body": "<p>Hello,</p>\n    <p>You have been invited to join <strong>{{company_name}}</strong>.</p>\n    <p>Please click the link below to view your invitation and accept it:</p>\n    <p><a href=\"{{invitation_link}}\">{{invitation_link}}</a></p>\n    <p>If you did not expect this invitation, you can safely ignore this email.</p>\n    <p>Best regards,<br/>The Team</p>",
+  "from_email": "security@hothienlac.com",
+  "from_name": "NOIS2-192 Project",
+  "template_name": "company_invitation"
 }]

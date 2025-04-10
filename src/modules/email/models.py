@@ -1,8 +1,9 @@
-from beanie import Document
-from typing import Optional
+from beanie import Document, Indexed
+from typing import Annotated, Optional
+
 
 class EmailTemplate(Document):
-    template_name: str
+    template_name: Annotated[str, Indexed(unique=True)]
     subject: str
     body: str
     from_name: Optional[str]
