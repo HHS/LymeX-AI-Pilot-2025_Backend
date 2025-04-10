@@ -22,7 +22,7 @@ def send_email(
     message["From"] = f"{email['from_name']} <{email['from_email']}>"
     message["To"] = to_email
     message["Subject"] = email["subject"]
-    message.set_content(f"""<html>{email["body"]}</html>""", subtype="html",)
+    message.set_content(email["body"], subtype="html")
 
     if cc:
         message["Cc"] = ", ".join(cc)

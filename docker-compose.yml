@@ -1,48 +1,13 @@
 services:
-  mongodb:
-    build:
-      context: .
-      dockerfile: Dockerfile.mongodb
-    container_name: nois2_192_mongodb
-    ports:
-      - "47017:27017"
-    env_file:
-      - .env.prod
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: 123123123
-    volumes:
-      - mongo-data:/data/db
-      - ./mongo-init:/docker-entrypoint-initdb.d
-
-  rabbitmq:
-    image: rabbitmq:3-management
-    container_name: nois2_192_rabbitmq
-    ports:
-      - "6672:5672"
-      - "25672:15672"
-    env_file:
-      - .env.prod
-    environment:
-      RABBITMQ_DEFAULT_USER: rabbitmq
-      RABBITMQ_DEFAULT_PASS: 123123123
-    volumes:
-      - rabbitmq-data:/var/lib/rabbitmq
-
   server:
     build:
       context: .
       dockerfile: Dockerfile.server
     container_name: nois2_192_server
     ports:
-      - "9000:8000"
+      - "19000:8000"
     env_file:
       - .env.prod
-    environment:
-      - ENV=production
-    depends_on:
-      - mongodb
-      - rabbitmq
 
   background:
     build:
@@ -51,11 +16,3 @@ services:
     container_name: nois2_192_background
     env_file:
       - .env.prod
-    depends_on:
-      - mongodb
-      - rabbitmq
-
-volumes:
-  mongo-data:
-  rabbitmq-data:
-  minio-data:

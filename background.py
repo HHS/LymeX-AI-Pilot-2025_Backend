@@ -1,5 +1,7 @@
 from src.celery.worker import celery
+import os
 
+number_of_workers = os.getenv("CELERY_WORKERS", 2)
 
 def start_celery_worker() -> None:
     # Start the Celery worker
@@ -7,7 +9,7 @@ def start_celery_worker() -> None:
         [
             "worker",
             "-Q celery.default,celery.send_email",
-            "-c 8",
+            f"-c {number_of_workers}",
         ]
     )
 

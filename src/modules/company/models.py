@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Annotated, Optional
 from beanie import Document, Indexed, PydanticObjectId
+from src.infrastructure.minio import generate_get_object_presigned_url
 from src.environment import environment
 from src.modules.company.constants import COMPANY_LOGO_OBJECT_PREFIX
 from src.modules.company.schema import CompanyResponse, CompanyRoleResponse
@@ -23,13 +24,17 @@ class Company(Document):
             PydanticObjectId: str,
         }
 
-    def to_company_response(self) -> CompanyResponse:
+    async def to_company_response(self) -> CompanyResponse:
+        logo_url = await generate_get_object_presigned_url(
+            object_name=f"{COMPANY_LOGO_OBJECT_PREFIX}/{self.id}",
+            expiration_seconds=300,
+        )
         return CompanyResponse(
             id=str(self.id),
             name=self.name,
             description=self.description,
             industry=self.industry,
-            logo=f"{environment.minio_external_endpoint}/{environment.minio_bucket}/{COMPANY_LOGO_OBJECT_PREFIX}/{self.id}",
+            logo=logo_url,
             created_at=self.created_at,
             updated_at=self.updated_at,
         )

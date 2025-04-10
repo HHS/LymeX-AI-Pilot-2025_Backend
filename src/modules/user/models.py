@@ -1,6 +1,7 @@
 from beanie import Document, Indexed, PydanticObjectId
 from typing import Annotated, Optional
 from datetime import datetime, timezone
+from src.infrastructure.minio import generate_get_object_presigned_url
 from src.modules.user.constants import USER_AVATAR_OBJECT_PREFIX
 from src.environment import environment
 
@@ -31,13 +32,17 @@ class User(Document):
             PydanticObjectId: str,
         }
 
-    def to_user_response(self) -> UserResponse:
+    async def to_user_response(self) -> UserResponse:
+        avatar_url = await generate_get_object_presigned_url(
+            object_name=f"{USER_AVATAR_OBJECT_PREFIX}/{self.id}",
+            expiration_seconds=300,
+        )
         return UserResponse(
             id=str(self.id),
             email=self.email,
             first_name=self.first_name,
             last_name=self.last_name,
-            avatar=f"{environment.minio_external_endpoint}/{environment.minio_bucket}/{USER_AVATAR_OBJECT_PREFIX}/{self.id}",
+            avatar=avatar_url,
             phone=self.phone,
             title=self.title,
             verified_at=self.verified_at,

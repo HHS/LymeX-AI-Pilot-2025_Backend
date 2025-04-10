@@ -46,7 +46,7 @@ async def register_user_using_password(payload: UserCreateRequest) -> UserRespon
     try:
         user = await create_user(payload)
         create_and_send_verify_email(user)
-        return user.to_user_response()
+        return await user.to_user_response()
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
