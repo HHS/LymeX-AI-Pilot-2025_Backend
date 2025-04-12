@@ -1,4 +1,10 @@
-from fastapi import FastAPI
+import json
+from typing import Callable
+from fastapi import FastAPI, Request, status
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 from src.infrastructure.database import init_db
 from src.modules.health.router import router as health_router
 from src.modules.authentication.router import router as authentication_router
@@ -9,6 +15,7 @@ from src.modules.company.router import router as company_router
 from src.modules.support.router import router as support_router
 from contextlib import asynccontextmanager
 from src.environment import environment
+from fastapi.exceptions import RequestValidationError
 
 
 @asynccontextmanager
@@ -24,6 +31,82 @@ app = FastAPI(
     version="1.0.0",
 )
 app = FastAPI(lifespan=lifespan)
+
+
+def friendly_message(error):
+    type_ = error.get("type", "")
+    field = error.get("loc", [""])[-1]
+
+    if type_ == "value_error.email":
+        return "Email format is invalid"
+    elif type_ == "value_error.any_str.min_length":
+        min_len = error["ctx"].get("limit_value")
+        return f"{field.capitalize()} must be at least {min_len} characters"
+    elif type_ == "value_error.missing":
+        return f"{field.capitalize()} is required"
+    else:
+        return error["msg"]
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    details = []
+    friendly_messages = []
+
+    for error in exc.errors():
+        field = ".".join(str(loc) for loc in error["loc"] if loc != "body")
+        issue = friendly_message(error)
+        details.append({"field": field, "issue": issue})
+        friendly_messages.append(f"Field {field}: {issue}")
+
+    summary_message = "; ".join(friendly_messages)
+
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content=jsonable_encoder(
+            {
+                "success": False,
+                "data": None,
+                "error": {
+                    "code": "VALIDATION_ERROR",
+                    "message": "One or more fields are invalid.",
+                    "details": details,
+                },
+                "message": summary_message,
+            }
+        ),
+    )
+
+
+class SuccessResponseWrapper(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next: Callable):
+        response = await call_next(request)
+        # Only wrap JSON responses (status code 200–299)
+        if (
+            200 <= response.status_code < 300
+            and response.headers.get("content-type") == "application/json"
+            and request.url.path != "/openapi.json"
+        ):
+            body = [section async for section in response.body_iterator]
+            original_data = json.loads(b"".join(body).decode("utf-8"))
+            new_body = {
+                "success": True,
+                "data": original_data,
+                "error": None,
+                "message": "OK",
+            }
+            return JSONResponse(content=new_body, status_code=response.status_code)
+        return response
+
+
+app.add_middleware(SuccessResponseWrapper)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/", tags=["Application"])

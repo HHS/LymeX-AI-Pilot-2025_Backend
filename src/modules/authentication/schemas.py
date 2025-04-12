@@ -6,8 +6,16 @@ from typing import Optional
 
 class LoginPasswordRequest(BaseModel):
     email: EmailStr = Field(..., description="User's email address")
-    password: str = Field(
-        ..., description="User's password", min_length=8, max_length=128
+    password: str = Field(..., description="User's password")
+
+
+class LoginVerifyRequest(BaseModel):
+    verify_login_token: str = Field(
+        ..., description="Login verification token, use for login verification"
+    )
+    otp: Optional[str] = Field(
+        None,
+        description="Verification code, if required",
     )
 
 
@@ -29,9 +37,7 @@ class SendForgotPasswordEmailRequest(BaseModel):
 
 class ForgotPasswordRequest(BaseModel):
     forgot_password_token: str = Field(..., description="Forgot password token")
-    new_password: str = Field(
-        ..., description="New password", min_length=8, max_length=128
-    )
+    new_password: str = Field(..., description="New password")
 
 
 class SendVerifyEmailRequest(BaseModel):
@@ -57,4 +63,11 @@ class TOTPLoginResponse(BaseModel):
     )
 
 
-type UserLoginResponse = AccessTokenRefreshTokenResponse | TOTPLoginResponse
+class LoginVerificationResponse(BaseModel):
+    verify_login_token: str = Field(
+        ...,
+        description="Login verification token, use for login verification",
+    )
+
+
+type UserLoginResponse = AccessTokenRefreshTokenResponse | TOTPLoginResponse | LoginVerificationResponse

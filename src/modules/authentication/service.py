@@ -1,4 +1,9 @@
-from .schemas import AccessTokenRefreshTokenResponse, TOTPLoginResponse
+from secrets import randbelow
+from .schemas import (
+    AccessTokenRefreshTokenResponse,
+    LoginVerificationResponse,
+    TOTPLoginResponse,
+)
 from src.celery.tasks.send_email import send_email_task
 from src.environment import environment
 from src.infrastructure.security import (
@@ -7,6 +12,7 @@ from src.infrastructure.security import (
     create_refresh_token,
     create_totp_login_token,
     create_verify_email_token,
+    create_verify_login_token,
 )
 from src.modules.user.models import User
 
@@ -22,7 +28,25 @@ def generate_access_token_refresh_token_response(
     )
 
 
-def generate_totp_login_response(user: User) -> TOTPLoginResponse:
+def generate_verify_login_token_response(
+    user: User,
+) -> LoginVerificationResponse:
+    length = environment.verify_login_token_number_of_digits
+    otp = str(randbelow(10**length)).zfill(length)
+    verify_login_token = create_verify_login_token(user, otp)
+    send_email_task.delay(
+        "verify_login",
+        {
+            "otp": otp,
+        },
+        user.email,
+    )
+    return LoginVerificationResponse(
+        verify_login_token=verify_login_token,
+    )
+
+
+def generate_totp_login_token_response(user: User) -> TOTPLoginResponse:
     totp_login_token = create_totp_login_token(user)
     return TOTPLoginResponse(
         totp_login_token=totp_login_token,

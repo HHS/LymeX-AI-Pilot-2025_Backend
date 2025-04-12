@@ -7,7 +7,9 @@ from src.environment import environment
 app = FastAPI()
 
 minio_client = Minio(
-    environment.minio_internal_endpoint.removeprefix("http://").removeprefix("https://"),
+    environment.minio_internal_endpoint.removeprefix("http://").removeprefix(
+        "https://"
+    ),
     access_key=environment.minio_root_user,
     secret_key=environment.minio_root_password,
     secure=environment.minio_internal_endpoint.startswith("https://"),

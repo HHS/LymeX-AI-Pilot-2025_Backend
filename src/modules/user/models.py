@@ -16,6 +16,7 @@ class User(Document):
     phone: Optional[str] = None
     title: Optional[str] = None
     secret_token: str
+    enable_verify_login: bool = True
     enable_totp: bool = False
     verified_at: Optional[datetime] = None
     policy_accepted_at: Optional[datetime] = None
@@ -45,7 +46,10 @@ class User(Document):
             avatar=avatar_url,
             phone=self.phone,
             title=self.title,
+            enable_verify_login=self.enable_verify_login,
+            enable_totp=self.enable_totp,
             verified_at=self.verified_at,
+            policy_accepted_at=self.policy_accepted_at,
             deleted_at=self.deleted_at,
             locked_until=self.locked_until,
             created_at=self.created_at,

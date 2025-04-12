@@ -25,8 +25,6 @@ class UserCreateRequest(BaseModel):
     )
     password: str = Field(
         ...,
-        min_length=8,
-        max_length=128,
         description="Password for the user account",
         examples=["very_secure_password"],
     )
@@ -53,13 +51,9 @@ class UserUpdateRequest(BaseModel):
 
 
 class UserUpdatePasswordRequest(BaseModel):
-    current_password: str = Field(
-        ..., min_length=8, max_length=128, description="Current password of the user"
-    )
+    current_password: str = Field(..., description="Current password of the user")
     new_password: str = Field(
         ...,
-        min_length=8,
-        max_length=128,
         description="New password for the user account",
     )
 
@@ -73,8 +67,17 @@ class UserResponse(BaseModel):
     avatar: str = Field(..., description="Avatar URL of the user")
     phone: Optional[str] = Field(None, description="Phone number of the user")
     title: Optional[str] = Field(None, description="Title of the user")
+    enable_verify_login: bool = Field(
+        True, description="Indicates if login verification is enabled"
+    )
+    enable_totp: bool = Field(
+        False, description="Indicates if TOTP is enabled for the user"
+    )
     verified_at: Optional[datetime] = Field(
         None, description="Indicates if the user's email is verified"
+    )
+    policy_accepted_at: Optional[datetime] = Field(
+        None, description="Indicates if the user has accepted the policy"
     )
     deleted_at: Optional[datetime] = None
     locked_until: Optional[datetime] = None

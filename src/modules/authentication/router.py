@@ -10,7 +10,8 @@ from .service import (
     create_and_send_forgot_password_email,
     create_and_send_verify_email,
     generate_access_token_refresh_token_response,
-    generate_totp_login_response,
+    generate_verify_login_token_response,
+    generate_totp_login_token_response,
 )
 from src.modules.user.schemas import UserCreateRequest, UserResponse
 from src.modules.user.service import (
@@ -23,6 +24,7 @@ from .schemas import (
     AccessTokenRefreshTokenResponse,
     ForgotPasswordRequest,
     LoginTOTPTokenRequest,
+    LoginVerifyRequest,
     SendForgotPasswordEmailRequest,
     LoginPasswordRequest,
     LoginRefreshTokenRequest,
@@ -35,6 +37,7 @@ from src.infrastructure.security import (
     decode_refresh_token,
     decode_totp_login_token,
     decode_verify_email_token,
+    decode_verify_login_token,
 )
 
 router = APIRouter()
@@ -75,17 +78,35 @@ async def verify_email(payload: VerifyEmailRequest) -> None:
 @router.post("/login/password")
 async def login_password(payload: LoginPasswordRequest) -> UserLoginResponse:
     user = await check_email_password(payload.email, payload.password)
+    if user.enable_verify_login:
+        return generate_verify_login_token_response(user)
     if user.enable_totp:
         existing_user_totp = await UserTotp.find_one(
             UserTotp.user_id == str(user.id),
             UserTotp.verified_at != None,
         )
         if existing_user_totp:
-            return generate_totp_login_response(user)
+            return generate_totp_login_token_response(user)
         else:
             user.enable_totp = False
             await user.save()
     return generate_access_token_refresh_token_response(user)
+
+
+@router.post("/login/verify-login")
+async def login_verify_login(
+    payload: LoginVerifyRequest,
+) -> AccessTokenRefreshTokenResponse:
+    user = await decode_verify_login_token(
+        payload.verify_login_token,
+        payload.otp,
+    )
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
+        )
+    response = generate_access_token_refresh_token_response(user)
+    return response
 
 
 @router.post("/login/totp")
