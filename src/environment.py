@@ -25,6 +25,10 @@ class Environment(BaseSettings):
     totp_login_token_secret: str
     totp_login_token_expiration_seconds: int
 
+    verify_login_token_secret: str
+    verify_login_token_expiration_seconds: int
+    verify_login_token_number_of_digits: int
+
     refresh_token_secret: str
     refresh_token_expiration_seconds: int
 

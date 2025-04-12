@@ -37,6 +37,23 @@ async def decode_refresh_token(token: str) -> User:
     return user
 
 
+def create_verify_login_token(user: User, otp: str) -> str:
+    verify_login_token = encode_jwt(
+        user=user,
+        secret=environment.verify_login_token_secret + otp,
+        expiration_seconds=environment.verify_login_token_expiration_seconds,
+    )
+    return verify_login_token
+
+
+async def decode_verify_login_token(token: str, otp: str) -> User:
+    user = await decode_jwt(
+        token=token,
+        secret=environment.verify_login_token_secret + otp,
+    )
+    return user
+
+
 def create_totp_login_token(user: User) -> str:
     totp_login_token = encode_jwt(
         user=user,
