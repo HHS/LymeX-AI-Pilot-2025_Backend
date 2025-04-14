@@ -86,7 +86,7 @@ async def update_company_handler(
 async def delete_company_handler(
     current_company: Annotated[Company, Depends(get_current_company)],
     _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.ADMINISTRATOR))],
-    __: Annotated[bool, Depends(require_totp)],
+    # __: Annotated[bool, Depends(require_totp)],
 ) -> None:
     current_company.deleted_at = datetime.now(timezone.utc)
     await current_company.save()
@@ -97,7 +97,7 @@ async def delete_company_handler(
 async def recover_company_handler(
     current_company: Annotated[Company, Depends(get_current_company)],
     _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.ADMINISTRATOR))],
-    __: Annotated[bool, Depends(require_totp)],
+    # __: Annotated[bool, Depends(require_totp)],
 ) -> None:
     current_company.deleted_at = None
     await current_company.save()

@@ -2,7 +2,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 
 from src.modules.authorization.roles import CompanyRoles
-from src.modules.authentication.dependencies import get_current_user, require_totp
+from src.modules.authentication.dependencies import get_current_user
 from src.modules.authorization.dependencies import (
     RequireCompanyRole,
     get_current_company,
@@ -44,7 +44,7 @@ async def create_invitation_handler(
     payload: CreateInvitationRequest,
     current_company: Annotated[Company, Depends(get_current_company)],
     _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.ADMINISTRATOR))],
-    __: Annotated[bool, Depends(require_totp)],
+    # __: Annotated[bool, Depends(require_totp)],
 ) -> None:
     invited_user = await get_user_by_email(payload.email)
     if not invited_user:
@@ -72,7 +72,7 @@ async def deactivate_member_handler(
     current_user: Annotated[User, Depends(get_current_user)],
     current_company: Annotated[Company, Depends(get_current_company)],
     _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.ADMINISTRATOR))],
-    __: Annotated[bool, Depends(require_totp)],
+    # __: Annotated[bool, Depends(require_totp)],
 ) -> None:
     if payload.user_id == str(current_user.id):
         raise HTTPException(
@@ -94,7 +94,7 @@ async def recover_member_handler(
     payload: DeactivateMemberRequest,
     current_company: Annotated[Company, Depends(get_current_company)],
     _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.ADMINISTRATOR))],
-    __: Annotated[bool, Depends(require_totp)],
+    # __: Annotated[bool, Depends(require_totp)],
 ) -> None:
     user_to_recover = await get_user_by_id(payload.user_id)
     if not user_to_recover:
@@ -111,7 +111,7 @@ async def update_company_member_role_handler(
     payload: UpdateMemberRoleRequest,
     current_company: Annotated[Company, Depends(get_current_company)],
     _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.ADMINISTRATOR))],
-    __: Annotated[bool, Depends(require_totp)],
+    # __: Annotated[bool, Depends(require_totp)],
 ) -> None:
     user_to_update = await get_user_by_id(payload.user_id)
     if not user_to_update:

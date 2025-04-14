@@ -1,6 +1,6 @@
 import json
 from typing import Callable
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -68,7 +68,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
                 "success": False,
                 "data": None,
                 "error": {
-                    "code": "VALIDATION_ERROR",
+                    "code": status.HTTP_422_UNPROCESSABLE_ENTITY,
                     "message": "One or more fields are invalid.",
                     "details": details,
                 },
@@ -78,15 +78,30 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     )
 
 
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content=jsonable_encoder(
+            {
+                "success": False,
+                "data": None,
+                "error": {
+                    "code": exc.status_code,
+                    "message": "One or more fields are invalid.",
+                    "details": exc.detail,
+                },
+                "message": exc.detail,
+            }
+        ),
+    )
+
+
 class SuccessResponseWrapper(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next: Callable):
         response = await call_next(request)
         # Only wrap JSON responses (status code 200–299)
-        if (
-            200 <= response.status_code < 300
-            and response.headers.get("content-type") == "application/json"
-            and request.url.path != "/openapi.json"
-        ):
+        if 200 <= response.status_code < 300 and response.media_type == "application/json":
             body = [section async for section in response.body_iterator]
             original_data = json.loads(b"".join(body).decode("utf-8"))
             new_body = {
@@ -100,13 +115,6 @@ class SuccessResponseWrapper(BaseHTTPMiddleware):
 
 
 app.add_middleware(SuccessResponseWrapper)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 
 @app.get("/", tags=["Application"])

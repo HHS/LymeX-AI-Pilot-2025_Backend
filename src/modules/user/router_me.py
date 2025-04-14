@@ -70,7 +70,7 @@ async def change_password(
 
 @router.post("/enable-login-totp")
 async def enable_login_totp(
-    _: Annotated[bool, Depends(require_totp)],
+    # _: Annotated[bool, Depends(require_totp)],
     current_user: Annotated[User, Depends(get_current_user)],
 ) -> None:
     current_user.enable_totp = True
@@ -79,7 +79,7 @@ async def enable_login_totp(
 
 @router.post("/disable-login-totp")
 async def disable_login_totp(
-    _: Annotated[bool, Depends(require_totp)],
+    # _: Annotated[bool, Depends(require_totp)],
     current_user: Annotated[User, Depends(get_current_user)],
 ) -> None:
     current_user.enable_totp = False
