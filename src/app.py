@@ -115,6 +115,13 @@ class SuccessResponseWrapper(BaseHTTPMiddleware):
 
 
 app.add_middleware(SuccessResponseWrapper)
+app.add_middleware(
+     CORSMiddleware,
+     allow_origins=["*"],
+     allow_credentials=True,
+     allow_methods=["*"],
+     allow_headers=["*"],
+ )
 
 
 @app.get("/", tags=["Application"])
