@@ -1,5 +1,6 @@
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from loguru import logger
 
 
 class Environment(BaseSettings):
@@ -77,3 +78,6 @@ class Environment(BaseSettings):
 
 
 environment = Environment()
+
+logger.info("Environment variables loaded successfully.")
+logger.debug(environment.model_dump_json(indent=4))

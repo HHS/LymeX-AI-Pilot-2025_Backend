@@ -43,7 +43,8 @@ async def get_user_by_email(email: str) -> Optional[User]:
 
 # Frequently used, need to be cached. But just querying for now.
 async def get_user_by_id(user_id: str) -> Optional[User]:
-    return await User.get(user_id)
+    user = await User.get(user_id)
+    return user
 
 
 async def check_email_password(email: str, password: str) -> User:

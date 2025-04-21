@@ -2,6 +2,7 @@ import asyncio
 from datetime import timedelta
 from fastapi import FastAPI
 from minio import Minio
+from minio.datatypes import Object
 from src.environment import environment
 
 app = FastAPI()
@@ -37,4 +38,21 @@ async def generate_get_object_presigned_url(
         bucket_name=environment.minio_bucket,
         object_name=object_name,
         expires=timedelta(seconds=expiration_seconds),
+    )
+
+
+async def list_objects(prefix: str) -> list[Object]:
+    objects = await asyncio.to_thread(
+        minio_client.list_objects,
+        bucket_name=environment.minio_bucket,
+        prefix=prefix,
+    )
+    return list(objects)
+
+
+async def remove_object(object_name: str) -> None:
+    await asyncio.to_thread(
+        minio_client.remove_object,
+        bucket_name=environment.minio_bucket,
+        object_name=object_name,
     )
