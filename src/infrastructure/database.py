@@ -1,5 +1,6 @@
 from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
+from src.modules.product.models import Product
 from src.modules.company.models import Company, CompanyMember
 from src.modules.totp.models import UserTotp
 from src.modules.user.models import User
@@ -19,5 +20,6 @@ async def init_db() -> None:
             UserTotp,
             Company,
             CompanyMember,
+            Product,
         ],
     )
