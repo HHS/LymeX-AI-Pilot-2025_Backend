@@ -3,6 +3,7 @@ import os
 
 number_of_workers = os.getenv("CELERY_WORKERS", 2)
 
+
 def start_celery_worker() -> None:
     # Start the Celery worker
     celery.worker_main(
