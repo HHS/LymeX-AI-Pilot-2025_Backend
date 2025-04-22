@@ -11,12 +11,18 @@ class CreateCompanyRequest(BaseModel):
     name: str = Field(..., description="Company name")
     description: str = Field(..., description="Company description")
     industry: str = Field(..., description="Industry Name")
+    street_address: Optional[str] = Field(None, description="Street address")
+    city: Optional[str] = Field(None, description="City")
+    state: Optional[str] = Field(None, description="State")
 
 
 class UpdateCompanyRequest(BaseModel):
     name: Optional[str] = Field(None, description="Company name")
     description: Optional[str] = Field(None, description="Company description")
     industry: Optional[str] = Field(None, description="Industry Name")
+    street_address: Optional[str] = Field(None, description="Street address")
+    city: Optional[str] = Field(None, description="City")
+    state: Optional[str] = Field(None, description="State")
 
 
 class CreateInvitationRequest(BaseModel):
@@ -49,6 +55,9 @@ class CompanyResponse(BaseModel):
     name: str = Field(..., description="Company name")
     description: str = Field(..., description="Company description")
     industry: str = Field(..., description="Industry Name")
+    street_address: Optional[str] = Field(None, description="Street address")
+    city: Optional[str] = Field(None, description="City")
+    state: Optional[str] = Field(None, description="State")
     logo: str = Field(..., description="Company logo URL")
     created_at: datetime = Field(..., description="Created at timestamp")
     updated_at: datetime = Field(..., description="Updated at timestamp")
