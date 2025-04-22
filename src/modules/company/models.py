@@ -12,6 +12,9 @@ class Company(Document):
     name: Annotated[str, Indexed(unique=True)]
     description: str
     industry: str
+    street_address: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
     created_at: datetime
     updated_at: datetime
     deleted_at: Optional[datetime] = None
@@ -34,6 +37,9 @@ class Company(Document):
             name=self.name,
             description=self.description,
             industry=self.industry,
+            street_address=self.street_address,
+            city=self.city,
+            state=self.state,
             logo=logo_url,
             created_at=self.created_at,
             updated_at=self.updated_at,
