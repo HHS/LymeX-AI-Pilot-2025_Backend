@@ -1,9 +1,7 @@
 from datetime import datetime
 from typing import Annotated, Optional
 from beanie import Document, Indexed, PydanticObjectId
-from src.infrastructure.minio import generate_get_object_presigned_url
-from src.environment import environment
-from src.modules.company.constants import COMPANY_LOGO_OBJECT_PREFIX
+from src.modules.company.storage import get_company_logo_url
 from src.modules.company.schema import CompanyResponse, CompanyRoleResponse
 from src.modules.authorization.roles import CompanyMemberStatus, CompanyRoles
 
@@ -28,10 +26,7 @@ class Company(Document):
         }
 
     async def to_company_response(self) -> CompanyResponse:
-        logo_url = await generate_get_object_presigned_url(
-            object_name=f"{COMPANY_LOGO_OBJECT_PREFIX}/{self.id}",
-            expiration_seconds=300,
-        )
+        logo_url = await get_company_logo_url(self)
         return CompanyResponse(
             id=str(self.id),
             name=self.name,

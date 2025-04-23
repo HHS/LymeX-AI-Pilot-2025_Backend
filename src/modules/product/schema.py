@@ -5,6 +5,11 @@ from src.modules.product.constants import ProductStatus
 from src.modules.user.schemas import UserResponse
 
 
+# ============================
+# Product Request
+# ============================
+
+
 class CreateProductRequest(BaseModel):
     code: str = Field(..., description="Product code")
     name: str = Field(..., description="Product name")
@@ -45,6 +50,11 @@ class UpdateProductRequest(BaseModel):
     status: ProductStatus | None = Field(None, description="Product status")
 
 
+# ============================
+# Product Response
+# ============================
+
+
 class ProductResponse(BaseModel):
     id: str = Field(..., description="Product ID")
     code: str = Field(..., description="Product code")
@@ -52,6 +62,7 @@ class ProductResponse(BaseModel):
     model: str = Field(..., description="Product model")
     revision: str = Field(..., description="Product revision")
     description: str = Field(..., description="Product description")
+    avatar_url: str = Field(..., description="URL of the product avatar")
     intend_use: str = Field(..., description="Intended use of the product")
     patient_contact: bool = Field(
         ..., description="Indicates if the product has patient contact"
@@ -66,6 +77,10 @@ class ProductResponse(BaseModel):
     created_at: datetime = Field(
         ..., description="Timestamp when the product was created"
     )
+    updated_by: UserResponse = Field(..., description="User who updated the product")
+    updated_at: datetime = Field(
+        ..., description="Timestamp when the product was updated"
+    )
 
 
 class UploadDocumentUrlResponse(BaseModel):
@@ -75,3 +90,10 @@ class UploadDocumentUrlResponse(BaseModel):
 class GetDocumentResponse(BaseModel):
     name: str = Field(..., description="Name of the document")
     url: str = Field(..., description="Presigned URL for downloading the document")
+
+
+class UpdateAvatarUrlResponse(BaseModel):
+    url: str = Field(
+        ...,
+        description="URL to upload the avatar, using put method. Expires in 5 minutes",
+    )

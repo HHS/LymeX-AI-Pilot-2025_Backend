@@ -30,6 +30,7 @@ async def create_product(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Product code already exists for this company.",
         )
+    now = datetime.now(timezone.utc)
     product = Product(
         code=payload.code,
         name=payload.name,
@@ -46,7 +47,9 @@ async def create_product(
         status=ProductStatus.DRAFT,
         company_id=str(current_company.id),
         created_by=str(current_user.id),
-        created_at=datetime.now(timezone.utc),
+        created_at=now,
+        updated_by=str(current_user.id),
+        updated_at=now,
     )
     await product.insert()
     return product
@@ -88,8 +91,8 @@ async def update_product(
     product.is_latest = True
     product.status = ProductStatus.DRAFT
     product.company_id = str(current_company.id)
-    product.created_by = str(current_user.id)
-    product.created_at = datetime.now(timezone.utc)
+    product.updated_by = str(current_user.id)
+    product.updated_at = datetime.now(timezone.utc)
     await product.save()
     return product
 
