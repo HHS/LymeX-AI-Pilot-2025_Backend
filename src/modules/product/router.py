@@ -1,6 +1,10 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 
+from src.modules.product.storage import (
+    get_documents_folder,
+    get_update_product_avatar_url,
+)
 from src.modules.product.models import Product
 from src.infrastructure.minio import (
     generate_put_object_presigned_url,
@@ -18,6 +22,7 @@ from src.modules.product.schema import (
     CreateProductRequest,
     GetDocumentResponse,
     ProductResponse,
+    UpdateAvatarUrlResponse,
     UploadDocumentUrlResponse,
 )
 from src.modules.authentication.dependencies import get_current_user
@@ -39,7 +44,7 @@ async def get_products_handler(
     _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.VIEWER))],
 ) -> list[ProductResponse]:
     products = await get_products(current_company)
-    return [await product.to_product_response() for product in products]
+    return [await product.to_product_response(current_company) for product in products]
 
 
 @router.post("/")
@@ -50,7 +55,7 @@ async def create_product_handler(
     _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.CONTRIBUTOR))],
 ) -> ProductResponse:
     created_product = await create_product(payload, current_user, current_company)
-    return await created_product.to_product_response()
+    return await created_product.to_product_response(current_company)
 
 
 @router.get("/{product_id}")
@@ -60,7 +65,7 @@ async def get_product_handler(
     _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.VIEWER))],
 ) -> ProductResponse:
     product = await get_product_by_id(product_id, current_company)
-    return await product.to_product_response()
+    return await product.to_product_response(current_company)
 
 
 @router.put("/{product_id}")
@@ -74,7 +79,28 @@ async def update_product_handler(
     created_product = await update_product(
         product_id, payload, current_user, current_company
     )
-    return await created_product.to_product_response()
+    return await created_product.to_product_response(current_company)
+
+
+@router.get("/{product_id}/update-avatar-url")
+async def get_update_avatar_url_handler(
+    product_id: str,
+    current_company: Annotated[Company, Depends(get_current_company)],
+    _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.CONTRIBUTOR))],
+) -> UpdateAvatarUrlResponse:
+    product = await get_product_by_id(product_id, current_company)
+    if product.edit_locked:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Product is locked for editing.",
+        )
+    avatar_url = await get_update_product_avatar_url(
+        company=current_company,
+        product=product,
+    )
+    return {
+        "url": avatar_url,
+    }
 
 
 @router.delete("/{product_id}")
@@ -179,7 +205,3 @@ async def delete_file_handler(
     documents_folder = get_documents_folder(current_company, product)
     object_name = f"{documents_folder}/{file_name}"
     await remove_object(object_name=object_name)
-
-
-def get_documents_folder(company: Company, product: Product) -> str:
-    return f"companies/{company.id}/product/{product.id}/documents"

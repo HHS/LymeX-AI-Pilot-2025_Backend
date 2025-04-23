@@ -1,10 +1,9 @@
 from datetime import datetime, timezone
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from beanie.operators import Set
 
-from src.infrastructure.minio import generate_put_object_presigned_url
-from src.modules.company.constants import COMPANY_LOGO_OBJECT_PREFIX
+from src.modules.company.storage import get_update_company_logo_url
 
 from .router_member import router as member_router
 
@@ -109,11 +108,7 @@ async def get_update_logo_url_handler(
     current_company: Annotated[Company, Depends(get_current_company)],
     _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.CONTRIBUTOR))],
 ) -> UpdateCompanyLogoResponse:
-    object_name = f"{COMPANY_LOGO_OBJECT_PREFIX}/{current_company.id}"
-    update_avatar_url = await generate_put_object_presigned_url(
-        object_name=object_name,
-        expiration_seconds=300,
-    )
+    update_avatar_url = await get_update_company_logo_url(current_company)
     return {
         "url": update_avatar_url,
     }

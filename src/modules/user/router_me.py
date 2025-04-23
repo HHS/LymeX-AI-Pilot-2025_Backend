@@ -1,10 +1,7 @@
 from datetime import datetime, timezone
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
-from src.modules.user.constants import USER_AVATAR_OBJECT_PREFIX
-from src.environment import environment
-
-from src.infrastructure.minio import generate_put_object_presigned_url
+from src.modules.user.storage import get_update_user_avatar_url
 from .service import hash_password, verify_password
 from src.modules.authentication.dependencies import get_current_user, require_totp
 
@@ -90,11 +87,9 @@ async def disable_login_totp(
 async def get_update_avatar_url(
     current_user: Annotated[User, Depends(get_current_user)],
 ) -> UpdateAvatarUrlResponse:
-    object_name = f"{USER_AVATAR_OBJECT_PREFIX}/{current_user.id}"
-    update_avatar_url = await generate_put_object_presigned_url(
-        object_name=object_name,
-        expiration_seconds=300,
-    )
+    update_avatar_url = await get_update_user_avatar_url(current_user)
+    print("=" * 20)
+    print(update_avatar_url)
     return {
         "url": update_avatar_url,
     }
