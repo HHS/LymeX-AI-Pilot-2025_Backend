@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from src.modules.user.service import create_user
 from src.modules.user.schemas import AddSystemAdminRequest, UserCreateRequest
@@ -11,7 +11,7 @@ router = APIRouter()
 
 @router.get("/")
 async def get_system_admin_handler(
-    _: Annotated[bool, require_system_admin],
+    _: Annotated[bool, Depends(require_system_admin)],
 ) -> None:
     system_admins = await User.find(
         User.is_system_admin == True,
@@ -24,7 +24,7 @@ async def get_system_admin_handler(
 @router.post("/add")
 async def add_system_admin_handler(
     payload: AddSystemAdminRequest,
-    _: Annotated[bool, require_system_admin],
+    _: Annotated[bool, Depends(require_system_admin)],
 ) -> None:
     if payload.user_id:
         user = await User.get(payload.user_id)
@@ -43,7 +43,7 @@ async def add_system_admin_handler(
 @router.delete("/remove")
 async def remove_system_admin_handler(
     payload: AddSystemAdminRequest,
-    _: Annotated[bool, require_system_admin],
+    _: Annotated[bool, Depends(require_system_admin)],
 ) -> None:
     if payload.user_id:
         user = await User.get(payload.user_id)
@@ -62,9 +62,9 @@ async def remove_system_admin_handler(
 @router.post("/user")
 async def create_user_handler(
     payload: UserCreateRequest,
-    _: Annotated[bool, require_system_admin],
+    _: Annotated[bool, Depends(require_system_admin)],
 ) -> None:
-    email_exist = User.find(
+    email_exist = await User.find_one(
         User.email == payload.email,
     )
     if email_exist:
@@ -72,4 +72,7 @@ async def create_user_handler(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email already exists",
         )
-    await create_user(payload, True)
+    created_user = await create_user(payload, True)
+    return created_user.to_user_response(
+        populate_companies=False,
+    )
