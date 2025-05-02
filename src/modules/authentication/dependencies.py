@@ -1,6 +1,6 @@
 from typing import Annotated
 from fastapi import Depends, HTTPException, Header, status
-
+from loguru import logger
 from src.modules.totp.service import check_user_totp
 from src.modules.totp.constants import TOTP_CODE_HEADER
 from src.modules.user.models import User
@@ -10,7 +10,9 @@ from src.infrastructure.security import decode_access_token
 # 🔐 Dependency to get current user
 async def get_current_user(authorization: Annotated[str, Header()]) -> User:
     access_token = authorization.removeprefix("Bearer ")
+    logger.debug(f"Access token: {access_token}")
     user = await decode_access_token(access_token)
+    logger.debug(f"Decoded user: {user.id}")
     return user
 
 

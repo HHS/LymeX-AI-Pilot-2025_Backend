@@ -26,7 +26,7 @@ class Company(Document):
         }
 
     async def to_company_response(self) -> CompanyResponse:
-        logo_url = await get_company_logo_url(self)
+        logo_url = await get_company_logo_url(self.id)
         return CompanyResponse(
             id=str(self.id),
             name=self.name,

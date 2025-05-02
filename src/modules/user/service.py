@@ -1,8 +1,9 @@
+from datetime import datetime, timezone
 from typing import Optional
 from uuid import uuid4
 from fastapi import HTTPException, status
 from passlib.context import CryptContext
-from .schemas import UserCreateRequest, UserUpdatePasswordRequest, UserUpdateRequest
+from .schemas import UserCreateRequest
 from .models import User
 import bcrypt
 
@@ -21,7 +22,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return password_matched
 
 
-async def create_user(data: UserCreateRequest) -> User:
+async def create_user(data: UserCreateRequest, verified=False) -> User:
     existing = await User.find_one(User.email == data.email)
     if existing:
         raise ValueError("Email already registered")
@@ -34,6 +35,8 @@ async def create_user(data: UserCreateRequest) -> User:
         phone=data.phone,
         secret_token=uuid4().hex,
     )
+    if verified:
+        user.verified_at = datetime.now(timezone.utc)
     return await user.insert()
 
 

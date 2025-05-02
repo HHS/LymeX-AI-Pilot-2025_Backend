@@ -3,6 +3,8 @@ from bson import ObjectId
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
 
+from src.modules.authorization.roles import CompanyMemberStatus, CompanyRoles
+
 
 # -------- Request DTOs --------
 class UserCreateRequest(BaseModel):
@@ -59,6 +61,31 @@ class UserUpdatePasswordRequest(BaseModel):
 
 
 # -------- Response DTO --------
+
+
+class UserCompany(BaseModel):
+    id: str = Field(..., description="Company ID")
+    name: str = Field(..., description="Company name")
+    description: str = Field(..., description="Company description")
+    industry: str = Field(..., description="Industry Name")
+    street_address: Optional[str] = Field(None, description="Street address")
+    city: Optional[str] = Field(None, description="City")
+    state: Optional[str] = Field(None, description="State")
+    logo: str = Field(..., description="Company logo URL")
+    created_at: datetime = Field(..., description="Created at timestamp")
+    updated_at: datetime = Field(..., description="Updated at timestamp")
+    role: CompanyRoles = Field(
+        ...,
+        description="Role of the user in the company",
+        examples=[role.value for role in CompanyRoles],
+    )
+    status: CompanyMemberStatus = Field(
+        ...,
+        description="Status of the user in the company",
+        examples=[status.value for status in CompanyMemberStatus],
+    )
+
+
 class UserResponse(BaseModel):
     id: str = Field(..., description="Unique identifier of the user")
     email: EmailStr = Field(..., description="Email address of the user")
@@ -83,10 +110,41 @@ class UserResponse(BaseModel):
     locked_until: Optional[datetime] = None
     created_at: datetime = datetime.now(timezone.utc)
     updated_at: datetime = datetime.now(timezone.utc)
+    companies: Optional[list[UserCompany]] = Field(
+        None, description="List of companies the user is associated with"
+    )
 
 
 class UpdateAvatarUrlResponse(BaseModel):
     url: str = Field(
         ...,
         description="URL to upload the avatar, using put method. Expires in 5 minutes",
+    )
+
+
+class CompanyAdminUpdateUserRequest(BaseModel):
+    first_name: Optional[str] = Field(
+        None, min_length=1, max_length=50, description="Updated first name of the user"
+    )
+    last_name: Optional[str] = Field(
+        None, min_length=1, max_length=50, description="Updated last name of the user"
+    )
+    email: Optional[EmailStr] = Field(
+        None,
+        description="Email address of the user",
+    )
+    role: Optional[CompanyRoles] = Field(
+        None,
+        description="Role of the user in the company",
+        examples=[role.value for role in CompanyRoles],
+    )
+    status: CompanyMemberStatus = Field(None, description="Company member status")
+
+
+class AddSystemAdminRequest(BaseModel):
+    user_id: Optional[str] = Field(
+        None,
+    )
+    user_ids: Optional[list[str]] = Field(
+        None,
     )

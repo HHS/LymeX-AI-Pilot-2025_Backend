@@ -72,3 +72,14 @@ class RequireCompanyRole:
                 detail=f"Only {self.role} can perform this action",
             )
         return True
+
+
+async def require_system_admin(
+    current_user: Annotated[User, Depends(get_current_user)],
+) -> bool:
+    if not current_user.is_system_admin:
+        raise HTTPException(
+            status_code=403,
+            detail="Only system admin can perform this action",
+        )
+    return True
