@@ -20,6 +20,7 @@ from src.modules.product.service import (
 )
 from src.modules.product.schema import (
     CreateProductRequest,
+    DocumentType,
     GetDocumentResponse,
     ProductResponse,
     UpdateAvatarUrlResponse,
@@ -95,8 +96,8 @@ async def get_update_avatar_url_handler(
             detail="Product is locked for editing.",
         )
     avatar_url = await get_update_product_avatar_url(
-        company=current_company,
-        product=product,
+        current_company.id,
+        product.id,
     )
     return {
         "url": avatar_url,
@@ -141,11 +142,14 @@ async def unlock_product_handler(
 @router.get("/{product_id}/document")
 async def get_documents_handler(
     product_id: str,
+    document_type: DocumentType,
     current_company: Annotated[Company, Depends(get_current_company)],
     _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.VIEWER))],
 ) -> list[GetDocumentResponse]:
     product = await get_product_by_id(product_id, current_company)
-    documents_folder = get_documents_folder(current_company, product)
+    documents_folder = get_documents_folder(
+        current_company.id, product.id, document_type
+    )
     documents = await list_objects(prefix=f"{documents_folder}/")
     documents = [document for document in documents if not document.is_dir]
     file_names = [document.object_name.split("/")[-1] for document in documents]
@@ -169,6 +173,7 @@ async def get_documents_handler(
 async def get_upload_document_url_handler(
     product_id: str,
     file_name: str,
+    document_type: DocumentType,
     current_company: Annotated[Company, Depends(get_current_company)],
     _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.CONTRIBUTOR))],
 ) -> UploadDocumentUrlResponse:
@@ -178,7 +183,9 @@ async def get_upload_document_url_handler(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Product is locked for editing.",
         )
-    documents_folder = get_documents_folder(current_company, product)
+    documents_folder = get_documents_folder(
+        current_company.id, product.id, document_type
+    )
     object_name = f"{documents_folder}/{file_name}"
     upload_document_url = await generate_put_object_presigned_url(
         object_name=object_name,
@@ -194,6 +201,7 @@ async def delete_file_handler(
     product_id: str,
     current_company: Annotated[Company, Depends(get_current_company)],
     file_name: str,
+    document_type: DocumentType,
     _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.CONTRIBUTOR))],
 ) -> None:
     product = await get_product_by_id(product_id, current_company)
@@ -202,6 +210,11 @@ async def delete_file_handler(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Product is locked for editing.",
         )
-    documents_folder = get_documents_folder(current_company, product)
+    documents_folder = get_documents_folder(
+        current_company.id, product.id, document_type
+    )
     object_name = f"{documents_folder}/{file_name}"
     await remove_object(object_name=object_name)
+
+
+# @router.get("/{product_id}/audit")

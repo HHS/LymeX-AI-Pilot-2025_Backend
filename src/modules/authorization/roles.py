@@ -6,11 +6,9 @@ class CompanyRoles(str, Enum):
     CONTRIBUTOR = "Contributor"
     VIEWER = "Viewer"
     GUEST = "Guest"
-    SUPERUSER = "SuperUser"
 
 
 COMPANY_ROLES_ORDER = {
-    CompanyRoles.SUPERUSER: 0,
     CompanyRoles.ADMINISTRATOR: 1,
     CompanyRoles.CONTRIBUTOR: 2,
     CompanyRoles.VIEWER: 3,

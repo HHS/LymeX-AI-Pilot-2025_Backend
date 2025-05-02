@@ -1,5 +1,5 @@
 from datetime import datetime
-from beanie import Document, Indexed, PydanticObjectId
+from beanie import Document, PydanticObjectId
 
 from src.modules.company.models import Company
 from src.modules.product.storage import get_product_avatar_url
@@ -57,8 +57,12 @@ class Product(Document):
             version=self.version,
             is_latest=self.is_latest,
             status=self.status,
-            created_by=await created_by.to_user_response(),
+            created_by=await created_by.to_user_response(populate_companies=False),
             created_at=self.created_at,
-            updated_by=await updated_by.to_user_response(),
+            updated_by=await updated_by.to_user_response(populate_companies=False),
             updated_at=self.updated_at,
+            edit_locked=self.edit_locked,
         )
+
+
+# class ProductAudit

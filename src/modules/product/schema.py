@@ -1,8 +1,14 @@
 from datetime import datetime
+from enum import Enum
 from pydantic import BaseModel, Field
 
 from src.modules.product.constants import ProductStatus
 from src.modules.user.schemas import UserResponse
+
+
+class DocumentType(str, Enum):
+    DESCRIPTION = "Description"
+    MANUAL = "Manual"
 
 
 # ============================
@@ -80,6 +86,9 @@ class ProductResponse(BaseModel):
     updated_by: UserResponse = Field(..., description="User who updated the product")
     updated_at: datetime = Field(
         ..., description="Timestamp when the product was updated"
+    )
+    edit_locked: bool = Field(
+        ..., description="Indicates if the product is locked for editing"
     )
 
 

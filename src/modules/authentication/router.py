@@ -44,14 +44,14 @@ router = APIRouter()
 
 
 # 📥 Register
-@router.post("/register/password")
-async def register_user_using_password(payload: UserCreateRequest) -> UserResponse:
-    try:
-        user = await create_user(payload)
-        create_and_send_verify_email(user)
-        return await user.to_user_response()
-    except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+# @router.post("/register/password")
+# async def register_user_using_password(payload: UserCreateRequest) -> UserResponse:
+#     try:
+#         user = await create_user(payload)
+#         create_and_send_verify_email(user)
+#         return await user.to_user_response(populate_companies=False)
+#     except ValueError as e:
+#         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.post("/register/verify-email/send-email")

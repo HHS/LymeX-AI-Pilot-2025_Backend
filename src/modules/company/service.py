@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from typing import Optional
 from beanie.operators import In
 from bson import ObjectId
 from fastapi import HTTPException
@@ -73,7 +74,7 @@ async def accept_invitation(
     await company_member.save()
 
 
-async def create_company(payload: CreateCompanyRequest, user: User) -> Company:
+async def create_company(payload: CreateCompanyRequest) -> Company:
     created_company = Company(
         name=payload.name,
         description=payload.description,
@@ -82,14 +83,17 @@ async def create_company(payload: CreateCompanyRequest, user: User) -> Company:
         updated_at=datetime.now(timezone.utc),
     )
     await created_company.insert()
-    company_member = CompanyMember(
-        status=CompanyMemberStatus.ACTIVE,
-        role=CompanyRoles.ADMINISTRATOR,
-        company_id=str(created_company.id),
-        user_id=str(user.id),
-        created_at=datetime.now(timezone.utc),
-    )
-    await company_member.insert()
+    if payload.admin_user_id:
+        admin_user = await User.get(payload.admin_user_id)
+    if admin_user:
+        company_member = CompanyMember(
+            status=CompanyMemberStatus.ACTIVE,
+            role=CompanyRoles.ADMINISTRATOR,
+            company_id=str(created_company.id),
+            user_id=str(admin_user.id),
+            created_at=datetime.now(timezone.utc),
+        )
+        await company_member.insert()
     return created_company
 
 

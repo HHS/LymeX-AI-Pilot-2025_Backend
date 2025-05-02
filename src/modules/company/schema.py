@@ -8,6 +8,7 @@ from src.modules.authorization.roles import CompanyMemberStatus, CompanyRoles
 
 
 class CreateCompanyRequest(BaseModel):
+    admin_user_id: str = Field(..., description="Admin user ID")
     name: str = Field(..., description="Company name")
     description: str = Field(..., description="Company description")
     industry: str = Field(..., description="Industry Name")
@@ -45,6 +46,11 @@ class RecoverMemberRequest(BaseModel):
 class UpdateMemberRoleRequest(BaseModel):
     user_id: str = Field(..., description="User ID")
     role: CompanyRoles = Field(..., description="User role")
+
+
+class AddCompanyAdminRequest(BaseModel):
+    user_id: str = Field(..., description="User ID")
+    company_id: str = Field(..., description="Company ID")
 
 
 # -------- Response DTOs --------
