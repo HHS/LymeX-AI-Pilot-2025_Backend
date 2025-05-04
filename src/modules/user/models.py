@@ -3,8 +3,7 @@ from typing import Annotated, Optional
 from datetime import datetime, timezone
 from src.modules.company.storage import get_company_logo_url
 from src.modules.company.models import CompanyMember
-from src.modules.user.storage import get_user_avatar_url, get_user_folder
-from src.infrastructure.minio import generate_get_object_presigned_url
+from src.modules.user.storage import get_user_avatar_url
 from src.modules.user.schemas import UserCompany, UserResponse
 
 
@@ -72,7 +71,7 @@ class User(Document):
         }
 
     async def to_user_response(self, populate_companies=True) -> UserResponse:
-        avatar_url = await get_user_avatar_url(self)
+        avatar_url = await get_user_avatar_url(str(self.id))
         user_companies = None
         if populate_companies:
             user_companies = await get_user_companies(str(self.id))
@@ -93,4 +92,5 @@ class User(Document):
             created_at=self.created_at,
             updated_at=self.updated_at,
             companies=user_companies,
+            is_system_admin=bool(self.is_system_admin),
         )

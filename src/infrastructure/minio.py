@@ -56,3 +56,12 @@ async def remove_object(object_name: str) -> None:
         bucket_name=environment.minio_bucket,
         object_name=object_name,
     )
+
+
+async def get_object(object_name: str) -> bytes:
+    data = await asyncio.to_thread(
+        minio_client.get_object,
+        bucket_name=environment.minio_bucket,
+        object_name=object_name,
+    )
+    return data.read()
