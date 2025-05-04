@@ -198,7 +198,7 @@ async def get_update_logo_url_handler(
     current_company: Annotated[Company, Depends(get_current_company)],
     _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.CONTRIBUTOR))],
 ) -> UpdateCompanyLogoResponse:
-    update_avatar_url = await get_update_company_logo_url(current_company.id)
+    update_avatar_url = await get_update_company_logo_url(str(current_company.id))
     return {
         "url": update_avatar_url,
     }

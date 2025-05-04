@@ -118,6 +118,7 @@ async def get_company_members(company: Company) -> list[CompanyMemberResponse]:
         # Project only the necessary fields
         {
             "$project": {
+                "user_data._id": 1,
                 "status": 1,
                 "role": 1,
                 "created_at": 1,
@@ -137,6 +138,7 @@ async def get_company_members(company: Company) -> list[CompanyMemberResponse]:
     for doc in results:
         responses.append(
             CompanyMemberResponse(
+                user_id=str(doc["user_data"]["_id"]),
                 status=doc["status"],
                 role=doc["role"],
                 email=doc["user_data"]["email"],

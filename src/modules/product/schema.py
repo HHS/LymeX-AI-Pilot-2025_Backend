@@ -6,11 +6,6 @@ from src.modules.product.constants import ProductStatus
 from src.modules.user.schemas import UserResponse
 
 
-class DocumentType(str, Enum):
-    DESCRIPTION = "Description"
-    MANUAL = "Manual"
-
-
 # ============================
 # Product Request
 # ============================

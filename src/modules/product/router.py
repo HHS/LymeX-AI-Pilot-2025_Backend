@@ -7,6 +7,7 @@ from src.modules.product.storage import (
 )
 from src.modules.product.models import Product
 from src.infrastructure.minio import (
+    generate_get_object_presigned_url,
     generate_put_object_presigned_url,
     list_objects,
     remove_object,
@@ -20,7 +21,6 @@ from src.modules.product.service import (
 )
 from src.modules.product.schema import (
     CreateProductRequest,
-    DocumentType,
     GetDocumentResponse,
     ProductResponse,
     UpdateAvatarUrlResponse,
@@ -142,7 +142,7 @@ async def unlock_product_handler(
 @router.get("/{product_id}/document")
 async def get_documents_handler(
     product_id: str,
-    document_type: DocumentType,
+    document_type: str,
     current_company: Annotated[Company, Depends(get_current_company)],
     _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.VIEWER))],
 ) -> list[GetDocumentResponse]:
@@ -153,8 +153,9 @@ async def get_documents_handler(
     documents = await list_objects(prefix=f"{documents_folder}/")
     documents = [document for document in documents if not document.is_dir]
     file_names = [document.object_name.split("/")[-1] for document in documents]
+    print([document.object_name for document in documents])
     file_urls = [
-        await generate_put_object_presigned_url(
+        await generate_get_object_presigned_url(
             object_name=document.object_name,
             expiration_seconds=300,
         )
@@ -173,7 +174,7 @@ async def get_documents_handler(
 async def get_upload_document_url_handler(
     product_id: str,
     file_name: str,
-    document_type: DocumentType,
+    document_type: str,
     current_company: Annotated[Company, Depends(get_current_company)],
     _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.CONTRIBUTOR))],
 ) -> UploadDocumentUrlResponse:
@@ -201,7 +202,7 @@ async def delete_file_handler(
     product_id: str,
     current_company: Annotated[Company, Depends(get_current_company)],
     file_name: str,
-    document_type: DocumentType,
+    document_type: str,
     _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.CONTRIBUTOR))],
 ) -> None:
     product = await get_product_by_id(product_id, current_company)

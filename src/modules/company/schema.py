@@ -75,6 +75,7 @@ class CompanyRoleResponse(BaseModel):
 
 
 class CompanyMemberResponse(BaseModel):
+    user_id: str = Field(..., description="User ID")
     status: CompanyMemberStatus = Field(..., description="Company member status")
     role: CompanyRoles = Field(..., description="Company member role")
     email: EmailStr = Field(..., description="Company member email")

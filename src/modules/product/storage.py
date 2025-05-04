@@ -1,4 +1,3 @@
-from src.modules.product.schema import DocumentType
 from src.infrastructure.minio import (
     generate_get_object_presigned_url,
     generate_put_object_presigned_url,
@@ -12,10 +11,12 @@ def get_product_folder(company_id: str, product_id: str) -> str:
 
 
 def get_documents_folder(
-    company_id: str, product_id: str, document_type: DocumentType
+    company_id: str,
+    product_id: str,
+    document_type: str,
 ) -> str:
     product_folder = get_product_folder(company_id, product_id)
-    return f"{product_folder}/documents/{document_type}/"
+    return f"{product_folder}/documents/{document_type}"
 
 
 async def get_product_avatar_url(company_id: str, product_id: str) -> str:

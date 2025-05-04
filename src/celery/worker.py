@@ -11,7 +11,9 @@ def beanie_worker_init(**kwargs):
     logger.info("Initializing Beanie for Celery worker")
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
+    logger.info("Starting Beanie database connection")
     loop.run_until_complete(init_db())
+    logger.info("Beanie database connection started")
 
 
 celery = Celery(

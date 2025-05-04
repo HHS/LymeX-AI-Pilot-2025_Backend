@@ -113,6 +113,9 @@ class UserResponse(BaseModel):
     companies: Optional[list[UserCompany]] = Field(
         None, description="List of companies the user is associated with"
     )
+    is_system_admin: bool = Field(
+        description="Indicates if the user is a system administrator"
+    )
 
 
 class UpdateAvatarUrlResponse(BaseModel):

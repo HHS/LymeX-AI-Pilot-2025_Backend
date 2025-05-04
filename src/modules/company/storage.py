@@ -2,11 +2,6 @@ from src.infrastructure.minio import (
     generate_get_object_presigned_url,
     generate_put_object_presigned_url,
 )
-from typing import TYPE_CHECKING
-
-
-if TYPE_CHECKING:
-    from src.modules.company.models import Company
 
 
 def get_company_folder(company_id: str) -> str:
