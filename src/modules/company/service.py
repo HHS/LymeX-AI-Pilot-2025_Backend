@@ -1,8 +1,8 @@
 from datetime import datetime, timezone
-from typing import Optional
 from beanie.operators import In
 from bson import ObjectId
 from fastapi import HTTPException
+from src.modules.user.storage import get_user_avatar_url
 from src.environment import environment
 from src.celery.tasks.send_email import send_email_task
 from src.modules.authorization.roles import CompanyMemberStatus, CompanyRoles
@@ -136,9 +136,11 @@ async def get_company_members(company: Company) -> list[CompanyMemberResponse]:
     # Transform the results into CompanyMemberResponse objects
     responses = []
     for doc in results:
+        user_id = str(doc["user_data"]["_id"])
         responses.append(
             CompanyMemberResponse(
-                user_id=str(doc["user_data"]["_id"]),
+                user_id=user_id,
+                avatar=await get_user_avatar_url(user_id),
                 status=doc["status"],
                 role=doc["role"],
                 email=doc["user_data"]["email"],

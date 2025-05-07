@@ -1,4 +1,5 @@
 import json
+from time import time
 from typing import Callable
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.encoders import jsonable_encoder
@@ -14,9 +15,18 @@ from src.modules.email.router import router as email_router
 from src.modules.company.router import router as company_router
 from src.modules.product.router import router as product_router
 from src.modules.support.router import router as support_router
+from src.modules.system_data.router import router as system_data_router
 from contextlib import asynccontextmanager
 from src.environment import environment
 from fastapi.exceptions import RequestValidationError
+from loguru import logger
+import sentry_sdk
+
+
+sentry_sdk.init(
+    dsn=environment.sentry_dsn,
+    send_default_pii=True,
+)
 
 
 @asynccontextmanager
@@ -119,6 +129,22 @@ class SuccessResponseWrapper(BaseHTTPMiddleware):
         return response
 
 
+class LogRequestMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        begin_time = time()
+        body = await request.body()
+        logger.info(f"Request: {request.method} {request.url}")
+        logger.info(f"Headers: {dict(request.headers)}")
+        logger.info(f"Body: {body.decode('utf-8') if body else 'No Body'}")
+
+        response = await call_next(request)
+        logger.info(f"Response status: {response.status_code}")
+        end_time = time()
+        duration = end_time - begin_time
+        logger.info(f"Request duration: {duration:.2f} seconds")
+        return response
+
+
 app.add_middleware(SuccessResponseWrapper)
 app.add_middleware(
     CORSMiddleware,
@@ -127,6 +153,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(LogRequestMiddleware)
 
 
 @app.get("/", tags=["Application"])
@@ -138,6 +165,11 @@ async def read_root():
     }
 
 
+@app.get("/sentry-debug")
+async def trigger_error():
+    1 / 0
+
+
 app.include_router(health_router, prefix="/health", tags=["Health"])
 app.include_router(
     authentication_router, prefix="/authentication", tags=["Authentication"]
@@ -147,6 +179,7 @@ app.include_router(user_router, prefix="/user", tags=["User"])
 app.include_router(company_router, prefix="/company", tags=["Company"])
 app.include_router(product_router, prefix="/product", tags=["Product"])
 app.include_router(support_router, prefix="/support", tags=["Support"])
+app.include_router(system_data_router, prefix="/system-data", tags=["System Data"])
 
 if not environment.is_production:
     app.include_router(email_router, prefix="/email", tags=["Email"])

@@ -2,10 +2,10 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from src.modules.product.storage import (
+    get_competitive_analysis_folder,
     get_documents_folder,
     get_update_product_avatar_url,
 )
-from src.modules.product.models import Product
 from src.infrastructure.minio import (
     generate_get_object_presigned_url,
     generate_put_object_presigned_url,
@@ -139,6 +139,9 @@ async def unlock_product_handler(
     await product.save()
 
 
+# === GENERAL DOCUMENTS ===
+
+
 @router.get("/{product_id}/document")
 async def get_documents_handler(
     product_id: str,
@@ -153,7 +156,6 @@ async def get_documents_handler(
     documents = await list_objects(prefix=f"{documents_folder}/")
     documents = [document for document in documents if not document.is_dir]
     file_names = [document.object_name.split("/")[-1] for document in documents]
-    print([document.object_name for document in documents])
     file_urls = [
         await generate_get_object_presigned_url(
             object_name=document.object_name,
@@ -218,4 +220,86 @@ async def delete_file_handler(
     await remove_object(object_name=object_name)
 
 
-# @router.get("/{product_id}/audit")
+# === Competitive Analysis ===
+
+
+@router.get("/{product_id}/competitive-analysis")
+async def get_competitive_analysis_handler(
+    product_id: str,
+    category: str,
+    current_company: Annotated[Company, Depends(get_current_company)],
+    _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.VIEWER))],
+) -> list[GetDocumentResponse]:
+    product = await get_product_by_id(product_id, current_company)
+    competitive_analysis_folder = get_competitive_analysis_folder(
+        current_company.id, product.id, category
+    )
+    competitive_analysis = await list_objects(prefix=f"{competitive_analysis_folder}/")
+    competitive_analysis = [
+        document for document in competitive_analysis if not document.is_dir
+    ]
+    file_names = [
+        document.object_name.split("/")[-1] for document in competitive_analysis
+    ]
+    file_urls = [
+        await generate_get_object_presigned_url(
+            object_name=document.object_name,
+            expiration_seconds=300,
+        )
+        for document in competitive_analysis
+    ]
+    return [
+        GetDocumentResponse(
+            name=file_name,
+            url=file_url,
+        )
+        for file_name, file_url in zip(file_names, file_urls)
+    ]
+
+
+@router.get("/{product_id}/competitive-analysis/upload-url")
+async def get_upload_competitive_analysis_url_handler(
+    product_id: str,
+    file_name: str,
+    category: str,
+    current_company: Annotated[Company, Depends(get_current_company)],
+    _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.CONTRIBUTOR))],
+) -> UploadDocumentUrlResponse:
+    product = await get_product_by_id(product_id, current_company)
+    if product.edit_locked:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Product is locked for editing.",
+        )
+    competitive_analysis_folder = get_competitive_analysis_folder(
+        current_company.id, product.id, category
+    )
+    object_name = f"{competitive_analysis_folder}/{file_name}"
+    upload_competitive_analysis_url = await generate_put_object_presigned_url(
+        object_name=object_name,
+        expiration_seconds=300,
+    )
+    return {
+        "url": upload_competitive_analysis_url,
+    }
+
+
+@router.delete("/{product_id}/competitive_analysis/delete-file")
+async def delete_file_handler(
+    product_id: str,
+    current_company: Annotated[Company, Depends(get_current_company)],
+    file_name: str,
+    category: str,
+    _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.CONTRIBUTOR))],
+) -> None:
+    product = await get_product_by_id(product_id, current_company)
+    if product.edit_locked:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Product is locked for editing.",
+        )
+    competitive_analysis_folder = get_competitive_analysis_folder(
+        current_company.id, product.id, category
+    )
+    object_name = f"{competitive_analysis_folder}/{file_name}"
+    await remove_object(object_name=object_name)
