@@ -74,6 +74,10 @@ class Environment(BaseSettings):
     minio_root_password: str
     minio_bucket: str
 
+    sentry_dsn: str = Field(
+        "https://860438feb01663d3a334112bf5d73942@o4506868248018944.ingest.us.sentry.io/4509281452687360"
+    )
+
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 

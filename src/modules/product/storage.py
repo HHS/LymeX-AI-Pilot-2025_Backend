@@ -19,6 +19,15 @@ def get_documents_folder(
     return f"{product_folder}/documents/{document_type}"
 
 
+def get_competitive_analysis_folder(
+    company_id: str,
+    product_id: str,
+    category: str,
+) -> str:
+    product_folder = get_product_folder(company_id, product_id)
+    return f"{product_folder}/competitive_analysis/{category}"
+
+
 async def get_product_avatar_url(company_id: str, product_id: str) -> str:
     avatar_object_name = f"{get_product_folder(company_id, product_id)}/avatar"
     avatar_url = await generate_get_object_presigned_url(avatar_object_name)
