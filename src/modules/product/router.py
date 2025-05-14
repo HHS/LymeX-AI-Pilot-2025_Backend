@@ -1,30 +1,27 @@
+from datetime import datetime, timezone
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
 
-from src.modules.product.storage import (
-    get_competitive_analysis_folder,
-    get_documents_folder,
-    get_update_product_avatar_url,
+from src.modules.product.product_profile.service import delete_product_profile
+from src.modules.product.competitive_analysis.service import (
+    delete_product_competitive_analysis,
 )
-from src.infrastructure.minio import (
-    generate_get_object_presigned_url,
-    generate_put_object_presigned_url,
-    list_objects,
-    remove_object,
+from src.modules.product.dependencies import (
+    check_product_edit_allowed,
+    get_current_product,
+)
+from src.modules.product.models import Product
+from src.modules.product.storage import (
+    get_update_product_avatar_url,
 )
 from src.modules.product.service import (
     create_product,
-    delete_product,
-    get_product_by_id,
     get_products,
-    update_product,
 )
 from src.modules.product.schema import (
     CreateProductRequest,
-    GetDocumentResponse,
     ProductResponse,
     UpdateAvatarUrlResponse,
-    UploadDocumentUrlResponse,
 )
 from src.modules.authentication.dependencies import get_current_user
 from src.modules.authorization.dependencies import (
@@ -34,6 +31,13 @@ from src.modules.authorization.dependencies import (
 from src.modules.authorization.roles import CompanyRoles
 from src.modules.company.models import Company
 from src.modules.user.models import User
+
+from src.modules.product.competitive_analysis.router import (
+    router as competitive_analysis_router,
+)
+from src.modules.product.product_profile.router import (
+    router as product_profile_router,
+)
 
 
 router = APIRouter()
@@ -45,7 +49,7 @@ async def get_products_handler(
     _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.VIEWER))],
 ) -> list[ProductResponse]:
     products = await get_products(current_company)
-    return [await product.to_product_response(current_company) for product in products]
+    return [await product.to_product_response() for product in products]
 
 
 @router.post("/")
@@ -56,47 +60,54 @@ async def create_product_handler(
     _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.CONTRIBUTOR))],
 ) -> ProductResponse:
     created_product = await create_product(payload, current_user, current_company)
-    return await created_product.to_product_response(current_company)
+    created_product = await created_product.to_product_response()
+    return created_product
 
 
 @router.get("/{product_id}")
 async def get_product_handler(
-    product_id: str,
-    current_company: Annotated[Company, Depends(get_current_company)],
-    _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.VIEWER))],
+    product: Annotated[Product, Depends(get_current_product)],
 ) -> ProductResponse:
-    product = await get_product_by_id(product_id, current_company)
-    return await product.to_product_response(current_company)
+    product_response = await product.to_product_response()
+    return product_response
 
 
-@router.put("/{product_id}")
+@router.patch("/{product_id}")
 async def update_product_handler(
-    product_id: str,
+    product: Annotated[Product, Depends(get_current_product)],
     payload: CreateProductRequest,
     current_user: Annotated[User, Depends(get_current_user)],
-    current_company: Annotated[Company, Depends(get_current_company)],
-    _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.CONTRIBUTOR))],
+    _: Annotated[bool, Depends(check_product_edit_allowed)],
 ) -> ProductResponse:
-    created_product = await update_product(
-        product_id, payload, current_user, current_company
-    )
-    return await created_product.to_product_response(current_company)
+    have_update = False
+    possible_fields = [
+        "name",
+        "model",
+        "revision",
+        "category",
+        "intend_use",
+        "patient_contact",
+    ]
+    for field in possible_fields:
+        value = getattr(payload, field)
+        if value == None:
+            continue
+        have_update = True
+        setattr(product, field, value)
+    if have_update:
+        product.updated_by = str(current_user.id)
+        product.updated_at = datetime.now(timezone.utc)
+        await product.save()
+    product_response = await product.to_product_response()
+    return product_response
 
 
 @router.get("/{product_id}/update-avatar-url")
 async def get_update_avatar_url_handler(
-    product_id: str,
-    current_company: Annotated[Company, Depends(get_current_company)],
-    _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.CONTRIBUTOR))],
+    product: Annotated[Product, Depends(get_current_product)],
+    _: Annotated[bool, Depends(check_product_edit_allowed)],
 ) -> UpdateAvatarUrlResponse:
-    product = await get_product_by_id(product_id, current_company)
-    if product.edit_locked:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Product is locked for editing.",
-        )
     avatar_url = await get_update_product_avatar_url(
-        current_company.id,
         product.id,
     )
     return {
@@ -106,20 +117,23 @@ async def get_update_avatar_url_handler(
 
 @router.delete("/{product_id}")
 async def delete_product_handler(
-    product_id: str,
-    current_company: Annotated[Company, Depends(get_current_company)],
-    _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.CONTRIBUTOR))],
+    product: Annotated[Product, Depends(get_current_product)],
+    _: Annotated[bool, Depends(check_product_edit_allowed)],
 ) -> None:
-    await delete_product(product_id, current_company)
+    await delete_product_competitive_analysis(
+        str(product.id),
+    )
+    await delete_product_profile(
+        str(product.id),
+    )
+    await product.delete()
 
 
 @router.post("/{product_id}/lock")
 async def lock_product_handler(
-    product_id: str,
-    current_company: Annotated[Company, Depends(get_current_company)],
+    product: Annotated[Product, Depends(get_current_product)],
     _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.ADMINISTRATOR))],
 ) -> None:
-    product = await get_product_by_id(product_id, current_company)
     if product.edit_locked:
         return
     product.edit_locked = True
@@ -128,178 +142,22 @@ async def lock_product_handler(
 
 @router.post("/{product_id}/unlock")
 async def unlock_product_handler(
-    product_id: str,
-    current_company: Annotated[Company, Depends(get_current_company)],
+    product: Annotated[Product, Depends(get_current_product)],
     _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.ADMINISTRATOR))],
 ) -> None:
-    product = await get_product_by_id(product_id, current_company)
     if not product.edit_locked:
         return
     product.edit_locked = False
     await product.save()
 
 
-# === GENERAL DOCUMENTS ===
-
-
-@router.get("/{product_id}/document")
-async def get_documents_handler(
-    product_id: str,
-    document_type: str,
-    current_company: Annotated[Company, Depends(get_current_company)],
-    _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.VIEWER))],
-) -> list[GetDocumentResponse]:
-    product = await get_product_by_id(product_id, current_company)
-    documents_folder = get_documents_folder(
-        current_company.id, product.id, document_type
-    )
-    documents = await list_objects(prefix=f"{documents_folder}/")
-    documents = [document for document in documents if not document.is_dir]
-    file_names = [document.object_name.split("/")[-1] for document in documents]
-    file_urls = [
-        await generate_get_object_presigned_url(
-            object_name=document.object_name,
-            expiration_seconds=300,
-        )
-        for document in documents
-    ]
-    return [
-        GetDocumentResponse(
-            name=file_name,
-            url=file_url,
-        )
-        for file_name, file_url in zip(file_names, file_urls)
-    ]
-
-
-@router.get("/{product_id}/document/upload-url")
-async def get_upload_document_url_handler(
-    product_id: str,
-    file_name: str,
-    document_type: str,
-    current_company: Annotated[Company, Depends(get_current_company)],
-    _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.CONTRIBUTOR))],
-) -> UploadDocumentUrlResponse:
-    product = await get_product_by_id(product_id, current_company)
-    if product.edit_locked:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Product is locked for editing.",
-        )
-    documents_folder = get_documents_folder(
-        current_company.id, product.id, document_type
-    )
-    object_name = f"{documents_folder}/{file_name}"
-    upload_document_url = await generate_put_object_presigned_url(
-        object_name=object_name,
-        expiration_seconds=300,
-    )
-    return {
-        "url": upload_document_url,
-    }
-
-
-@router.delete("/{product_id}/document/delete-file")
-async def delete_file_handler(
-    product_id: str,
-    current_company: Annotated[Company, Depends(get_current_company)],
-    file_name: str,
-    document_type: str,
-    _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.CONTRIBUTOR))],
-) -> None:
-    product = await get_product_by_id(product_id, current_company)
-    if product.edit_locked:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Product is locked for editing.",
-        )
-    documents_folder = get_documents_folder(
-        current_company.id, product.id, document_type
-    )
-    object_name = f"{documents_folder}/{file_name}"
-    await remove_object(object_name=object_name)
-
-
-# === Competitive Analysis ===
-
-
-@router.get("/{product_id}/competitive-analysis")
-async def get_competitive_analysis_handler(
-    product_id: str,
-    category: str,
-    current_company: Annotated[Company, Depends(get_current_company)],
-    _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.VIEWER))],
-) -> list[GetDocumentResponse]:
-    product = await get_product_by_id(product_id, current_company)
-    competitive_analysis_folder = get_competitive_analysis_folder(
-        current_company.id, product.id, category
-    )
-    competitive_analysis = await list_objects(prefix=f"{competitive_analysis_folder}/")
-    competitive_analysis = [
-        document for document in competitive_analysis if not document.is_dir
-    ]
-    file_names = [
-        document.object_name.split("/")[-1] for document in competitive_analysis
-    ]
-    file_urls = [
-        await generate_get_object_presigned_url(
-            object_name=document.object_name,
-            expiration_seconds=300,
-        )
-        for document in competitive_analysis
-    ]
-    return [
-        GetDocumentResponse(
-            name=file_name,
-            url=file_url,
-        )
-        for file_name, file_url in zip(file_names, file_urls)
-    ]
-
-
-@router.get("/{product_id}/competitive-analysis/upload-url")
-async def get_upload_competitive_analysis_url_handler(
-    product_id: str,
-    file_name: str,
-    category: str,
-    current_company: Annotated[Company, Depends(get_current_company)],
-    _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.CONTRIBUTOR))],
-) -> UploadDocumentUrlResponse:
-    product = await get_product_by_id(product_id, current_company)
-    if product.edit_locked:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Product is locked for editing.",
-        )
-    competitive_analysis_folder = get_competitive_analysis_folder(
-        current_company.id, product.id, category
-    )
-    object_name = f"{competitive_analysis_folder}/{file_name}"
-    upload_competitive_analysis_url = await generate_put_object_presigned_url(
-        object_name=object_name,
-        expiration_seconds=300,
-    )
-    return {
-        "url": upload_competitive_analysis_url,
-    }
-
-
-@router.delete("/{product_id}/competitive_analysis/delete-file")
-async def delete_file_handler(
-    product_id: str,
-    current_company: Annotated[Company, Depends(get_current_company)],
-    file_name: str,
-    category: str,
-    _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.CONTRIBUTOR))],
-) -> None:
-    product = await get_product_by_id(product_id, current_company)
-    if product.edit_locked:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Product is locked for editing.",
-        )
-    competitive_analysis_folder = get_competitive_analysis_folder(
-        current_company.id, product.id, category
-    )
-    object_name = f"{competitive_analysis_folder}/{file_name}"
-    await remove_object(object_name=object_name)
+router.include_router(
+    competitive_analysis_router,
+    prefix="/{product_id}/competitive-analysis",
+    tags=["Competitive Analysis"],
+)
+router.include_router(
+    product_profile_router,
+    prefix="/{product_id}/profile",
+    tags=["Product Profile"],
+)

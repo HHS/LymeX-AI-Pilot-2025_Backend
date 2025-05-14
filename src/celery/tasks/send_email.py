@@ -6,11 +6,9 @@ from src.infrastructure.email import send_email
 from src.modules.email.service import create_email
 from src.celery.worker import celery
 from src.celery.tasks.base import BaseTask
-from typing import Callable
 
 
 @celery.task(
-    # type: Callable[[str, dict[str, Any], str, list[str], list[str]], None]
     base=BaseTask,
     name="src.celery.tasks.send_email",
 )

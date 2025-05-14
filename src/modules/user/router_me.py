@@ -21,7 +21,8 @@ router = APIRouter()
 async def get_me(
     current_user: Annotated[User, Depends(get_current_user)],
 ) -> UserResponse:
-    return await current_user.to_user_response()
+    me = await current_user.to_user_response()
+    return me
 
 
 # ✏️ Update profile
@@ -33,7 +34,8 @@ async def update_profile(
     for key, value in update_data.model_dump(exclude_unset=True).items():
         setattr(current_user, key, value)
     await current_user.save()
-    return await current_user.to_user_response()
+    updated_user_response = await current_user.to_user_response()
+    return updated_user_response
 
 
 @router.post("/accept-policy")

@@ -2,7 +2,6 @@ from datetime import datetime
 from enum import Enum
 from pydantic import BaseModel, Field
 
-from src.modules.product.constants import ProductStatus
 from src.modules.user.schemas import UserResponse
 
 
@@ -12,21 +11,14 @@ from src.modules.user.schemas import UserResponse
 
 
 class CreateProductRequest(BaseModel):
-    code: str = Field(..., description="Product code")
-    name: str = Field(..., description="Product name")
-    model: str = Field(..., description="Product model")
-    revision: str = Field(..., description="Product revision")
-    description: str = Field(..., description="Product description")
-    intend_use: str = Field(..., description="Intended use of the product")
-    patient_contact: bool = Field(
-        ..., description="Indicates if the product has patient contact"
+    name: str | None = Field(None, description="Product name")
+    model: str | None = Field(None, description="Product model")
+    revision: str | None = Field(None, description="Product revision")
+    category: str | None = Field(None, description="Product category")
+    intend_use: str | None = Field(None, description="Intended use of the product")
+    patient_contact: bool | None = Field(
+        None, description="Indicates if the product has patient contact"
     )
-    device_description: str = Field(..., description="Description of the device")
-    key_features: str = Field(..., description="Key features of the product")
-    category: str = Field(..., description="Product category")
-    version: str = Field(..., description="Product version")
-    is_latest: bool = Field(..., description="Indicates if this is the latest version")
-    status: ProductStatus = Field(..., description="Product status")
 
 
 class UpdateProductRequest(BaseModel):
@@ -34,21 +26,11 @@ class UpdateProductRequest(BaseModel):
     name: str | None = Field(None, description="Product name")
     model: str | None = Field(None, description="Product model")
     revision: str | None = Field(None, description="Product revision")
-    description: str | None = Field(None, description="Product description")
+    category: str | None = Field(None, description="Product category")
     intend_use: str | None = Field(None, description="Intended use of the product")
     patient_contact: bool | None = Field(
         None, description="Indicates if the product has patient contact"
     )
-    device_description: str | None = Field(
-        None, description="Description of the device"
-    )
-    key_features: str | None = Field(None, description="Key features of the product")
-    category: str | None = Field(None, description="Product category")
-    version: str | None = Field(None, description="Product version")
-    is_latest: bool | None = Field(
-        None, description="Indicates if this is the latest version"
-    )
-    status: ProductStatus | None = Field(None, description="Product status")
 
 
 # ============================
@@ -58,22 +40,15 @@ class UpdateProductRequest(BaseModel):
 
 class ProductResponse(BaseModel):
     id: str = Field(..., description="Product ID")
-    code: str = Field(..., description="Product code")
     name: str = Field(..., description="Product name")
     model: str = Field(..., description="Product model")
     revision: str = Field(..., description="Product revision")
-    description: str = Field(..., description="Product description")
+    category: str = Field(..., description="Product category")
     avatar_url: str = Field(..., description="URL of the product avatar")
     intend_use: str = Field(..., description="Intended use of the product")
     patient_contact: bool = Field(
         ..., description="Indicates if the product has patient contact"
     )
-    device_description: str = Field(..., description="Description of the device")
-    key_features: str = Field(..., description="Key features of the product")
-    category: str = Field(..., description="Product category")
-    version: str = Field(..., description="Product version")
-    is_latest: bool = Field(..., description="Indicates if this is the latest version")
-    status: ProductStatus = Field(..., description="Product status")
     created_by: UserResponse = Field(..., description="User who created the product")
     created_at: datetime = Field(
         ..., description="Timestamp when the product was created"

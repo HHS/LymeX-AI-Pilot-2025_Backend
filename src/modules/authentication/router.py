@@ -13,10 +13,8 @@ from .service import (
     generate_verify_login_token_response,
     generate_totp_login_token_response,
 )
-from src.modules.user.schemas import UserCreateRequest, UserResponse
 from src.modules.user.service import (
     check_email_password,
-    create_user,
     get_user_by_email,
     hash_password,
 )
@@ -41,17 +39,6 @@ from src.infrastructure.security import (
 )
 
 router = APIRouter()
-
-
-# 📥 Register
-# @router.post("/register/password")
-# async def register_user_using_password(payload: UserCreateRequest) -> UserResponse:
-#     try:
-#         user = await create_user(payload)
-#         create_and_send_verify_email(user)
-#         return await user.to_user_response(populate_companies=False)
-#     except ValueError as e:
-#         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.post("/register/verify-email/send-email")

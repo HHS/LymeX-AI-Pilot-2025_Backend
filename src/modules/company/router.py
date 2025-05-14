@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime, timezone
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
@@ -47,7 +48,11 @@ async def get_companies_handler(
     status: CompanyMemberStatus = CompanyMemberStatus.ACTIVE,
 ) -> list[CompanyResponse]:
     companies = await get_companies(current_user, status)
-    return [await company.to_company_response() for company in companies]
+    companies_response_promises = [
+        company.to_company_response() for company in companies
+    ]
+    companies_response = await asyncio.gather(*companies_response_promises)
+    return companies_response
 
 
 @router.post("/")
@@ -56,7 +61,8 @@ async def create_company_handler(
     _: Annotated[User, Depends(require_system_admin)],
 ) -> CompanyResponse:
     created_company = await create_company(payload)
-    return await created_company.to_company_response()
+    created_company_response = await created_company.to_company_response()
+    return created_company_response
 
 
 @router.get("/company-admin")
@@ -149,7 +155,8 @@ async def remove_company_admin_handler(
 async def get_company_handler(
     current_company: Annotated[Company, Depends(get_current_company)],
 ) -> CompanyResponse:
-    return await current_company.to_company_response()
+    company_response = await current_company.to_company_response()
+    return company_response
 
 
 @router.get("/role")
@@ -167,8 +174,11 @@ async def update_company_handler(
     current_company: Annotated[Company, Depends(get_current_company)],
     _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.ADMINISTRATOR))],
 ) -> CompanyResponse:
-    await current_company.update(Set(payload.model_dump(exclude_unset=True)))
-    return await current_company.to_company_response()
+    updated_company = await current_company.update(
+        Set(payload.model_dump(exclude_unset=True))
+    )
+    updated_company_response = await updated_company.to_company_response()
+    return updated_company_response
 
 
 @router.delete("/")

@@ -1,6 +1,5 @@
 from datetime import datetime
 from pydantic import BaseModel, EmailStr, Field
-from typing import Optional
 
 from src.modules.authorization.roles import CompanyMemberStatus, CompanyRoles
 
@@ -12,18 +11,18 @@ class CreateCompanyRequest(BaseModel):
     name: str = Field(..., description="Company name")
     description: str = Field(..., description="Company description")
     industry: str = Field(..., description="Industry Name")
-    street_address: Optional[str] = Field(None, description="Street address")
-    city: Optional[str] = Field(None, description="City")
-    state: Optional[str] = Field(None, description="State")
+    street_address: str | None = Field(None, description="Street address")
+    city: str | None = Field(None, description="City")
+    state: str | None = Field(None, description="State")
 
 
 class UpdateCompanyRequest(BaseModel):
-    name: Optional[str] = Field(None, description="Company name")
-    description: Optional[str] = Field(None, description="Company description")
-    industry: Optional[str] = Field(None, description="Industry Name")
-    street_address: Optional[str] = Field(None, description="Street address")
-    city: Optional[str] = Field(None, description="City")
-    state: Optional[str] = Field(None, description="State")
+    name: str | None = Field(None, description="Company name")
+    description: str | None = Field(None, description="Company description")
+    industry: str | None = Field(None, description="Industry Name")
+    street_address: str | None = Field(None, description="Street address")
+    city: str | None = Field(None, description="City")
+    state: str | None = Field(None, description="State")
 
 
 class CreateInvitationRequest(BaseModel):
@@ -61,9 +60,9 @@ class CompanyResponse(BaseModel):
     name: str = Field(..., description="Company name")
     description: str = Field(..., description="Company description")
     industry: str = Field(..., description="Industry Name")
-    street_address: Optional[str] = Field(None, description="Street address")
-    city: Optional[str] = Field(None, description="City")
-    state: Optional[str] = Field(None, description="State")
+    street_address: str | None = Field(None, description="Street address")
+    city: str | None = Field(None, description="City")
+    state: str | None = Field(None, description="State")
     logo: str = Field(..., description="Company logo URL")
     created_at: datetime = Field(..., description="Created at timestamp")
     updated_at: datetime = Field(..., description="Updated at timestamp")
@@ -83,7 +82,7 @@ class CompanyMemberResponse(BaseModel):
     added_at: datetime = Field(..., description="Added at timestamp")
     first_name: str = Field(..., description="First name")
     last_name: str = Field(..., description="Last name")
-    phone: Optional[str] = Field(None, description="Phone number")
+    phone: str | None = Field(None, description="Phone number")
 
 
 class UpdateCompanyLogoResponse(BaseModel):

@@ -34,7 +34,6 @@ async def get_competitive_analysis_handler(
     file_urls = [
         await generate_get_object_presigned_url(
             object_name=document.object_name,
-            expiration_seconds=300,
         )
         for document in competitive_analysis
     ]
@@ -57,7 +56,6 @@ async def get_upload_competitive_analysis_url_handler(
     object_name = f"{competitive_analysis_folder}/{file_name}"
     upload_competitive_analysis_url = await generate_put_object_presigned_url(
         object_name=object_name,
-        expiration_seconds=300,
     )
     return {
         "url": upload_competitive_analysis_url,
