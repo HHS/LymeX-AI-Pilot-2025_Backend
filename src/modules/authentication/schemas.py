@@ -1,5 +1,4 @@
 from pydantic import BaseModel, EmailStr, Field
-from typing import Optional
 
 # -------- Request DTOs --------
 
@@ -13,7 +12,7 @@ class LoginVerifyRequest(BaseModel):
     verify_login_token: str = Field(
         ..., description="Login verification token, use for login verification"
     )
-    otp: Optional[str] = Field(
+    otp: str | None = Field(
         None,
         description="Verification code, if required",
     )

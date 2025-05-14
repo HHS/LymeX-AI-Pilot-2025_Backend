@@ -1,8 +1,5 @@
 from datetime import datetime, timezone
-from bson import ObjectId
 from pydantic import BaseModel, EmailStr, Field
-from typing import Optional
-
 from src.modules.authorization.roles import CompanyMemberStatus, CompanyRoles
 
 
@@ -30,7 +27,7 @@ class UserCreateRequest(BaseModel):
         description="Password for the user account",
         examples=["very_secure_password"],
     )
-    phone: Optional[str] = Field(
+    phone: str | None = Field(
         None,
         pattern=r"^\+?[1-9]\d{1,14}$",
         description="Phone number of the user",
@@ -39,13 +36,13 @@ class UserCreateRequest(BaseModel):
 
 
 class UserUpdateRequest(BaseModel):
-    first_name: Optional[str] = Field(
+    first_name: str | None = Field(
         None, min_length=1, max_length=50, description="Updated first name of the user"
     )
-    last_name: Optional[str] = Field(
+    last_name: str | None = Field(
         None, min_length=1, max_length=50, description="Updated last name of the user"
     )
-    phone: Optional[str] = Field(
+    phone: str | None = Field(
         None,
         pattern=r"^\+?[1-9]\d{1,14}$",
         description="Updated phone number of the user",
@@ -68,9 +65,9 @@ class UserCompany(BaseModel):
     name: str = Field(..., description="Company name")
     description: str = Field(..., description="Company description")
     industry: str = Field(..., description="Industry Name")
-    street_address: Optional[str] = Field(None, description="Street address")
-    city: Optional[str] = Field(None, description="City")
-    state: Optional[str] = Field(None, description="State")
+    street_address: str | None = Field(None, description="Street address")
+    city: str | None = Field(None, description="City")
+    state: str | None = Field(None, description="State")
     logo: str = Field(..., description="Company logo URL")
     created_at: datetime = Field(..., description="Created at timestamp")
     updated_at: datetime = Field(..., description="Updated at timestamp")
@@ -92,25 +89,25 @@ class UserResponse(BaseModel):
     first_name: str = Field(..., description="First name of the user")
     last_name: str = Field(..., description="Last name of the user")
     avatar: str = Field(..., description="Avatar URL of the user")
-    phone: Optional[str] = Field(None, description="Phone number of the user")
-    title: Optional[str] = Field(None, description="Title of the user")
+    phone: str | None = Field(None, description="Phone number of the user")
+    title: str | None = Field(None, description="Title of the user")
     enable_verify_login: bool = Field(
         True, description="Indicates if login verification is enabled"
     )
     enable_totp: bool = Field(
         False, description="Indicates if TOTP is enabled for the user"
     )
-    verified_at: Optional[datetime] = Field(
+    verified_at: datetime | None = Field(
         None, description="Indicates if the user's email is verified"
     )
-    policy_accepted_at: Optional[datetime] = Field(
+    policy_accepted_at: datetime | None = Field(
         None, description="Indicates if the user has accepted the policy"
     )
-    deleted_at: Optional[datetime] = None
-    locked_until: Optional[datetime] = None
+    deleted_at: datetime | None = None
+    locked_until: datetime | None = None
     created_at: datetime = datetime.now(timezone.utc)
     updated_at: datetime = datetime.now(timezone.utc)
-    companies: Optional[list[UserCompany]] = Field(
+    companies: list[UserCompany] | None = Field(
         None, description="List of companies the user is associated with"
     )
     is_system_admin: bool = Field(
@@ -126,17 +123,17 @@ class UpdateAvatarUrlResponse(BaseModel):
 
 
 class CompanyAdminUpdateUserRequest(BaseModel):
-    first_name: Optional[str] = Field(
+    first_name: str | None = Field(
         None, min_length=1, max_length=50, description="Updated first name of the user"
     )
-    last_name: Optional[str] = Field(
+    last_name: str | None = Field(
         None, min_length=1, max_length=50, description="Updated last name of the user"
     )
-    email: Optional[EmailStr] = Field(
+    email: EmailStr | None = Field(
         None,
         description="Email address of the user",
     )
-    role: Optional[CompanyRoles] = Field(
+    role: CompanyRoles | None = Field(
         None,
         description="Role of the user in the company",
         examples=[role.value for role in CompanyRoles],
@@ -145,9 +142,9 @@ class CompanyAdminUpdateUserRequest(BaseModel):
 
 
 class AddSystemAdminRequest(BaseModel):
-    user_id: Optional[str] = Field(
+    user_id: str | None = Field(
         None,
     )
-    user_ids: Optional[list[str]] = Field(
+    user_ids: list[str] | None = Field(
         None,
     )

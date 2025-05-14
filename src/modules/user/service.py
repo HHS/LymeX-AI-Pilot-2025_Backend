@@ -1,5 +1,4 @@
 from datetime import datetime, timezone
-from typing import Optional
 from uuid import uuid4
 from fastapi import HTTPException, status
 from passlib.context import CryptContext
@@ -37,15 +36,17 @@ async def create_user(data: UserCreateRequest, verified=False) -> User:
     )
     if verified:
         user.verified_at = datetime.now(timezone.utc)
-    return await user.insert()
+    created_user = await user.insert()
+    return created_user
 
 
-async def get_user_by_email(email: str) -> Optional[User]:
-    return await User.find_one(User.email == email)
+async def get_user_by_email(email: str) -> User | None:
+    user = await User.find_one(User.email == email)
+    return user
 
 
 # Frequently used, need to be cached. But just querying for now.
-async def get_user_by_id(user_id: str) -> Optional[User]:
+async def get_user_by_id(user_id: str) -> User | None:
     user = await User.get(user_id)
     return user
 

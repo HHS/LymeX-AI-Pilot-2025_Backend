@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Annotated, Optional
+from typing import Annotated
 from beanie import Document, Indexed, PydanticObjectId
 from src.modules.company.storage import get_company_logo_url
 from src.modules.company.schema import CompanyResponse, CompanyRoleResponse
@@ -10,12 +10,12 @@ class Company(Document):
     name: Annotated[str, Indexed(unique=True)]
     description: str
     industry: str
-    street_address: Optional[str] = None
-    city: Optional[str] = None
-    state: Optional[str] = None
+    street_address: str | None = None
+    city: str | None = None
+    state: str | None = None
     created_at: datetime
     updated_at: datetime
-    deleted_at: Optional[datetime] = None
+    deleted_at: datetime | None = None
 
     class Settings:
         name = "company"

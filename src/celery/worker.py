@@ -20,11 +20,22 @@ celery = Celery(
     "worker",
     broker=environment.rabbitmq_url,
     backend=environment.mongo_celery_backend,
-    include=["src.celery.tasks.echo", "src.celery.tasks.send_email"],
+    include=[
+        "src.celery.tasks.echo",
+        "src.celery.tasks.send_email",
+        "src.celery.tasks.analyze_competitive_analysis",
+        "src.celery.tasks.analyze_product_profile",
+    ],
 )
 
 celery.conf.task_routes = {
     "src.celery.tasks.send_email": {"queue": "celery.send_email"},
+    "src.celery.tasks.analyze_competitive_analysis": {
+        "queue": "celery.analyze_competitive_analysis"
+    },
+    "src.celery.tasks.analyze_product_profile": {
+        "queue": "celery.analyze_product_profile"
+    },
     "src.celery.tasks.*": {"queue": "celery.default"},
 }
 celery.conf.task_acks_late = True

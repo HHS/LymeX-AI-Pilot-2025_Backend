@@ -1,4 +1,4 @@
-from typing import Optional, TypedDict
+from typing import TypedDict
 from loguru import logger
 from email.message import EmailMessage
 import smtplib

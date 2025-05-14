@@ -1,5 +1,5 @@
 from beanie import Document, Indexed, PydanticObjectId
-from typing import Annotated, Optional
+from typing import Annotated
 from datetime import datetime, timezone
 from src.modules.company.storage import get_company_logo_url
 from src.modules.company.models import CompanyMember
@@ -49,18 +49,18 @@ class User(Document):
     first_name: str
     last_name: str
     password: str
-    phone: Optional[str] = None
-    title: Optional[str] = None
+    phone: str | None = None
+    title: str | None = None
     secret_token: str
     enable_verify_login: bool = True
     enable_totp: bool = False
-    verified_at: Optional[datetime] = None
-    policy_accepted_at: Optional[datetime] = None
-    deleted_at: Optional[datetime] = None
-    locked_until: Optional[datetime] = None
+    verified_at: datetime | None = None
+    policy_accepted_at: datetime | None = None
+    deleted_at: datetime | None = None
+    locked_until: datetime | None = None
     created_at: datetime = datetime.now(timezone.utc)
     updated_at: datetime = datetime.now(timezone.utc)
-    is_system_admin: Optional[bool] = False
+    is_system_admin: bool | None = False
 
     class Settings:
         name = "users"
