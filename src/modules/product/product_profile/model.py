@@ -1,10 +1,14 @@
 from datetime import datetime
 from beanie import Document, PydanticObjectId
+from src.modules.product.models import Product
 from src.modules.product.schema import ProductResponse
 from src.modules.product.product_profile.schema import (
     AnalyzeProductProfileProgressResponse,
     Feature,
+    Performance,
+    ProductProfileAnalysisResponse,
     ProductProfileResponse,
+    RegulatoryClassification,
 )
 
 
@@ -13,14 +17,18 @@ class ProductProfile(Document):
     reference_number: str
     description: str
     regulatory_pathway: str
-    regulatory_classifications: str
+    regulatory_classifications: list[RegulatoryClassification]
     device_description: str
     features: list[Feature]
     claims: list[str]
     conflict_alerts: list[str]
     fda_approved: bool
+    ce_marked: bool
+    device_ifu_description: str
     confidence_score: float
     sources: list[str]
+    performance: Performance
+    price: int
 
     class Settings:
         name = "product_profile"
@@ -30,7 +38,7 @@ class ProductProfile(Document):
             PydanticObjectId: str,
         }
 
-    async def to_product_profile_response(
+    def to_product_profile_response(
         self, product_response: ProductResponse | None
     ) -> ProductProfileResponse:
         product_response = (
@@ -61,6 +69,20 @@ class ProductProfile(Document):
             claims=self.claims,
             conflict_alerts=self.conflict_alerts,
             **product_response,
+        )
+
+    def to_product_profile_analysis_response(
+        self, product: Product
+    ) -> ProductProfileAnalysisResponse:
+        return ProductProfileAnalysisResponse(
+            product_id=str(product.id),
+            product_code=product.code,
+            product_name=product.name,
+            updated_at=product.updated_at,
+            fda_approved=self.fda_approved,
+            ce_marked=self.ce_marked,
+            features=self.features,
+            regulatory_classifications=self.regulatory_classifications,
         )
 
 

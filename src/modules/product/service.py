@@ -34,6 +34,7 @@ async def create_product(
         )
     now = datetime.now(timezone.utc)
     product = Product(
+        code=payload.code,
         name=payload.name,
         model=payload.model,
         revision=payload.revision,

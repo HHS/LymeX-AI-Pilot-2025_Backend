@@ -12,6 +12,7 @@ from src.modules.user.schemas import UserResponse
 
 class CreateProductRequest(BaseModel):
     name: str | None = Field(None, description="Product name")
+    code: str | None = Field(None, description="Product code")
     model: str | None = Field(None, description="Product model")
     revision: str | None = Field(None, description="Product revision")
     category: str | None = Field(None, description="Product category")
@@ -40,6 +41,7 @@ class UpdateProductRequest(BaseModel):
 
 class ProductResponse(BaseModel):
     id: str = Field(..., description="Product ID")
+    code: str | None = Field(None, description="Product code")
     name: str = Field(..., description="Product name")
     model: str = Field(..., description="Product model")
     revision: str = Field(..., description="Product revision")

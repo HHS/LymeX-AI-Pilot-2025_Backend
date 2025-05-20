@@ -9,6 +9,7 @@ from src.modules.product.schema import ProductResponse
 
 class Product(Document):
     name: str
+    code: str
     model: str
     revision: str
     category: str
@@ -35,6 +36,7 @@ class Product(Document):
         avatar_url = await get_product_avatar_url(self)
         return ProductResponse(
             id=str(self.id),
+            code=self.code,
             name=self.name,
             model=self.model,
             revision=self.revision,

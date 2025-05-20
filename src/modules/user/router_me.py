@@ -90,8 +90,6 @@ async def get_update_avatar_url(
     current_user: Annotated[User, Depends(get_current_user)],
 ) -> UpdateAvatarUrlResponse:
     update_avatar_url = await get_update_user_avatar_url(str(current_user.id))
-    print("=" * 20)
-    print(update_avatar_url)
     return {
         "url": update_avatar_url,
     }

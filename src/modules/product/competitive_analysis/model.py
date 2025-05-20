@@ -1,10 +1,18 @@
 from datetime import datetime
 from beanie import Document, PydanticObjectId
 
-from src.modules.product.product_profile.schema import Feature
+from src.modules.product.models import Product
+from src.modules.product.product_profile.model import ProductProfile
+from src.modules.product.product_profile.schema import Feature, Performance
 from src.modules.product.competitive_analysis.schema import (
     AnalyzeCompetitiveAnalysisProgressResponse,
+    CompetitiveAnalysisCompareItemResponse,
+    CompetitiveAnalysisCompareResponse,
+    CompetitiveAnalysisCompareSummary,
     CompetitiveAnalysisResponse,
+    CompetitiveDeviceAnalysisItemResponse,
+    CompetitiveDeviceAnalysisKeyDifferenceResponse,
+    CompetitiveDeviceAnalysisResponse,
 )
 
 
@@ -15,12 +23,20 @@ class CompetitiveAnalysis(Document):
     regulatory_pathway: str
     clinical_study: str
     fda_approved: bool
+    ce_marked: bool
+    device_ifu_description: str
+    key_differences: list[CompetitiveDeviceAnalysisKeyDifferenceResponse]
+    recommendations: list[str]
     is_ai_generated: bool
     features: list[Feature]
     claims: list[str]
     reference_number: str
     confidence_score: float
     sources: list[str]
+    performance: Performance
+    price: int
+    your_product_summary: CompetitiveAnalysisCompareSummary
+    competitor_summary: CompetitiveAnalysisCompareSummary
 
     class Settings:
         name = "competitive_analysis"
@@ -30,16 +46,60 @@ class CompetitiveAnalysis(Document):
             PydanticObjectId: str,
         }
 
-    async def to_competitive_analysis_response(self) -> CompetitiveAnalysisResponse:
+    def to_competitive_analysis_response(self) -> CompetitiveAnalysisResponse:
         return CompetitiveAnalysisResponse(
             id=str(self.id),
             product_name=self.product_name,
             reference_number=self.reference_number,
             regulatory_pathway=self.regulatory_pathway,
             fda_approved=self.fda_approved,
+            ce_marked=self.ce_marked,
             is_ai_generated=self.is_ai_generated,
             confidence_score=self.confidence_score,
             sources=self.sources,
+        )
+
+    def to_competitive_compare_response(
+        self,
+        product: Product,
+        product_profile: ProductProfile,
+    ) -> CompetitiveAnalysisCompareResponse:
+        your_product = CompetitiveAnalysisCompareItemResponse(
+            product_name=product.name,
+            price=product_profile.price,
+            features=product_profile.features,
+            performance=product_profile.performance,
+            summary=self.your_product_summary,
+        )
+        competitor = CompetitiveAnalysisCompareItemResponse(
+            product_name=self.product_name,
+            price=self.price,
+            features=self.features,
+            performance=self.performance,
+            summary=self.competitor_summary,
+        )
+        return CompetitiveAnalysisCompareResponse(
+            your_product=your_product,
+            competitor=competitor,
+        )
+
+    def to_competitive_device_analysis_response(
+        self,
+        product_profile: ProductProfile,
+    ) -> CompetitiveDeviceAnalysisResponse:
+        return CompetitiveDeviceAnalysisResponse(
+            your_device=CompetitiveDeviceAnalysisItemResponse(
+                content=product_profile.device_ifu_description,
+                fda_approved=product_profile.fda_approved,
+                ce_marked=product_profile.ce_marked,
+            ),
+            competitor_device=CompetitiveDeviceAnalysisItemResponse(
+                content=self.device_ifu_description,
+                fda_approved=self.fda_approved,
+                ce_marked=self.ce_marked,
+            ),
+            key_differences=self.key_differences,
+            recommendations=self.recommendations,
         )
 
 

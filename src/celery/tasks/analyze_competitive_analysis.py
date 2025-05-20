@@ -4,6 +4,11 @@ from enum import Enum
 from random import choice, randint, sample
 from fastapi import HTTPException
 from loguru import logger
+from src.modules.product.competitive_analysis.schema import (
+    CompetitiveAnalysisCompareSummary,
+    CompetitiveDeviceAnalysisKeyDifferenceResponse,
+)
+from src.modules.product.product_profile.schema import Performance
 from src.modules.product.competitive_analysis.model import (
     CompetitiveAnalysis,
     AnalyzeCompetitiveAnalysisProgress,
@@ -116,13 +121,38 @@ async def analyze_competitive_analysis_task_async(
     )
     logger.info("Starting analysis of competitive analysis documents...")
     for i, document in enumerate(documents):
+        product_name = f"Test Product {document.document_name}"
         competitive_analysis = CompetitiveAnalysis(
             reference_product_id=product_id,
-            product_name=f"Test Product {document.document_name}",
+            product_name=product_name,
             category=document.category,
             regulatory_pathway=document.category,
             clinical_study="clinical_study",
             fda_approved=True,
+            ce_marked=True,
+            device_ifu_description="Device IFU description",
+            key_differences=[
+                CompetitiveDeviceAnalysisKeyDifferenceResponse(
+                    title="Patient Population",
+                    content="Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                    icon="https://example.com/icon1.png",
+                ),
+                CompetitiveDeviceAnalysisKeyDifferenceResponse(
+                    title="Usage Environment",
+                    content="Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                    icon="https://example.com/icon2.png",
+                ),
+                CompetitiveDeviceAnalysisKeyDifferenceResponse(
+                    title="Certifications",
+                    content="Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                    icon="https://example.com/icon3.png",
+                ),
+            ],
+            recommendations=[
+                "Recommendation 1",
+                "Recommendation 2",
+                "Recommendation 3",
+            ],
             is_ai_generated=False,
             features=[
                 {
@@ -146,6 +176,21 @@ async def analyze_competitive_analysis_task_async(
             reference_number=f"Reference Number {randint(1, 1000000)}",
             confidence_score=randint(1, 100) / 100,
             sources=[document.url],
+            performance=Performance(
+                speed=randint(50, 100),
+                reliability=randint(50, 100),
+            ),
+            price=randint(1000, 5000),
+            your_product_summary=CompetitiveAnalysisCompareSummary(
+                title="Your Product Summary",
+                summary="This is a summary of your product's competitive analysis.",
+                icon="https://example.com/your-product-icon.png",
+            ),
+            competitor_summary=CompetitiveAnalysisCompareSummary(
+                title="Competitor Summary",
+                summary="This is a summary of the competitor's product.",
+                icon="https://example.com/competitor-icon.png",
+            ),
         )
         competitive_analysis_list.append(competitive_analysis)
         await progress.increase()
@@ -161,6 +206,30 @@ async def analyze_competitive_analysis_task_async(
             regulatory_pathway=choice(list(RegulatoryPathway)),
             clinical_study="clinical_study",
             fda_approved=True,
+            ce_marked=True,
+            device_ifu_description="Device IFU description",
+            key_differences=[
+                CompetitiveDeviceAnalysisKeyDifferenceResponse(
+                    title="Patient Population",
+                    content="Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                    icon="https://example.com/icon1.png",
+                ),
+                CompetitiveDeviceAnalysisKeyDifferenceResponse(
+                    title="Usage Environment",
+                    content="Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                    icon="https://example.com/icon2.png",
+                ),
+                CompetitiveDeviceAnalysisKeyDifferenceResponse(
+                    title="Certifications",
+                    content="Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                    icon="https://example.com/icon3.png",
+                ),
+            ],
+            recommendations=[
+                "Recommendation 1",
+                "Recommendation 2",
+                "Recommendation 3",
+            ],
             is_ai_generated=True,
             features=[
                 {
@@ -190,6 +259,21 @@ async def analyze_competitive_analysis_task_async(
                 "https://example.com/ai-generated-source-4",
                 "https://example.com/ai-generated-source-5",
             ],
+            performance=Performance(
+                speed=randint(50, 100),
+                reliability=randint(50, 100),
+            ),
+            price=randint(1000, 5000),
+            your_product_summary=CompetitiveAnalysisCompareSummary(
+                title="Your Product Summary",
+                summary="This is a summary of your product's competitive analysis.",
+                icon="https://example.com/your-product-icon.png",
+            ),
+            competitor_summary=CompetitiveAnalysisCompareSummary(
+                title="Competitor Summary",
+                summary="This is a summary of the competitor's product.",
+                icon="https://example.com/competitor-icon.png",
+            ),
         )
         competitive_analysis_list.append(competitive_analysis)
         await progress.increase()

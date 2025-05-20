@@ -38,6 +38,12 @@ from src.modules.product.competitive_analysis.router import (
 from src.modules.product.product_profile.router import (
     router as product_profile_router,
 )
+from src.modules.product.claim_builder.router import (
+    router as claim_builder_router,
+)
+from src.modules.product.version_control.router import (
+    router as version_control_router,
+)
 
 
 router = APIRouter()
@@ -81,6 +87,7 @@ async def update_product_handler(
 ) -> ProductResponse:
     have_update = False
     possible_fields = [
+        "code",
         "name",
         "model",
         "revision",
@@ -154,10 +161,16 @@ async def unlock_product_handler(
 router.include_router(
     competitive_analysis_router,
     prefix="/{product_id}/competitive-analysis",
-    tags=["Competitive Analysis"],
 )
 router.include_router(
     product_profile_router,
     prefix="/{product_id}/profile",
-    tags=["Product Profile"],
+)
+router.include_router(
+    claim_builder_router,
+    prefix="/{product_id}/claim-builder",
+)
+router.include_router(
+    version_control_router,
+    prefix="/{product_id}/version-control",
 )

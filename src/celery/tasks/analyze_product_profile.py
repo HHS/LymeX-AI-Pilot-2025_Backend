@@ -1,8 +1,9 @@
 import asyncio
 from datetime import datetime, timezone
+from random import randint
 from fastapi import HTTPException
 from loguru import logger
-from src.modules.product.product_profile.schema import Feature
+from src.modules.product.product_profile.schema import Feature, Performance
 from src.modules.product.product_profile.model import (
     ProductProfile,
     AnalyzeProductProfileProgress,
@@ -80,7 +81,7 @@ async def analyze_product_profile_task_async(
     product_id: str,
 ) -> None:
     lock = redis_client.lock(
-        f"NOIS2:Background:AnalyzeCompetitiveAnalysis:AnalyzeLock:{product_id}",
+        f"NOIS2:Background:AnalyzeProductProfile:AnalyzeLock:{product_id}",
         timeout=100,
     )
     lock_acquired = await lock.acquire(blocking=False)
@@ -111,7 +112,20 @@ async def analyze_product_profile_task_async(
         reference_number="Sample reference number",
         description="Sample description",
         regulatory_pathway="Sample regulatory pathway",
-        regulatory_classifications="Sample regulatory classifications",
+        regulatory_classifications=[
+            {
+                "organization": "FDA",
+                "classification": "Class II",
+            },
+            {
+                "organization": "CE",
+                "classification": "Class IIa",
+            },
+            {
+                "organization": "PMDA",
+                "classification": "Class II",
+            },
+        ],
         device_description="Sample device description",
         features=[
             Feature(
@@ -123,8 +137,15 @@ async def analyze_product_profile_task_async(
         claims=["Claim 1", "Claim 2"],
         conflict_alerts=["Conflict alert 1", "Conflict alert 2"],
         fda_approved=False,
+        ce_marked=False,
+        device_ifu_description="Sample device instructions for use description",
         confidence_score=0.95,
         sources=[document.url for document in product_profile_documents],
+        performance=Performance(
+            speed=randint(50, 100),
+            reliability=randint(50, 100),
+        ),
+        price=randint(1000, 5000),
     )
     await product_profile.save()
     logger.info(

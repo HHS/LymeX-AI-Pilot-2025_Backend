@@ -85,6 +85,8 @@ async def update_competitive_analysis(
         competitive_analysis.clinical_study = payload.clinical_study
     if payload.fda_approved is not None:
         competitive_analysis.fda_approved = payload.fda_approved
+    if payload.ce_marked is not None:
+        competitive_analysis.ce_marked = payload.ce_marked
     if payload.is_ai_generated is not None:
         competitive_analysis.is_ai_generated = payload.is_ai_generated
     await competitive_analysis.save()
