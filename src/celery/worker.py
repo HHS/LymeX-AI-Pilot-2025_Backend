@@ -25,6 +25,7 @@ celery = Celery(
         "src.celery.tasks.send_email",
         "src.celery.tasks.analyze_competitive_analysis",
         "src.celery.tasks.analyze_product_profile",
+        "src.celery.tasks.analyze_claim_builder",
     ],
 )
 
@@ -36,6 +37,7 @@ celery.conf.task_routes = {
     "src.celery.tasks.analyze_product_profile": {
         "queue": "celery.analyze_product_profile"
     },
+    "src.celery.tasks.analyze_claim_builder": {"queue": "celery.analyze_claim_builder"},
     "src.celery.tasks.*": {"queue": "celery.default"},
 }
 celery.conf.task_acks_late = True

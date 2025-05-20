@@ -14,6 +14,11 @@ class Feature(BaseModel):
     icon: str | None = Field(None, description="Icon representing the feature")
 
 
+class Performance(BaseModel):
+    speed: int
+    reliability: int
+
+
 # ============================
 # Product Profile Request
 # ============================
@@ -21,7 +26,7 @@ class Feature(BaseModel):
 
 class UpdateProductProfileRequest(BaseModel):
     description: str | None = Field(None, description="Description of the product")
-    regulatory_classifications: str | None = Field(
+    regulatory_classifications: list[RegulatoryClassification] | None = Field(
         None, description="Regulatory classifications of the product"
     )
     device_description: str | None = Field(
@@ -36,6 +41,10 @@ class UpdateProductProfileRequest(BaseModel):
     conflict_alerts: list[str] | None = Field(
         None, description="List of conflict alerts associated with the product"
     )
+
+
+class UploadTextInputDocumentRequest(BaseModel):
+    text: str = Field(..., description="Text input for the document")
 
 
 # ============================
@@ -65,7 +74,7 @@ class ProductProfileResponse(BaseModel):
         ..., description="Indicates if the product is locked for editing"
     )
     description: str | None = Field(None, description="Description of the product")
-    regulatory_classifications: str | None = Field(
+    regulatory_classifications: list[RegulatoryClassification] | None = Field(
         None, description="Regulatory classifications of the product"
     )
     device_description: str | None = Field(
@@ -101,4 +110,21 @@ class AnalyzeProductProfileProgressResponse(BaseModel):
     )
     updated_at: datetime = Field(
         ..., description="Date and time when the progress was last updated"
+    )
+
+
+class ProductProfileAnalysisResponse(BaseModel):
+    product_id: str = Field(..., description="ID of the product")
+    product_code: str = Field(..., description="Code of the product")
+    product_name: str = Field(..., description="Name of the product")
+    updated_at: datetime = Field(
+        ..., description="Date and time when the profile was last updated"
+    )
+    fda_approved: bool = Field(
+        ..., description="Indicates if the product is FDA approved"
+    )
+    ce_marked: bool = Field(..., description="Indicates if the product is CE marked")
+    features: list[Feature] = Field(..., description="List of features of the product")
+    regulatory_classifications: list[RegulatoryClassification] = Field(
+        ..., description="List of regulatory classifications for the product"
     )

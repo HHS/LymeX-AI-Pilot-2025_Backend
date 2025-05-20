@@ -1,6 +1,8 @@
 from datetime import datetime
 from pydantic import BaseModel, Field
 
+from src.modules.product.product_profile.schema import Feature, Performance
+
 
 # ============================
 # Competitive Analysis Request
@@ -20,6 +22,9 @@ class UpdateCompetitiveAnalysisRequest(BaseModel):
     )
     fda_approved: bool | None = Field(
         None, description="Indicates if the product is FDA approved"
+    )
+    ce_marked: bool | None = Field(
+        None, description="Indicates if the product is CE marked"
     )
     is_ai_generated: bool | None = Field(
         None, description="Indicates if the analysis is AI generated"
@@ -48,6 +53,7 @@ class CompetitiveAnalysisResponse(BaseModel):
     fda_approved: bool = Field(
         ..., description="Indicates if the product is FDA approved"
     )
+    ce_marked: bool = Field(..., description="Indicates if the product is CE marked")
     is_ai_generated: bool = Field(
         ..., description="Indicates if the analysis is AI generated"
     )
@@ -60,6 +66,66 @@ class CompetitiveAnalysisResponse(BaseModel):
 
 
 class CompetitiveAnalysisDetailResponse(BaseModel): ...
+
+
+class CompetitiveAnalysisCompareSummary(BaseModel):
+    title: str = Field(..., description="Title of the summary")
+    summary: str = Field(..., description="Summary of the competitive analysis item")
+    icon: str | None = Field(
+        None, description="Icon representing the competitive analysis item"
+    )
+
+
+class CompetitiveAnalysisCompareItemResponse(BaseModel):
+    product_name: str = Field(..., description="Name of the product")
+    price: int = Field(..., description="Price of the product")
+    features: list[Feature] = Field(..., description="List of features of the product")
+    performance: Performance = Field(
+        ..., description="Performance metrics of the product"
+    )
+    summary: CompetitiveAnalysisCompareSummary = Field(
+        ..., description="Summary of the competitive analysis item"
+    )
+
+
+class CompetitiveAnalysisCompareResponse(BaseModel):
+    your_product: CompetitiveAnalysisCompareItemResponse = Field(
+        ..., description="Details of your product in the competitive analysis"
+    )
+    competitor: CompetitiveAnalysisCompareItemResponse = Field(
+        ..., description="Details of the competitor product in the competitive analysis"
+    )
+
+
+class CompetitiveDeviceAnalysisItemResponse(BaseModel):
+    content: str = Field(..., description="Content of the device analysis item")
+    fda_approved: bool = Field(
+        ..., description="Indicates if the device is FDA approved"
+    )
+    ce_marked: bool = Field(..., description="Indicates if the device is CE marked")
+
+
+class CompetitiveDeviceAnalysisKeyDifferenceResponse(BaseModel):
+    title: str = Field(..., description="Title of the key difference")
+    content: str = Field(
+        ..., description="Content describing the key difference between devices"
+    )
+    icon: str | None = Field(None, description="Icon representing the key difference")
+
+
+class CompetitiveDeviceAnalysisResponse(BaseModel):
+    your_device: CompetitiveDeviceAnalysisItemResponse = Field(
+        ..., description="Details of your device in the competitive analysis"
+    )
+    competitor_device: CompetitiveDeviceAnalysisItemResponse = Field(
+        ..., description="Details of the competitor device in the competitive analysis"
+    )
+    key_differences: list[CompetitiveDeviceAnalysisKeyDifferenceResponse] = Field(
+        ..., description="List of key differences between the devices"
+    )
+    recommendations: list[str] = Field(
+        ..., description="List of recommendations based on the competitive analysis"
+    )
 
 
 class CompetitiveAnalysisDocumentResponse(BaseModel):

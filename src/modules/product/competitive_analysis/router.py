@@ -1,5 +1,6 @@
+from datetime import datetime, timezone
 from typing import Annotated
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from src.modules.product.competitive_analysis.model import (
     AnalyzeCompetitiveAnalysisProgress,
@@ -22,8 +23,11 @@ from src.celery.tasks.analyze_competitive_analysis import (
 )
 from src.modules.product.competitive_analysis.schema import (
     AnalyzeCompetitiveAnalysisProgressResponse,
+    CompetitiveAnalysisCompareItemResponse,
+    CompetitiveAnalysisCompareResponse,
     CompetitiveAnalysisDocumentResponse,
     CompetitiveAnalysisResponse,
+    CompetitiveDeviceAnalysisResponse,
     UpdateCompetitiveAnalysisRequest,
     UploadTextInputDocumentRequest,
 )
@@ -62,6 +66,13 @@ async def analyze_competitive_analysis_handler(
     await AnalyzeCompetitiveAnalysisProgress.find(
         AnalyzeCompetitiveAnalysisProgress.reference_product_id == str(product.id),
     ).delete_many()
+    analyze_competitive_analysis_progress = AnalyzeCompetitiveAnalysisProgress(
+        reference_product_id=str(product.id),
+        total_files=0,
+        processed_files=0,
+        updated_at=datetime.now(timezone.utc),
+    )
+    await analyze_competitive_analysis_progress.save()
     analyze_competitive_analysis_task.delay(str(product.id))
 
 
@@ -135,36 +146,67 @@ async def get_all_competitive_analysis_handler(
 ) -> list[CompetitiveAnalysisResponse]:
     competitive_analysis = await get_all_product_competitive_analysis(str(product.id))
     product_profile = await get_product_profile(product.id)
+    if not product_profile:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Product profile is not analyzed yet, please analyze profile first then try again",
+        )
     this_product_competitive_analysis = CompetitiveAnalysisResponse(
         id=str(product.id),
         product_name=product.name,
         reference_number=product_profile.reference_number,
         regulatory_pathway=product_profile.regulatory_pathway,
         fda_approved=product_profile.fda_approved,
+        ce_marked=product_profile.ce_marked,
         is_ai_generated=False,
         confidence_score=product_profile.confidence_score,
         sources=product_profile.sources,
     )
     return [
         this_product_competitive_analysis,
-        *[await i.to_competitive_analysis_response() for i in competitive_analysis],
+        *[i.to_competitive_analysis_response() for i in competitive_analysis],
     ]
 
 
-@router.get("/result/{competitive_analysis_id}")
-async def get_competitive_analysis_by_id_handler(
+@router.get("/result/{competitive_analysis_id}/compare")
+async def competitive_analysis_compare_handler(
     competitive_analysis_id: str,
     product: Annotated[Product, Depends(get_current_product)],
-) -> CompetitiveAnalysisResponse:
-    raise NotImplementedError("This endpoint is not implemented yet.")
+) -> CompetitiveAnalysisCompareResponse:
     competitive_analysis = await get_product_competitive_analysis(
         str(product.id),
         competitive_analysis_id,
     )
-    competitive_analysis_response = (
-        await competitive_analysis.to_competitive_analysis_response()
+    product_profile = await get_product_profile(product.id)
+    if not product_profile:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Product profile is not analyzed yet, please analyze profile first then try again",
+        )
+    return competitive_analysis.to_competitive_compare_response(
+        product,
+        product_profile,
     )
-    return competitive_analysis_response
+
+
+@router.get("/result/{competitive_analysis_id}/compare-device-analysis")
+async def competitive_analysis_compare_device_analysis_handler(
+    competitive_analysis_id: str,
+    product: Annotated[Product, Depends(get_current_product)],
+) -> CompetitiveDeviceAnalysisResponse:
+    competitive_analysis = await get_product_competitive_analysis(
+        str(product.id),
+        competitive_analysis_id,
+    )
+    product_profile = await get_product_profile(product.id)
+    if not product_profile:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Product profile is not analyzed yet, please analyze profile first then try again",
+        )
+    return competitive_analysis.to_competitive_device_analysis_response(
+        product_profile,
+    )
 
 
 @router.delete("/result/{competitive_analysis_id}")
@@ -192,6 +234,6 @@ async def update_competitive_analysis_handler(
         payload,
     )
     competitive_analysis_response = (
-        await competitive_analysis.to_competitive_analysis_response()
+        competitive_analysis.to_competitive_analysis_response()
     )
     return competitive_analysis_response
