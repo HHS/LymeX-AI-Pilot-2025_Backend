@@ -38,9 +38,14 @@ class MissingElementLevel(str, Enum):
 
 
 class MissingElement(BaseModel):
+    id: int
     description: str
     suggested_fix: str
     level: MissingElementLevel
+    accepted: bool | None = Field(
+        None,
+        description="Indicates if the missing element has been accepted. None if not decided yet.",
+    )
 
 
 class RiskIndicatorSeverity(str, Enum):
@@ -55,9 +60,18 @@ class RiskIndicator(BaseModel):
 
 
 class PhraseConflict(BaseModel):
-    statement: str
+    id: int = Field(..., description="ID of the phrase conflict, as index in the list")
+    statement: str = Field(..., description="The statement causing the conflict")
     conflicting_regulation: str
     suggested_fix: str
+    accepted_fix: str | None = Field(
+        None,
+        description="Accepted fix for the phrase conflict. None if not decided yet.",
+    )
+    rejected_reason: str | None = Field(
+        None,
+        description="Reason for rejecting the suggested fix. None if not rejected.",
+    )
 
 
 class Draft(BaseModel):
@@ -67,6 +81,15 @@ class Draft(BaseModel):
     )
     updated_by: str = Field(..., description="User email who last updated the draft")
     content: str = Field(..., description="Content of the draft claim builder")
+    submitted: bool = Field(
+        ..., description="Indicates if the draft has been submitted for review"
+    )
+    accepted: bool = Field(
+        ..., description="Indicates if the draft has been accepted by the user"
+    )
+    reject_message: str | None = Field(
+        None, description="Message provided by the user if the draft is rejected"
+    )
 
 
 # ============== REQUESTS ================
@@ -74,6 +97,37 @@ class Draft(BaseModel):
 
 class UpdateClaimBuilderDraftRequest(BaseModel):
     content: str = Field(..., description="Content of the draft claim builder")
+
+
+class RejectClaimBuilderDraftRequest(BaseModel):
+    reject_message: str = Field(
+        ..., description="Message provided by the user if the draft is rejected"
+    )
+
+
+class DecideMissingElementRequest(BaseModel):
+    id: int = Field(
+        ..., description="ID of the missing element, the same as index in the list"
+    )
+    accepted: bool = Field(
+        ..., description="Indicates if the missing element has been accepted"
+    )
+
+
+class AcceptPhraseConflictRequest(BaseModel):
+    id: int = Field(
+        ..., description="ID of the phrase conflict, the same as index in the list"
+    )
+    accepted_fix: str = Field(..., description="Accepted fix for the phrase conflict")
+
+
+class RejectPhraseConflictRequest(BaseModel):
+    id: int = Field(
+        ..., description="ID of the phrase conflict, the same as index in the list"
+    )
+    rejected_reason: str = Field(
+        ..., description="Reason for rejecting the suggested fix"
+    )
 
 
 # ============== RESPONSES ================

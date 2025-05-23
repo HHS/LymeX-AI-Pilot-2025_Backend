@@ -1,5 +1,6 @@
 from datetime import datetime
 from beanie import Document, PydanticObjectId
+from pydantic import BaseModel
 
 from src.modules.product.models import Product
 from src.modules.product.claim_builder.schema import (
@@ -12,6 +13,18 @@ from src.modules.product.claim_builder.schema import (
     PhraseConflict,
     RiskIndicator,
 )
+
+
+class ClaimBuilderPydantic(BaseModel):
+    product_id: str
+    draft: list[Draft]
+    key_phrases: list[str]
+    ifu: list[IFU]
+    compliance: list[Compliance]
+    missing_elements: list[MissingElement]
+    risk_indicators: list[RiskIndicator]
+    phrase_conflicts: list[PhraseConflict]
+    user_acceptance: bool = False
 
 
 class ClaimBuilder(Document):
@@ -38,6 +51,19 @@ class ClaimBuilder(Document):
             product_id=self.product_id,
             product_code=product.code,
             product_name=product.name,
+            draft=self.draft,
+            key_phrases=self.key_phrases,
+            ifu=self.ifu,
+            compliance=self.compliance,
+            missing_elements=self.missing_elements,
+            risk_indicators=self.risk_indicators,
+            phrase_conflicts=self.phrase_conflicts,
+            user_acceptance=self.user_acceptance,
+        )
+
+    def to_claim_builder_pydantic(self) -> ClaimBuilderPydantic:
+        return ClaimBuilderPydantic(
+            product_id=self.product_id,
             draft=self.draft,
             key_phrases=self.key_phrases,
             ifu=self.ifu,
