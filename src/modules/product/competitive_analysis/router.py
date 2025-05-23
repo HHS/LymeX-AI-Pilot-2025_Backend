@@ -23,7 +23,6 @@ from src.celery.tasks.analyze_competitive_analysis import (
 )
 from src.modules.product.competitive_analysis.schema import (
     AnalyzeCompetitiveAnalysisProgressResponse,
-    CompetitiveAnalysisCompareItemResponse,
     CompetitiveAnalysisCompareResponse,
     CompetitiveAnalysisDocumentResponse,
     CompetitiveAnalysisResponse,

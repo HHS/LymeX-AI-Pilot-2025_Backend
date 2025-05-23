@@ -1,6 +1,7 @@
 from datetime import datetime
 from beanie import Document, PydanticObjectId
 
+from src.modules.product.claim_builder.model import ClaimBuilderPydantic
 from src.modules.product.version_control.schema import ProductVersionControlResponse
 
 
@@ -9,6 +10,7 @@ class ProductVersionControl(Document):
     major_version: int
     minor_version: int
     comment: str
+    data: ClaimBuilderPydantic | None = None
     created_at: datetime
     created_by: str
 
@@ -20,9 +22,12 @@ class ProductVersionControl(Document):
             PydanticObjectId: str,
         }
 
-    def to_product_version_control_response(self) -> ProductVersionControlResponse:
+    def to_product_version_control_response(
+        self, is_current_version: bool
+    ) -> ProductVersionControlResponse:
         return ProductVersionControlResponse(
             version=f"v{self.major_version}.{self.minor_version}",
+            is_current_version=is_current_version,
             comment=self.comment,
             created_at=self.created_at.isoformat(),
             created_by=self.created_by,
