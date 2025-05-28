@@ -1,5 +1,12 @@
 from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
+from src.modules.product.clinical_trial.model import ClinicalTrial
+from src.modules.product.performance_testing.model import PerformanceTesting
+from src.modules.product.regulatory_pathway.model import RegulatoryPathway
+from src.modules.product.test_comparison.model import (
+    TestComparison,
+    TestComparisonNote,
+)
 from src.modules.product.version_control.model import ProductVersionControl
 from src.modules.product.claim_builder.model import (
     AnalyzeClaimBuilderProgress,
@@ -41,5 +48,10 @@ async def init_db() -> None:
             ClaimBuilder,
             AnalyzeClaimBuilderProgress,
             ProductVersionControl,
+            PerformanceTesting,
+            TestComparison,
+            TestComparisonNote,
+            ClinicalTrial,
+            RegulatoryPathway,
         ],
     )

@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from typing import Annotated
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 import httpx
 
 from src.modules.authentication.dependencies import get_current_user
@@ -188,9 +188,9 @@ async def get_product_profile_analysis_handler(
 ) -> ProductProfileAnalysisResponse:
     product_profile = await get_product_profile(product.id)
     if not product_profile:
-        return ProductProfileAnalysisResponse(
-            product_id=str(product.id),
-            analysis=None,
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Product profile not found. Please run analysis first.",
         )
     analysis = product_profile.to_product_profile_analysis_response(product)
     return analysis

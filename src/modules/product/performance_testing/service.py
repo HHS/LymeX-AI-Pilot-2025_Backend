@@ -1,0 +1,63 @@
+from datetime import datetime, timezone
+
+from beanie import PydanticObjectId
+from fastapi import HTTPException, status
+from src.modules.product.performance_testing.model import PerformanceTesting
+from src.modules.product.performance_testing.schema import (
+    CreatePerformanceTestingRequest,
+    PerformanceTestingStatus,
+)
+
+
+async def get_performance_testing_by_name(
+    product_id: str | PydanticObjectId,
+    test_name: str,
+) -> PerformanceTesting | None:
+    performance_testing = await PerformanceTesting.find_one(
+        PerformanceTesting.product_id == str(product_id),
+        PerformanceTesting.test_name == test_name,
+    )
+    return performance_testing
+
+
+async def create_performance_testing(
+    product_id: str | PydanticObjectId,
+    payload: CreatePerformanceTestingRequest,
+    user_email: str,
+) -> PerformanceTesting:
+    existing_test = await get_performance_testing_by_name(
+        product_id=product_id,
+        test_name=payload.test_name,
+    )
+    if existing_test:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Performance testing with name '{payload.test_name}' already exists for product ID '{product_id}'.",
+        )
+    performance_testing = PerformanceTesting(
+        product_id=str(product_id),
+        test_name=payload.test_name,
+        test_description=payload.test_description,
+        status=payload.status or PerformanceTestingStatus.PENDING,
+        risk_level=payload.risk_level,
+        created_at=datetime.now(timezone.utc),
+        created_by=user_email,
+    )
+    await performance_testing.save()
+    return performance_testing
+
+
+async def get_performance_testing(
+    performance_testing_id: str | PydanticObjectId,
+) -> PerformanceTesting | None:
+    performance_testing = await PerformanceTesting.get(performance_testing_id)
+    return performance_testing
+
+
+async def get_product_performance_testings(
+    product_id: str | PydanticObjectId,
+) -> list[PerformanceTesting]:
+    performance_testings = await PerformanceTesting.find(
+        PerformanceTesting.product_id == str(product_id)
+    ).to_list()
+    return performance_testings
