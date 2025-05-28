@@ -71,21 +71,21 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         friendly_messages.append(f"Field {field}: {issue}")
 
     summary_message = "; ".join(friendly_messages)
-
+    response = {
+        "success": False,
+        "data": None,
+        "error": {
+            "code": status.HTTP_422_UNPROCESSABLE_ENTITY,
+            "message": "One or more fields are invalid.",
+            "details": details,
+        },
+        "message": summary_message,
+    }
+    logger.error(f"Validation error")
+    logger.error(json.dumps(response, indent=2))
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        content=jsonable_encoder(
-            {
-                "success": False,
-                "data": None,
-                "error": {
-                    "code": status.HTTP_422_UNPROCESSABLE_ENTITY,
-                    "message": "One or more fields are invalid.",
-                    "details": details,
-                },
-                "message": summary_message,
-            }
-        ),
+        content=jsonable_encoder(response),
     )
 
 

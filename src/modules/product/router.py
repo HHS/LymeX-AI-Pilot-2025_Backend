@@ -22,6 +22,7 @@ from src.modules.product.schema import (
     CreateProductRequest,
     ProductResponse,
     UpdateAvatarUrlResponse,
+    UpdateProductRequest,
 )
 from src.modules.authentication.dependencies import get_current_user
 from src.modules.authorization.dependencies import (
@@ -43,6 +44,18 @@ from src.modules.product.claim_builder.router import (
 )
 from src.modules.product.version_control.router import (
     router as version_control_router,
+)
+from src.modules.product.performance_testing.router import (
+    router as performance_testing_router,
+)
+from src.modules.product.test_comparison.router import (
+    router as test_comparison_router,
+)
+from src.modules.product.clinical_trial.router import (
+    router as clinical_trial_router,
+)
+from src.modules.product.regulatory_pathway.router import (
+    router as regulatory_pathway_router,
 )
 
 
@@ -81,7 +94,7 @@ async def get_product_handler(
 @router.patch("/{product_id}")
 async def update_product_handler(
     product: Annotated[Product, Depends(get_current_product)],
-    payload: CreateProductRequest,
+    payload: UpdateProductRequest,
     current_user: Annotated[User, Depends(get_current_user)],
     _: Annotated[bool, Depends(check_product_edit_allowed)],
 ) -> ProductResponse:
@@ -173,4 +186,24 @@ router.include_router(
 router.include_router(
     version_control_router,
     prefix="/{product_id}/version-control",
+)
+router.include_router(
+    version_control_router,
+    prefix="/{product_id}/version-control",
+)
+router.include_router(
+    performance_testing_router,
+    prefix="/{product_id}/performance-testing",
+)
+router.include_router(
+    test_comparison_router,
+    prefix="/{product_id}/test-comparison",
+)
+router.include_router(
+    clinical_trial_router,
+    prefix="/{product_id}/clinical-trial",
+)
+router.include_router(
+    regulatory_pathway_router,
+    prefix="/{product_id}/regulatory-pathway",
 )

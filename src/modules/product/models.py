@@ -9,7 +9,7 @@ from src.modules.product.schema import ProductResponse
 
 class Product(Document):
     name: str
-    code: str
+    code: str | None = None
     model: str
     revision: str
     category: str

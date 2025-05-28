@@ -273,6 +273,9 @@ async def analyze_claim_builder_task_async(
         ],
         user_acceptance=False,
     )
+    await ClaimBuilder.find(
+        ClaimBuilder.product_id == product_id,
+    ).delete_many()
     await claim_builder.save()
     logger.info(
         f"Analyzed product profile for product: {product_id}, including {number_of_documents} documents."

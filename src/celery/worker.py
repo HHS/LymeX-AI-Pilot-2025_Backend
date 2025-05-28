@@ -16,17 +16,23 @@ def beanie_worker_init(**kwargs):
     logger.info("Beanie database connection started")
 
 
+celery_queues = [
+    "src.celery.tasks.echo",
+    "src.celery.tasks.send_email",
+    "src.celery.tasks.analyze_competitive_analysis",
+    "src.celery.tasks.analyze_product_profile",
+    "src.celery.tasks.analyze_claim_builder",
+    "src.celery.tasks.analyze_performance_testing",
+    "src.celery.tasks.analyze_test_comparison",
+    "src.celery.tasks.analyze_clinical_trial",
+    "src.celery.tasks.analyze_regulatory_pathway",
+]
+
 celery = Celery(
     "worker",
     broker=environment.rabbitmq_url,
     backend=environment.mongo_celery_backend,
-    include=[
-        "src.celery.tasks.echo",
-        "src.celery.tasks.send_email",
-        "src.celery.tasks.analyze_competitive_analysis",
-        "src.celery.tasks.analyze_product_profile",
-        "src.celery.tasks.analyze_claim_builder",
-    ],
+    include=celery_queues,
 )
 
 celery.conf.task_routes = {
@@ -38,6 +44,18 @@ celery.conf.task_routes = {
         "queue": "celery.analyze_product_profile"
     },
     "src.celery.tasks.analyze_claim_builder": {"queue": "celery.analyze_claim_builder"},
+    "src.celery.tasks.analyze_performance_testing": {
+        "queue": "celery.analyze_performance_testing"
+    },
+    "src.celery.tasks.analyze_test_comparison": {
+        "queue": "celery.analyze_test_comparison"
+    },
+    "src.celery.tasks.analyze_clinical_trial": {
+        "queue": "celery.analyze_clinical_trial"
+    },
+    "src.celery.tasks.analyze_regulatory_pathway": {
+        "queue": "celery.analyze_regulatory_pathway"
+    },
     "src.celery.tasks.*": {"queue": "celery.default"},
 }
 celery.conf.task_acks_late = True
