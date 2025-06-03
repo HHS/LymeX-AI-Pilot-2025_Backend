@@ -29,6 +29,8 @@ class ProductProfile(Document):
     sources: list[str]
     performance: Performance
     price: int
+    instructions: list[str]
+    type_of_use: str
 
     class Settings:
         name = "product_profile"

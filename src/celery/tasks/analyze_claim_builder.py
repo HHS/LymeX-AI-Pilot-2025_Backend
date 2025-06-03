@@ -235,16 +235,19 @@ async def analyze_claim_builder_task_async(
         ],
         missing_elements=[
             MissingElement(
+                id=0,
                 description="This is minor missing element",
                 suggested_fix="Add safety instructions to the product documentation.",
                 level=MissingElementLevel.MINOR,
             ),
             MissingElement(
+                id=1,
                 description="This is major missing element",
                 suggested_fix="Include detailed usage instructions in the product manual.",
                 level=MissingElementLevel.MAJOR,
             ),
             MissingElement(
+                id=2,
                 description="This is critical missing element",
                 suggested_fix="Ensure the product complies with all safety regulations.",
                 level=MissingElementLevel.CRITICAL,
@@ -266,9 +269,22 @@ async def analyze_claim_builder_task_async(
         ],
         phrase_conflicts=[
             PhraseConflict(
+                id=0,
                 statement="This is a phrase conflict statement",
                 conflicting_regulation="This is the conflicting regulation",
                 suggested_fix="This is the suggested fix for the phrase conflict",
+            ),
+            PhraseConflict(
+                id=1,
+                statement="This is another phrase conflict statement",
+                conflicting_regulation="This is another conflicting regulation",
+                suggested_fix="This is another suggested fix for the phrase conflict",
+            ),
+            PhraseConflict(
+                id=2,
+                statement="This is yet another phrase conflict statement",
+                conflicting_regulation="This is yet another conflicting regulation",
+                suggested_fix="This is yet another suggested fix for the phrase conflict",
             ),
         ],
         user_acceptance=False,

@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from src.modules.product.competitive_analysis.model import (
     AnalyzeCompetitiveAnalysisProgress,
+    CompetitiveAnalysis,
 )
 from src.modules.product.product_profile.service import get_product_profile
 from src.modules.authentication.dependencies import get_current_user
@@ -38,6 +39,8 @@ from src.modules.product.competitive_analysis.service import (
     update_competitive_analysis,
 )
 import httpx
+
+from src.utils.string_to_id import string_to_id
 
 
 router = APIRouter()
@@ -167,6 +170,25 @@ async def get_all_competitive_analysis_handler(
     ]
 
 
+@router.get("/compare-device-analysis-result")
+async def get_competitive_analysis_compare_device_analysis_handler(
+    product: Annotated[Product, Depends(get_current_product)],
+) -> list[CompetitiveDeviceAnalysisResponse]:
+    product_profile = await get_product_profile(product.id)
+    if not product_profile:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Product profile is not analyzed yet, please analyze profile first then try again",
+        )
+    competitive_analysis_compare_device_analysis = await CompetitiveAnalysis.find(
+        CompetitiveAnalysis.reference_product_id == str(product.id),
+    ).to_list()
+    return [
+        i.to_competitive_device_analysis_response(product_profile)
+        for i in competitive_analysis_compare_device_analysis
+    ]
+
+
 @router.get("/result/{competitive_analysis_id}/compare")
 async def competitive_analysis_compare_handler(
     competitive_analysis_id: str,
@@ -193,6 +215,7 @@ async def competitive_analysis_compare_device_analysis_handler(
     competitive_analysis_id: str,
     product: Annotated[Product, Depends(get_current_product)],
 ) -> CompetitiveDeviceAnalysisResponse:
+    competitive_analysis_id = string_to_id(competitive_analysis_id)
     competitive_analysis = await get_product_competitive_analysis(
         str(product.id),
         competitive_analysis_id,

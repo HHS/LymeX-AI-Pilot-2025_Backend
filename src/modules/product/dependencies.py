@@ -8,12 +8,14 @@ from src.modules.authorization.dependencies import (
 )
 from src.modules.company.models import Company
 from src.modules.product.models import Product
+from src.utils.string_to_id import string_to_id
 
 
 async def get_current_product(
     product_id: str,
     current_company: Annotated[Company, Depends(get_current_company)],
 ) -> Product:
+    product_id = string_to_id(product_id)
     product = await Product.get(product_id)
     if not product:
         raise HTTPException(

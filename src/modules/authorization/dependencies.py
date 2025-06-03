@@ -9,14 +9,20 @@ from src.modules.user.models import User
 
 
 async def get_current_company(
-    company_id: Annotated[str, Header()],
     current_user: Annotated[User, Depends(get_current_user)],
+    company_id: Annotated[str | None, Header()] = None,
 ) -> Company:
-    company_member = await CompanyMember.find_one(
-        CompanyMember.company_id == company_id,
-        CompanyMember.user_id == str(current_user.id),
-        CompanyMember.status == CompanyMemberStatus.ACTIVE,
-    )
+    if company_id:
+        company_member = await CompanyMember.find_one(
+            CompanyMember.company_id == company_id,
+            CompanyMember.user_id == str(current_user.id),
+            CompanyMember.status == CompanyMemberStatus.ACTIVE,
+        )
+    else:
+        company_member = await CompanyMember.find_one(
+            CompanyMember.user_id == str(current_user.id),
+            CompanyMember.status == CompanyMemberStatus.ACTIVE,
+        )
     if not company_member:
         raise HTTPException(
             status_code=404,

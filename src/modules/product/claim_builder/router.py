@@ -286,6 +286,31 @@ async def accept_phrase_conflict_handler(
     return profile_response
 
 
+@router.post("/phrase-conflict/accept-all")
+async def accept_all_phrase_conflict_handler(
+    product: Annotated[Product, Depends(get_current_product)],
+    user: Annotated[User, Depends(get_current_user)],
+    _: Annotated[bool, Depends(check_product_edit_allowed)],
+) -> ClaimBuilderResponse:
+    claim_builder = await get_claim_builder(product.id)
+    if claim_builder.user_acceptance:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot update draft after user acceptance.",
+        )
+    for conflict in claim_builder.phrase_conflicts:
+        if conflict.rejected_reason is None:
+            conflict.accepted_fix = conflict.suggested_fix
+    await claim_builder.save()
+    await snapshot_minor_version(
+        claim_builder,
+        f"Accept all phrase conflicts",
+        user.email,
+    )
+    profile_response = claim_builder.to_claim_builder_response(product)
+    return profile_response
+
+
 @router.post("/phrase-conflict/reject")
 async def reject_phrase_conflict_handler(
     payload: RejectPhraseConflictRequest,
