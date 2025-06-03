@@ -37,6 +37,8 @@ class CompetitiveAnalysis(Document):
     price: int
     your_product_summary: CompetitiveAnalysisCompareSummary
     competitor_summary: CompetitiveAnalysisCompareSummary
+    instructions: list[str]
+    type_of_use: str
 
     class Settings:
         name = "competitive_analysis"
@@ -89,12 +91,18 @@ class CompetitiveAnalysis(Document):
     ) -> CompetitiveDeviceAnalysisResponse:
         return CompetitiveDeviceAnalysisResponse(
             your_device=CompetitiveDeviceAnalysisItemResponse(
+                id=str(product_profile.id),
                 content=product_profile.device_ifu_description,
+                instructions=product_profile.instructions,
+                type_of_use=product_profile.type_of_use,
                 fda_approved=product_profile.fda_approved,
                 ce_marked=product_profile.ce_marked,
             ),
             competitor_device=CompetitiveDeviceAnalysisItemResponse(
+                id=str(self.id),
                 content=self.device_ifu_description,
+                instructions=self.instructions,
+                type_of_use=self.type_of_use,
                 fda_approved=self.fda_approved,
                 ce_marked=self.ce_marked,
             ),

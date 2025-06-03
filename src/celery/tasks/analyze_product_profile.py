@@ -146,6 +146,12 @@ async def analyze_product_profile_task_async(
             reliability=randint(50, 100),
         ),
         price=randint(1000, 5000),
+        instructions=[
+            "Follow the instructions provided in the document.",
+            "Ensure compliance with regulatory standards.",
+            "Review the key differences highlighted in the analysis.",
+        ],
+        type_of_use="prescription",
     )
     await product_profile.save()
     logger.info(

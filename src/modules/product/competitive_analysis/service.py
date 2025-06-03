@@ -1,3 +1,4 @@
+from beanie import PydanticObjectId
 from fastapi import HTTPException, status
 from src.modules.product.competitive_analysis.model import (
     AnalyzeCompetitiveAnalysisProgress,
@@ -19,7 +20,7 @@ async def get_all_product_competitive_analysis(
 
 async def get_product_competitive_analysis(
     product_id: str,
-    competitive_analysis_id: str,
+    competitive_analysis_id: PydanticObjectId,
 ) -> CompetitiveAnalysis:
     competitive_analysis = await CompetitiveAnalysis.get(
         competitive_analysis_id,

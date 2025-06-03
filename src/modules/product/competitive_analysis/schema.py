@@ -98,7 +98,14 @@ class CompetitiveAnalysisCompareResponse(BaseModel):
 
 
 class CompetitiveDeviceAnalysisItemResponse(BaseModel):
+    id: str = Field(..., description="ID of the device analysis item")
     content: str = Field(..., description="Content of the device analysis item")
+    instructions: list[str] = Field(
+        ..., description="List of instructions for the device analysis item"
+    )
+    type_of_use: str = Field(
+        ..., description="Type of use for the device (e.g., diagnostic, therapeutic)"
+    )
     fda_approved: bool = Field(
         ..., description="Indicates if the device is FDA approved"
     )
