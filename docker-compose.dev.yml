@@ -1,0 +1,77 @@
+services:
+  mongo:
+    image: mongo:latest
+    restart: unless-stopped
+    ports:
+      - "17018:27017"
+    volumes:
+      - nois2_mongo_data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME:-root}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD:-password}
+      - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE:-nois2}
+    env_file:
+      - .dev_env
+
+  redis:
+    image: redis:latest
+    restart: unless-stopped
+    ports:
+      - "16377:6379"
+    volumes:
+      - nois2_redis_data:/data
+    env_file:
+      - .dev_env
+
+  rabbitmq:
+    image: rabbitmq:management
+    restart: unless-stopped
+    ports:
+      - "15673:5672"
+      - "15674:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER:-guest}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS:-guest}
+    env_file:
+      - .dev_env
+
+  minio:
+    image: minio/minio:latest
+    restart: unless-stopped
+    ports:
+      - "19002:9000"
+      - "19013:9001"
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER:-minio}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-minio123}
+    command: server /data --console-address ":9001"
+    volumes:
+      - nois2_minio_data:/data
+    env_file:
+      - .dev_env
+
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    restart: unless-stopped
+    ports:
+      - "19000:8000"
+    env_file:
+      - .dev_env
+
+  background:
+    build:
+      context: .
+      dockerfile: Dockerfile.background
+    restart: unless-stopped
+    env_file:
+      - .dev_env
+
+volumes:
+  nois2_mongo_data:
+    driver: local
+  nois2_redis_data:
+    driver: local
+  nois2_minio_data:
+    driver: local

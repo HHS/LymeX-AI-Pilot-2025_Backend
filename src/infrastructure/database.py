@@ -1,11 +1,14 @@
 from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
+from loguru import logger
+from src.infrastructure.init.init_email_template_data import init_email_template_data
+from src.infrastructure.init.init_system_admin_user import init_system_admin_user
 from src.modules.product.clinical_trial.model import ClinicalTrial
+from src.modules.product.feature_status.model import FeaturesStatus
 from src.modules.product.performance_testing.model import PerformanceTesting
 from src.modules.product.regulatory_pathway.model import RegulatoryPathway
 from src.modules.product.test_comparison.model import (
     TestComparison,
-    TestComparisonNote,
 )
 from src.modules.product.version_control.model import ProductVersionControl
 from src.modules.product.claim_builder.model import (
@@ -32,6 +35,7 @@ db = client[environment.mongo_db]
 
 
 async def init_db() -> None:
+    logger.info("Initializing database connection...")
     await init_beanie(
         database=db,
         document_models=[
@@ -50,8 +54,16 @@ async def init_db() -> None:
             ProductVersionControl,
             PerformanceTesting,
             TestComparison,
-            TestComparisonNote,
             ClinicalTrial,
             RegulatoryPathway,
+            FeaturesStatus,
         ],
     )
+    logger.info(
+        "Database connection initialized successfully. Initializing email templates..."
+    )
+    await init_email_template_data()
+    logger.info("Email templates initialized successfully.")
+    await init_system_admin_user()
+    logger.info("System admin user initialized successfully.")
+    logger.info("Database initialization complete.")

@@ -57,6 +57,9 @@ from src.modules.product.clinical_trial.router import (
 from src.modules.product.regulatory_pathway.router import (
     router as regulatory_pathway_router,
 )
+from src.modules.product.feature_status.router import (
+    router as feature_status_router,
+)
 
 
 router = APIRouter()
@@ -206,4 +209,8 @@ router.include_router(
 router.include_router(
     regulatory_pathway_router,
     prefix="/{product_id}/regulatory-pathway",
+)
+router.include_router(
+    feature_status_router,
+    prefix="/{product_id}/feature-status",
 )
