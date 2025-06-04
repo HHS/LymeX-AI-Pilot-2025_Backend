@@ -1,24 +1,33 @@
 from beanie import PydanticObjectId
+from fastapi import HTTPException, status
 
 from src.modules.product.test_comparison.model import (
     TestComparison,
-    TestComparisonNote,
 )
 
 
+async def get_product_all_test_comparison(
+    product_id: str | PydanticObjectId,
+) -> list[TestComparison]:
+    product_test_comparisons = await TestComparison.find(
+        TestComparison.product_id == str(product_id)
+    ).to_list()
+    return product_test_comparisons
+
+
 async def get_product_test_comparison(
+    comparison_id: str | PydanticObjectId,
     product_id: str | PydanticObjectId,
 ) -> TestComparison | None:
-    product_test_comparison = await TestComparison.find_one(
-        TestComparison.product_id == str(product_id)
-    )
-    return product_test_comparison
-
-
-async def get_product_test_comparison_note(
-    product_id: str | PydanticObjectId,
-) -> TestComparisonNote | None:
-    product_test_comparison = await TestComparisonNote.find_one(
-        TestComparisonNote.product_id == str(product_id)
-    )
+    product_test_comparison = await TestComparison.get(comparison_id)
+    if not product_test_comparison:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Test comparison data not found for the product. Please analyze the product first.",
+        )
+    if product_test_comparison.product_id != str(product_id):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to view this test comparison.",
+        )
     return product_test_comparison

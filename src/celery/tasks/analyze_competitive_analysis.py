@@ -280,6 +280,12 @@ async def analyze_competitive_analysis_task_async(
                 summary="This is a summary of the competitor's product.",
                 icon="https://example.com/competitor-icon.png",
             ),
+            instructions=[
+                "Follow the instructions provided in the document.",
+                "Ensure compliance with regulatory standards.",
+                "Review the key differences highlighted in the analysis.",
+            ],
+            type_of_use="prescription",
         )
         competitive_analysis_list.append(competitive_analysis)
         await progress.increase()

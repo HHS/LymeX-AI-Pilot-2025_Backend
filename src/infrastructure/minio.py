@@ -20,7 +20,6 @@ minio_client = Minio(
 async def generate_put_object_presigned_url(
     object_name: str,
     expiration_seconds=300,
-    metadata: dict[str, str] | None = None,
 ) -> str:
     put_object_presigned_url = await asyncio.to_thread(
         minio_client.presigned_put_object,

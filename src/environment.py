@@ -11,6 +11,8 @@ class Environment(BaseSettings):
     application_host: str = Field("http://localhost:8000")
     frontend_url: str = Field("http://localhost:3000")
 
+    system_admin_password: str = Field("admin1234!@#@WEd23ewd")
+
     is_production: bool = Field(False)
 
     # DATABASE CONFIGURATION

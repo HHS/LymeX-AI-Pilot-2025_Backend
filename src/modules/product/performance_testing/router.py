@@ -74,6 +74,27 @@ async def get_performance_testing_handler(
     return performance_testing.to_performance_testing_response()
 
 
+@router.delete("/{performance_testing_id}")
+async def delete_performance_testing_handler(
+    performance_testing_id: str,
+    product: Annotated[Product, Depends(get_current_product)],
+    _: Annotated[bool, Depends(check_product_edit_allowed)],
+) -> None:
+    performance_testing = await get_performance_testing(performance_testing_id)
+    if not performance_testing:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Performance testing not found.",
+        )
+    if performance_testing.product_id != str(product.id):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Performance testing does not belong to this product.",
+        )
+    await performance_testing.delete()
+    return
+
+
 @router.post("/{performance_testing_id}/analyze")
 async def analyze_performance_testing_handler(
     performance_testing_id: str,
