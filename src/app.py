@@ -16,6 +16,7 @@ from src.modules.company.router import router as company_router
 from src.modules.product.router import router as product_router
 from src.modules.support.router import router as support_router
 from src.modules.system_data.router import router as system_data_router
+from src.modules.dashboard.router import router as dashboard_router
 from contextlib import asynccontextmanager
 from src.environment import environment
 from fastapi.exceptions import RequestValidationError
@@ -180,6 +181,7 @@ app.include_router(company_router, prefix="/company", tags=["Company"])
 app.include_router(product_router, prefix="/product", tags=["Product"])
 app.include_router(support_router, prefix="/support", tags=["Support"])
 app.include_router(system_data_router, prefix="/system-data", tags=["System Data"])
+app.include_router(dashboard_router, prefix="/dashboard", tags=["Dashboard"])
 
 if not environment.is_production:
     app.include_router(email_router, prefix="/email", tags=["Email"])
