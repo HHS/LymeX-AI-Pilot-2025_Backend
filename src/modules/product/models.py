@@ -24,7 +24,7 @@ class Product(Document):
     updated_at: datetime
     edit_locked: bool = False
     regulatory_background_status: FeatureStatus = FeatureStatus.NOT_STARTED
-    claims_builder_status: FeatureStatus = FeatureStatus.NOT_STARTED    
+    claims_builder_status: FeatureStatus = FeatureStatus.NOT_STARTED
     competitive_analysis_status: FeatureStatus = FeatureStatus.NOT_STARTED
     standards_guidance_documents_status: FeatureStatus = FeatureStatus.NOT_STARTED
     performance_testing_requirements_status: FeatureStatus = FeatureStatus.NOT_STARTED

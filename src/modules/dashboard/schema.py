@@ -6,6 +6,7 @@ from src.modules.product.feature_status.schema import (
     FeatureStatus,
 )
 
+
 class DashboardProductResponse(BaseModel):
     id: str
     name: str
@@ -17,6 +18,7 @@ class DashboardProductResponse(BaseModel):
     standards_guidance_documents_status: FeatureStatus
     performance_testing_requirements_status: FeatureStatus
     regulatory_pathway_analysis_status: FeatureStatus
+
 
 class DashboardResponse(BaseModel):
     company_id: str
