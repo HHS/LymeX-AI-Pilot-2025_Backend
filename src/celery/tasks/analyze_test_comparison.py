@@ -92,21 +92,25 @@ async def analyze_test_comparison_task_async(
                 id=0,
                 name="Sterilization Method Difference",
                 description="Consider EO sterilization validation based on comparator success",
+                suggestion="Suggestion for improvement of Sterilization Method Difference",
             ),
             IdentifiedGapAndSuggestedAdjustment(
                 id=1,
                 name="Review Sterilization Approach",
                 description="Evaluate EO sterilization as an alternative to steam method",
+                suggestion="Suggestion for improvement of Review Sterilization Approach",
             ),
             IdentifiedGapAndSuggestedAdjustment(
                 id=2,
                 name="Performance Testing Gaps",
                 description="Identify gaps in performance testing compared to competitors",
+                suggestion="Suggestion for improvement of Performance Testing Gaps",
             ),
             IdentifiedGapAndSuggestedAdjustment(
                 id=3,
                 name="Environmental Compliance Gaps",
                 description="Address gaps in environmental compliance testing",
+                suggestion="Suggestion for improvement of Environmental Compliance Gaps",
             ),
         ],
     )
@@ -152,21 +156,25 @@ async def analyze_test_comparison_task_async(
                 id=0,
                 name="Sterilization Method Difference",
                 description="Consider EO sterilization validation based on comparator success",
+                suggestion="Suggestion for improvement of Sterilization Method Difference",
             ),
             IdentifiedGapAndSuggestedAdjustment(
                 id=1,
                 name="Review Sterilization Approach",
                 description="Evaluate EO sterilization as an alternative to steam method",
+                suggestion="Suggestion for improvement of Review Sterilization Approach",
             ),
             IdentifiedGapAndSuggestedAdjustment(
                 id=2,
                 name="Performance Testing Gaps",
                 description="Identify gaps in performance testing compared to competitors",
+                suggestion="Suggestion for improvement of Performance Testing Gaps",
             ),
             IdentifiedGapAndSuggestedAdjustment(
                 id=3,
                 name="Environmental Compliance Gaps",
                 description="Address gaps in environmental compliance testing",
+                suggestion="Suggestion for improvement of Environmental Compliance Gaps",
             ),
         ],
     )
@@ -212,21 +220,25 @@ async def analyze_test_comparison_task_async(
                 id=0,
                 name="Sterilization Method Difference",
                 description="Consider EO sterilization validation based on comparator success",
+                suggestion="Suggestion for improvement of Sterilization Method Difference",
             ),
             IdentifiedGapAndSuggestedAdjustment(
                 id=1,
                 name="Review Sterilization Approach",
                 description="Evaluate EO sterilization as an alternative to steam method",
+                suggestion="Suggestion for improvement of Review Sterilization Approach",
             ),
             IdentifiedGapAndSuggestedAdjustment(
                 id=2,
                 name="Performance Testing Gaps",
                 description="Identify gaps in performance testing compared to competitors",
+                suggestion="Suggestion for improvement of Performance Testing Gaps",
             ),
             IdentifiedGapAndSuggestedAdjustment(
                 id=3,
                 name="Environmental Compliance Gaps",
                 description="Address gaps in environmental compliance testing",
+                suggestion="Suggestion for improvement of Environmental Compliance Gaps",
             ),
         ],
     )

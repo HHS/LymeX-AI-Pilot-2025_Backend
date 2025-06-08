@@ -45,6 +45,15 @@ async def analyze_product_test_comparison_handler(
     )
 
 
+@router.post("/analyze")
+async def analyze_product_test_comparison_handler_2(
+    product: Annotated[Product, Depends(get_current_product)],
+) -> None:
+    analyze_test_comparison_task.delay(
+        product_id=str(product.id),
+    )
+
+
 @router.post("/{comparison_id}/accept/{suggestion_id}")
 async def accept_test_comparison_suggestion_handler(
     comparison_id: str,
