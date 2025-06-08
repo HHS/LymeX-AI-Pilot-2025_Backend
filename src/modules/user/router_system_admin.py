@@ -73,6 +73,6 @@ async def create_user_handler(
             detail="Email already exists",
         )
     created_user = await create_user(payload, True)
-    return created_user.to_user_response(
+    return await created_user.to_user_response(
         populate_companies=False,
     )

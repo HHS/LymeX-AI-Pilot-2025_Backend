@@ -18,6 +18,10 @@ class IdentifiedGapAndSuggestedAdjustment(BaseModel):
     description: str = Field(
         ..., description="Description of the identified gap and suggested adjustment"
     )
+    suggestion: str = Field(
+        ...,
+        description="Suggestion for improvement of the identified gap and suggested adjustment",
+    )
     accepted: bool | None = Field(
         None,
         description="Indicates if the identified gap and suggested adjustment is accepted, false is rejected, and null is not yet decided",
