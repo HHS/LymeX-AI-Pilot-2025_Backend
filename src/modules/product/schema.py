@@ -78,3 +78,9 @@ class UpdateAvatarUrlResponse(BaseModel):
         ...,
         description="URL to upload the avatar, using put method. Expires in 5 minutes",
     )
+
+
+class FeatureStatus(str, Enum):
+    NOT_STARTED = "NotStarted"
+    IN_PROGRESS = "InProgress"
+    DONE = "Done"
