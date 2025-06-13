@@ -3,7 +3,9 @@ from datetime import datetime, timezone
 from enum import Enum
 from random import choice, randint, sample
 from fastapi import HTTPException
+import httpx
 from loguru import logger
+from src.environment import environment
 from src.modules.product.competitive_analysis.schema import (
     CompetitiveAnalysisCompareSummary,
     CompetitiveDeviceAnalysisKeyDifferenceResponse,
@@ -39,12 +41,18 @@ def analyze_competitive_analysis_task(
 ) -> None:
     logger.info(f"Parsing competitive analysis for product: {product_id}")
     try:
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(
-            analyze_competitive_analysis_task_async(
-                product_id,
+        if environment.use_separated_ai_service:
+            logger.info(
+                f"Using separated AI service for competitive analysis for product_id: {product_id}"
             )
-        )
+            httpx.post(
+                f"{environment.ai_service_url}/analyze-competitive-analysis?product_id={product_id}"
+            )
+        else:
+            logger.info(
+                f"Using internal AI service for competitive analysis for product_id: {product_id}"
+            )
+            asyncio.run(analyze_competitive_analysis_task_async(product_id))
     except HTTPException as e:
         logger.error(f"Failed to analyze competitive analysis: {e.detail}")
         raise e

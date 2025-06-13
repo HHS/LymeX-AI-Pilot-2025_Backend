@@ -52,7 +52,7 @@ async def create_invitation_handler(
             status_code=404,
             detail="User not found",
         )
-    await create_invitation(invited_user, current_company)
+    await create_invitation(invited_user, current_company, payload.role)
     return None
 
 

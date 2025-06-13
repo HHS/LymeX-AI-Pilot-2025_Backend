@@ -28,6 +28,7 @@ async def get_companies(user: User, status: CompanyMemberStatus) -> list[Company
 async def create_invitation(
     user: User,
     company: Company,
+    role: CompanyRoles,
 ) -> None:
     user_already_in_company = await CompanyMember.find_one(
         CompanyMember.user_id == str(user.id),
@@ -40,7 +41,7 @@ async def create_invitation(
         )
     company_member = CompanyMember(
         status=CompanyMemberStatus.INVITED,
-        role=CompanyRoles.USER,
+        role=role,
         company_id=str(company.id),
         user_id=str(user.id),
         created_at=datetime.now(timezone.utc),
@@ -79,6 +80,9 @@ async def create_company(payload: CreateCompanyRequest) -> Company:
         name=payload.name,
         description=payload.description,
         industry=payload.industry,
+        street_address=payload.street_address,
+        city=payload.city,
+        state=payload.state,
         created_at=datetime.now(timezone.utc),
         updated_at=datetime.now(timezone.utc),
     )

@@ -11,6 +11,8 @@ class Environment(BaseSettings):
     application_host: str = Field("http://localhost:8000")
     frontend_url: str = Field("http://localhost:3000")
 
+    ai_service_url: str = Field("http://localhost:19003")
+
     system_admin_password: str = Field("admin1234!@#@WEd23ewd")
 
     is_production: bool = Field(False)
@@ -67,6 +69,8 @@ class Environment(BaseSettings):
     redis_host: str
     redis_port: str = Field(6379)
     redis_db: str = Field(0)
+
+    use_separated_ai_service: bool = Field(False)
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
