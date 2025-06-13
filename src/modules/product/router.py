@@ -60,6 +60,9 @@ from src.modules.product.regulatory_pathway.router import (
 from src.modules.product.feature_status.router import (
     router as feature_status_router,
 )
+from src.modules.product.milestone_planning.router import (
+    router as milestone_planning_router,
+)
 
 
 router = APIRouter()
@@ -191,10 +194,6 @@ router.include_router(
     prefix="/{product_id}/version-control",
 )
 router.include_router(
-    version_control_router,
-    prefix="/{product_id}/version-control",
-)
-router.include_router(
     performance_testing_router,
     prefix="/{product_id}/performance-testing",
 )
@@ -213,4 +212,8 @@ router.include_router(
 router.include_router(
     feature_status_router,
     prefix="/{product_id}/feature-status",
+)
+router.include_router(
+    milestone_planning_router,
+    prefix="/{product_id}/milestone-planning",
 )
