@@ -31,7 +31,10 @@ async def get_product_milestone_planning_handler(
     product: Annotated[Product, Depends(get_current_product)],
 ) -> list[MilestonePlanningResponse]:
     milestone_plannings = await get_product_milestone_planning(product.id)
-    return [await planning.to_milestone_planning_response() for planning in milestone_plannings]
+    return [
+        await planning.to_milestone_planning_response()
+        for planning in milestone_plannings
+    ]
 
 
 @router.post("/save")

@@ -21,7 +21,7 @@ async def save_milestone_planning(
     milestone_planning = await MilestonePlanning.find_one(
         MilestonePlanning.product_id == str(product_id)
     )
-    
+
     if not milestone_planning:
         # If no existing record, create a new one
         milestone_planning = MilestonePlanning(
@@ -31,8 +31,8 @@ async def save_milestone_planning(
     else:
         # Update existing record
         milestone_planning.milestones = milestones
-    
+
     # Save the changes
     await milestone_planning.save()
-    
+
     return milestone_planning

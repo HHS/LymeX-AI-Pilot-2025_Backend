@@ -55,21 +55,21 @@ async def analyze_milestone_planning_task_async(
                 row=1,
                 start_date=datetime.now(),
                 end_date=datetime.now() + timedelta(days=90),
-                name="Initial Design Phase"
+                name="Initial Design Phase",
             ),
             Milestone(
                 row=2,
                 start_date=datetime.now() + timedelta(days=91),
                 end_date=datetime.now() + timedelta(days=180),
-                name="Development Phase"
+                name="Development Phase",
             ),
             Milestone(
                 row=3,
                 start_date=datetime.now() + timedelta(days=181),
                 end_date=datetime.now() + timedelta(days=270),
-                name="Testing Phase"
-            )
-        ]
+                name="Testing Phase",
+            ),
+        ],
     )
 
     # Delete any existing milestone planning for this product

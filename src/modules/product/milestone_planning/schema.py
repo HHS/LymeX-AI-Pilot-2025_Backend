@@ -13,7 +13,9 @@ class Milestone(BaseModel):
 class MilestonePlanningResponse(BaseModel):
     product_id: str = Field(..., description="ID of the product")
     product_name: str = Field(..., description="Name of the product")
-    milestones: List[Milestone] = Field(..., description="List of milestones in the timeline")
+    milestones: List[Milestone] = Field(
+        ..., description="List of milestones in the timeline"
+    )
 
 
 class SaveMilestonePlanningRequest(BaseModel):
