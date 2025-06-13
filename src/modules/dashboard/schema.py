@@ -16,7 +16,9 @@ class DashboardProductResponse(BaseModel):
     claims_builder_percentage: float = Field(default=0.0, ge=0, le=100)
     competitive_analysis_percentage: float = Field(default=0.0, ge=0, le=100)
     standards_guidance_documents_percentage: float = Field(default=0.0, ge=0, le=100)
-    performance_testing_requirements_percentage: float = Field(default=0.0, ge=0, le=100)
+    performance_testing_requirements_percentage: float = Field(
+        default=0.0, ge=0, le=100
+    )
     regulatory_pathway_analysis_percentage: float = Field(default=0.0, ge=0, le=100)
 
 
