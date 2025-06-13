@@ -2,7 +2,9 @@ import asyncio
 from datetime import datetime, timezone
 from random import randint, choice
 from fastapi import HTTPException
+import httpx
 from loguru import logger
+from src.environment import environment
 from src.modules.product.performance_testing.schema import (
     PerformanceTestingAssociatedStandard,
     PerformanceTestingConfidentLevel,
@@ -25,12 +27,19 @@ def analyze_performance_testing_task(
 ) -> None:
     logger.info(f"Analyzing test for test id: {performance_testing_id}")
     try:
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(
-            analyze_performance_testing_task_async(
-                performance_testing_id,
+        if environment.use_separated_ai_service:
+            logger.info(
+                f"Using separated AI service for performance testing analysis for performance_testing_id: {performance_testing_id}"
             )
-        )
+            httpx.post(
+                f"{environment.ai_service_url}/analyze-performance-testing?performance_testing_id={performance_testing_id}"
+            )
+            return
+        else:
+            logger.info(
+                f"Using internal AI service for performance testing analysis for performance_testing_id: {performance_testing_id}"
+            )
+            asyncio.run(analyze_performance_testing_task_async(performance_testing_id))
     except HTTPException as e:
         logger.error(f"Failed to test: {e.detail}")
         raise e
