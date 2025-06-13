@@ -1,6 +1,6 @@
 from typing import List, Literal, Optional
 from datetime import datetime
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from src.modules.product.feature_status.schema import (
     FeatureStatus,
@@ -12,12 +12,14 @@ class DashboardProductResponse(BaseModel):
     name: str
     is_default: bool
     updated_at: datetime
-    regulatory_background_status: FeatureStatus
-    claims_builder_status: FeatureStatus
-    competitive_analysis_status: FeatureStatus
-    standards_guidance_documents_status: FeatureStatus
-    performance_testing_requirements_status: FeatureStatus
-    regulatory_pathway_analysis_status: FeatureStatus
+    regulatory_background_percentage: float = Field(default=0.0, ge=0, le=100)
+    claims_builder_percentage: float = Field(default=0.0, ge=0, le=100)
+    competitive_analysis_percentage: float = Field(default=0.0, ge=0, le=100)
+    standards_guidance_documents_percentage: float = Field(default=0.0, ge=0, le=100)
+    performance_testing_requirements_percentage: float = Field(
+        default=0.0, ge=0, le=100
+    )
+    regulatory_pathway_analysis_percentage: float = Field(default=0.0, ge=0, le=100)
 
 
 class DashboardResponse(BaseModel):

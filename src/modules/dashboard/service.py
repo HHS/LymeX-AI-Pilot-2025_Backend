@@ -18,11 +18,9 @@ async def get_dashboard_products(
         p for p in products if getattr(p, "updated_by", None) == str(current_user.id)
     ]
     if user_products:
-        print(1)
         # Sort by updated_at descending and pick the first
         default_product = max(user_products, key=lambda p: p.updated_at)
     else:
-        print(2)
         # 2. Else, pick the most recently updated product by anyone
         default_product = (
             max(products, key=lambda p: p.updated_at) if products else None
@@ -36,12 +34,12 @@ async def get_dashboard_products(
                 name=product.name,
                 is_default=(default_product and product.id == default_product.id),
                 updated_at=product.updated_at,
-                regulatory_background_status=product.regulatory_background_status,
-                claims_builder_status=product.claims_builder_status,
-                competitive_analysis_status=product.competitive_analysis_status,
-                standards_guidance_documents_status=product.standards_guidance_documents_status,
-                performance_testing_requirements_status=product.performance_testing_requirements_status,
-                regulatory_pathway_analysis_status=product.regulatory_pathway_analysis_status,
+                regulatory_background_percentage=product.regulatory_background_percentage,
+                claims_builder_percentage=product.claims_builder_percentage,
+                competitive_analysis_percentage=product.competitive_analysis_percentage,
+                standards_guidance_documents_percentage=product.standards_guidance_documents_percentage,
+                performance_testing_requirements_percentage=product.performance_testing_requirements_percentage,
+                regulatory_pathway_analysis_percentage=product.regulatory_pathway_analysis_percentage,
             )
         )
     return dashboard_products

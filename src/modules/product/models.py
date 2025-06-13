@@ -23,12 +23,15 @@ class Product(Document):
     updated_by: str
     updated_at: datetime
     edit_locked: bool = False
-    regulatory_background_status: FeatureStatus = FeatureStatus.NOT_STARTED
-    claims_builder_status: FeatureStatus = FeatureStatus.NOT_STARTED
-    competitive_analysis_status: FeatureStatus = FeatureStatus.NOT_STARTED
-    standards_guidance_documents_status: FeatureStatus = FeatureStatus.NOT_STARTED
-    performance_testing_requirements_status: FeatureStatus = FeatureStatus.NOT_STARTED
-    regulatory_pathway_analysis_status: FeatureStatus = FeatureStatus.NOT_STARTED
+
+    regulatory_background_percentage: float = Field(default=0.0, ge=0, le=100)
+    claims_builder_percentage: float = Field(default=0.0, ge=0, le=100)
+    competitive_analysis_percentage: float = Field(default=0.0, ge=0, le=100)
+    standards_guidance_documents_percentage: float = Field(default=0.0, ge=0, le=100)
+    performance_testing_requirements_percentage: float = Field(
+        default=0.0, ge=0, le=100
+    )
+    regulatory_pathway_analysis_percentage: float = Field(default=0.0, ge=0, le=100)
 
     class Settings:
         name = "product"
