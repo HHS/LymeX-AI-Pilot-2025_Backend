@@ -29,6 +29,7 @@ from src.modules.totp.models import UserTotp
 from src.modules.user.models import User
 from src.modules.email.models import EmailTemplate
 from src.environment import environment
+from src.modules.product.milestone_planning.model import MilestonePlanning
 
 client = AsyncIOMotorClient(environment.mongo_uri)
 db = client[environment.mongo_db]
@@ -57,6 +58,7 @@ async def init_db() -> None:
             ClinicalTrial,
             RegulatoryPathway,
             FeaturesStatus,
+            MilestonePlanning,
         ],
     )
     logger.info(
