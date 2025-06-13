@@ -61,6 +61,6 @@ vine==5.1.0
 watchfiles==1.0.4
 wcwidth==0.2.13
 websockets==15.0.1
-fastavro
-redis
-httpx
+fastavro==1.11.1
+redis==6.2.0
+httpx==0.28.1
