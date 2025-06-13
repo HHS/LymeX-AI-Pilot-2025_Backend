@@ -10,6 +10,7 @@ import logging
 
 router = APIRouter()
 
+
 @router.get("/", response_model=DashboardResponse)
 async def get_dashboard(
     current_company: Annotated[Company, Depends(get_current_company)],

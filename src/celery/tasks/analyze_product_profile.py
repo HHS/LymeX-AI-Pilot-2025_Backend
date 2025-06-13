@@ -2,7 +2,9 @@ import asyncio
 from datetime import datetime, timezone
 from random import randint
 from fastapi import HTTPException
+import httpx
 from loguru import logger
+from src.environment import environment
 from src.modules.product.product_profile.schema import Feature, Performance
 from src.modules.product.product_profile.model import (
     ProductProfile,
@@ -25,12 +27,18 @@ def analyze_product_profile_task(
 ) -> None:
     logger.info(f"Parsing product profile for product: {product_id}")
     try:
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(
-            analyze_product_profile_task_async(
-                product_id,
+        if environment.use_separated_ai_service:
+            logger.info(
+                f"Using separated AI service for product profile analysis for product_id: {product_id}"
             )
-        )
+            httpx.post(
+                f"{environment.ai_service_url}/analyze-product-profile?product_id={product_id}"
+            )
+        else:
+            logger.info(
+                f"Using internal AI service for product profile analysis for product_id: {product_id}"
+            )
+            asyncio.run(analyze_product_profile_task_async(product_id))
     except HTTPException as e:
         logger.error(f"Failed to analyze product profile: {e.detail}")
         raise e

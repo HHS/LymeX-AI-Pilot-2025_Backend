@@ -1,6 +1,8 @@
 import asyncio
 from fastapi import HTTPException
+import httpx
 from loguru import logger
+from src.environment import environment
 from src.celery.worker import celery
 from src.celery.tasks.base import BaseTask
 from src.infrastructure.redis import redis_client
@@ -20,12 +22,18 @@ def analyze_regulatory_pathway_task(
 ) -> None:
     logger.info(f"Analyzing for product_id: {product_id}")
     try:
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(
-            analyze_regulatory_pathway_task_async(
-                product_id,
+        if environment.use_separated_ai_service:
+            logger.info(
+                f"Using separated AI service for regulatory pathway analysis for product_id: {product_id}"
             )
-        )
+            httpx.post(
+                f"{environment.ai_service_url}/analyze-regulatory-pathway?product_id={product_id}"
+            )
+        else:
+            logger.info(
+                f"Using internal AI service for regulatory pathway analysis for product_id: {product_id}"
+            )
+            asyncio.run(analyze_regulatory_pathway_task_async(product_id))
     except HTTPException as e:
         logger.error(f"Failed analyze: {e.detail}")
         raise e

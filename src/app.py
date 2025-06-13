@@ -21,13 +21,6 @@ from contextlib import asynccontextmanager
 from src.environment import environment
 from fastapi.exceptions import RequestValidationError
 from loguru import logger
-import sentry_sdk
-
-
-sentry_sdk.init(
-    dsn=environment.sentry_dsn,
-    send_default_pii=True,
-)
 
 
 @asynccontextmanager
@@ -164,11 +157,6 @@ async def read_root():
         "version": "1.0.0",
         "description": "Still in development",
     }
-
-
-@app.get("/sentry-debug")
-async def trigger_error():
-    1 / 0
 
 
 app.include_router(health_router, prefix="/health", tags=["Health"])

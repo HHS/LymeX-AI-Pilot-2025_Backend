@@ -5,21 +5,28 @@ from src.modules.product.models import Product
 from typing import List
 from src.modules.user.models import User
 
-async def get_dashboard_products(current_company: Company, current_user: User) -> List[DashboardProductResponse]:
+
+async def get_dashboard_products(
+    current_company: Company, current_user: User
+) -> List[DashboardProductResponse]:
     products = await Product.find(
         Product.company_id == str(current_company.id),
     ).to_list()
 
     # 1. Find the most recently updated product by the current user
-    user_products = [p for p in products if getattr(p, "updated_by", None) == str(current_user.id)]
+    user_products = [
+        p for p in products if getattr(p, "updated_by", None) == str(current_user.id)
+    ]
     if user_products:
-        print(1)  
+        print(1)
         # Sort by updated_at descending and pick the first
         default_product = max(user_products, key=lambda p: p.updated_at)
     else:
         print(2)
         # 2. Else, pick the most recently updated product by anyone
-        default_product = max(products, key=lambda p: p.updated_at) if products else None
+        default_product = (
+            max(products, key=lambda p: p.updated_at) if products else None
+        )
 
     dashboard_products = []
     for product in products:

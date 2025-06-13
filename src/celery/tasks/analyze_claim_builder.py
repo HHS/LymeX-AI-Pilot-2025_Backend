@@ -1,7 +1,9 @@
 import asyncio
 from datetime import datetime, timezone
 from fastapi import HTTPException
+import httpx
 from loguru import logger
+from src.environment import environment
 from src.modules.product.claim_builder.schema import (
     IFU,
     Draft,
@@ -35,12 +37,23 @@ def analyze_claim_builder_task(
 ) -> None:
     logger.info(f"Parsing product profile for product: {product_id}")
     try:
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(
-            analyze_claim_builder_task_async(
-                product_id,
+        if environment.use_separated_ai_service:
+            logger.info(
+                f"Using separated AI service for product profile analysis: {product_id}"
             )
-        )
+            httpx.post(
+                f"{environment.ai_service_url}/analyze-claim-builder?product_id={product_id}"
+            )
+        else:
+            logger.info(
+                f"Using internal AI service for product profile analysis: {product_id}"
+            )
+            loop = asyncio.get_event_loop()
+            loop.run_until_complete(
+                analyze_claim_builder_task_async(
+                    product_id,
+                )
+            )
     except HTTPException as e:
         logger.error(f"Failed to analyze product profile: {e.detail}")
         raise e

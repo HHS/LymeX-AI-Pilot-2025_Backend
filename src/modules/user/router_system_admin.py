@@ -2,7 +2,11 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from src.modules.user.service import create_user
-from src.modules.user.schemas import AddSystemAdminRequest, UserCreateRequest
+from src.modules.user.schemas import (
+    AddSystemAdminRequest,
+    UserCreateRequest,
+    UserResponse,
+)
 from src.modules.authorization.dependencies import require_system_admin
 from src.modules.user.models import User
 
@@ -63,7 +67,7 @@ async def remove_system_admin_handler(
 async def create_user_handler(
     payload: UserCreateRequest,
     _: Annotated[bool, Depends(require_system_admin)],
-) -> None:
+) -> UserResponse:
     email_exist = await User.find_one(
         User.email == payload.email,
     )
@@ -73,6 +77,6 @@ async def create_user_handler(
             detail="Email already exists",
         )
     created_user = await create_user(payload, True)
-    return created_user.to_user_response(
+    return await created_user.to_user_response(
         populate_companies=False,
     )
