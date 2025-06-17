@@ -3,6 +3,7 @@ from beanie import Document, PydanticObjectId
 from typing import List
 from src.modules.product.cost_estimation.schema import Pathway, CostEstimationResponse
 
+
 class CostEstimation(Document):
     product_id: str
     can_apply_for_sbd: bool
@@ -22,5 +23,5 @@ class CostEstimation(Document):
         return CostEstimationResponse(
             product_id=self.product_id,
             can_apply_for_sbd=self.can_apply_for_sbd,
-            pathways=self.pathways
+            pathways=self.pathways,
         )

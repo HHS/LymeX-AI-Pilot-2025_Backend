@@ -1,6 +1,11 @@
 from beanie import PydanticObjectId
 from src.modules.product.cost_estimation.model import CostEstimation
-from src.modules.product.cost_estimation.schema import Pathway, CostAnalysis, SaveCostEstimationRequest
+from src.modules.product.cost_estimation.schema import (
+    Pathway,
+    CostAnalysis,
+    SaveCostEstimationRequest,
+)
+
 
 async def get_product_cost_estimation(
     product_id: str | PydanticObjectId,
@@ -8,7 +13,7 @@ async def get_product_cost_estimation(
     product_cost_estimations = await CostEstimation.find(
         {"product_id": str(product_id)}
     ).to_list()
-    
+
     if not product_cost_estimations:
         # Create dummy data
         dummy_cost_estimation = CostEstimation(
@@ -22,8 +27,8 @@ async def get_product_cost_estimation(
                         sbd_fee_reduction="14902",
                         estimated_consulting_costs="10",
                         clinical_trial_costs="10",
-                        total_estimated_cost="4968"
-                    )
+                        total_estimated_cost="4968",
+                    ),
                 ),
                 Pathway(
                     pathway="DeNovo",
@@ -32,8 +37,8 @@ async def get_product_cost_estimation(
                         sbd_fee_reduction="14902",
                         estimated_consulting_costs="10",
                         clinical_trial_costs="10",
-                        total_estimated_cost="4968"
-                    )
+                        total_estimated_cost="4968",
+                    ),
                 ),
                 Pathway(
                     pathway="PMA",
@@ -42,24 +47,24 @@ async def get_product_cost_estimation(
                         sbd_fee_reduction="14902",
                         estimated_consulting_costs="10",
                         clinical_trial_costs="10",
-                        total_estimated_cost="4968"
-                    )
-                )
-            ]
+                        total_estimated_cost="4968",
+                    ),
+                ),
+            ],
         )
         # Save to database
         await dummy_cost_estimation.save()
         return [dummy_cost_estimation]
-    
+
     return product_cost_estimations
 
+
 async def save_product_cost_estimation(
-    product_id: str | PydanticObjectId,
-    cost_estimation: SaveCostEstimationRequest
+    product_id: str | PydanticObjectId, cost_estimation: SaveCostEstimationRequest
 ) -> CostEstimation:
     # Find existing cost estimation for the product
     existing_estimation = await CostEstimation.find_one({"product_id": str(product_id)})
-    
+
     if existing_estimation:
         # Update existing pathways
         for i, pathway in enumerate(existing_estimation.pathways):
@@ -69,15 +74,15 @@ async def save_product_cost_estimation(
         else:
             # If pathway doesn't exist, append it
             existing_estimation.pathways.append(cost_estimation)
-        
+
         await existing_estimation.save()
         return existing_estimation
-    
+
     # Create new cost estimation if none exists
     new_estimation = CostEstimation(
         product_id=str(product_id),
         can_apply_for_sbd=True,  # Default value, can be updated later
-        pathways=[cost_estimation]
+        pathways=[cost_estimation],
     )
     await new_estimation.save()
     return new_estimation
