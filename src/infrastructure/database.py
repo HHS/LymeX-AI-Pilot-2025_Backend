@@ -23,6 +23,7 @@ from src.modules.product.competitive_analysis.model import (
     CompetitiveAnalysis,
     AnalyzeCompetitiveAnalysisProgress,
 )
+from src.modules.product.cost_estimation.model import CostEstimation
 from src.modules.product.models import Product
 from src.modules.company.models import Company, CompanyMember
 from src.modules.totp.models import UserTotp
@@ -59,6 +60,7 @@ async def init_db() -> None:
             RegulatoryPathway,
             FeaturesStatus,
             MilestonePlanning,
+            CostEstimation,
         ],
     )
     logger.info(
