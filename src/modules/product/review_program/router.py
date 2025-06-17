@@ -7,6 +7,7 @@ from src.modules.product.review_program.schema import ReviewProgramResponse
 
 router = APIRouter()
 
+
 @router.get("/")
 async def get_product_review_program_handler(
     product: Annotated[Product, Depends(get_current_product)],
