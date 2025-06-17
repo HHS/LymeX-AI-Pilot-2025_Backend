@@ -66,6 +66,9 @@ from src.modules.product.milestone_planning.router import (
 from src.modules.product.cost_estimation.router import (
     router as cost_estimation_router,
 )
+from src.modules.product.review_program.router import (
+    router as review_program_router,
+)
 
 
 router = APIRouter()
@@ -223,4 +226,8 @@ router.include_router(
 router.include_router(
     cost_estimation_router,
     prefix="/{product_id}/cost-estimation",
+)
+router.include_router(
+    review_program_router,
+    prefix="/{product_id}/review-program",
 )
