@@ -10,6 +10,35 @@ async def get_product_milestone_planning(
     product_milestone_plannings = await MilestonePlanning.find(
         {"product_id": str(product_id)}
     ).to_list()
+    if not product_milestone_plannings:
+        from datetime import datetime, timedelta
+
+        mock_milestones = [
+            Milestone(
+                row=1,
+                start_date=datetime.now(),
+                end_date=datetime.now() + timedelta(days=90),
+                name="Initial Design Phase",
+            ),
+            Milestone(
+                row=2,
+                start_date=datetime.now() + timedelta(days=91),
+                end_date=datetime.now() + timedelta(days=180),
+                name="Development Phase",
+            ),
+            Milestone(
+                row=3,
+                start_date=datetime.now() + timedelta(days=181),
+                end_date=datetime.now() + timedelta(days=270),
+                name="Testing Phase",
+            ),
+        ]
+        mock_planning = MilestonePlanning(
+            product_id=str(product_id),
+            milestones=mock_milestones,
+        )
+        await mock_planning.save()
+        return [mock_planning]
     return product_milestone_plannings
 
 
