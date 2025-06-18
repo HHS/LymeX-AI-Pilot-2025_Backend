@@ -12,6 +12,7 @@ async def get_product_milestone_planning(
     ).to_list()
     if not product_milestone_plannings:
         from datetime import datetime, timedelta
+
         mock_milestones = [
             Milestone(
                 row=1,
