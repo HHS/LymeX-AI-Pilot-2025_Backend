@@ -6,6 +6,7 @@ from src.modules.product.custom_test_plan.schema import (
 from typing import List
 from datetime import datetime, timedelta
 
+
 async def get_product_custom_test_plan(
     product_id: str | PydanticObjectId,
 ) -> List[CustomTestPlan]:
@@ -27,6 +28,7 @@ async def get_product_custom_test_plan(
         return [dummy_plan]
     return test_plans
 
+
 async def save_product_custom_test_plan(
     product_id: str | PydanticObjectId, test_plan: SaveCustomTestPlanRequest
 ) -> CustomTestPlan:
@@ -38,7 +40,7 @@ async def save_product_custom_test_plan(
         existing_plan.updated_at = datetime.now()
         await existing_plan.save()
         return existing_plan
-    
+
     # Create new plan if none exists
     new_plan = CustomTestPlan(
         product_id=str(product_id),

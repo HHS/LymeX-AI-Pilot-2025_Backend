@@ -3,6 +3,7 @@ from typing import List
 from datetime import datetime
 from src.modules.product.custom_test_plan.schema import CustomTestPlanResponse
 
+
 class CustomTestPlan(Document):
     product_id: str
     required_tests: List[str]
