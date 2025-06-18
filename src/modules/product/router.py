@@ -69,6 +69,9 @@ from src.modules.product.cost_estimation.router import (
 from src.modules.product.review_program.router import (
     router as review_program_router,
 )
+from src.modules.product.final_regulatory_report.router import (
+    router as final_regulatory_report_router,
+)
 
 
 router = APIRouter()
@@ -230,4 +233,8 @@ router.include_router(
 router.include_router(
     review_program_router,
     prefix="/{product_id}/review-program",
+)
+router.include_router(
+    final_regulatory_report_router,
+    prefix="/{product_id}/final-regulatory-report",
 )

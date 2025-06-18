@@ -21,7 +21,7 @@ async def get_product_cost_estimation(
             can_apply_for_sbd=True,
             pathways=[
                 Pathway(
-                    pathway="510(K)",
+                    pathway="510(k)",
                     costAnalysis=CostAnalysis(
                         base_mdufa_fee="19870",
                         sbd_fee_reduction="14902",
