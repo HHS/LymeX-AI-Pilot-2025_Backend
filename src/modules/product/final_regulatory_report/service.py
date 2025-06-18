@@ -12,6 +12,7 @@ from .schema import (
     SpecialReviewProgramEligibility,
 )
 
+
 async def get_final_regulatory_report(product_id: str) -> FinalRegulatoryReportResponse:
     # Fetch product (for project name)
     product = await Product.get(product_id)
@@ -19,7 +20,7 @@ async def get_final_regulatory_report(product_id: str) -> FinalRegulatoryReportR
 
     # Fetch regulatory pathway
     reg_pathway = await RegulatoryPathway.find_one({"product_id": product_id})
-    
+
     regulatory_pathway_summary = RegulatoryPathwaySummary(
         recommended_pathway=reg_pathway.recommended_pathway if reg_pathway else "",
         device_class="Class 1",
@@ -40,9 +41,15 @@ async def get_final_regulatory_report(product_id: str) -> FinalRegulatoryReportR
     cost_breakdown = CostBreakdown(
         base_mdufa_fee=cost_analysis.base_mdufa_fee if cost_analysis else "",
         sbd_fee_reduction=cost_analysis.sbd_fee_reduction if cost_analysis else "",
-        estimated_consulting_costs=cost_analysis.estimated_consulting_costs if cost_analysis else "",
-        clinical_trial_costs=cost_analysis.clinical_trial_costs if cost_analysis else "",
-        total_estimated_cost=cost_analysis.total_estimated_cost if cost_analysis else "",
+        estimated_consulting_costs=(
+            cost_analysis.estimated_consulting_costs if cost_analysis else ""
+        ),
+        clinical_trial_costs=(
+            cost_analysis.clinical_trial_costs if cost_analysis else ""
+        ),
+        total_estimated_cost=(
+            cost_analysis.total_estimated_cost if cost_analysis else ""
+        ),
     )
 
     # Fetch milestone planning (timeline)
@@ -50,12 +57,14 @@ async def get_final_regulatory_report(product_id: str) -> FinalRegulatoryReportR
     submission_timeline = []
     if milestone and hasattr(milestone, "milestones"):
         for item in milestone.milestones:
-            submission_timeline.append(SubmissionTimelineItem(
-                row=item.row,
-                start_date=item.start_date,
-                end_date=item.end_date,
-                name=item.name
-            ))
+            submission_timeline.append(
+                SubmissionTimelineItem(
+                    row=item.row,
+                    start_date=item.start_date,
+                    end_date=item.end_date,
+                    name=item.name,
+                )
+            )
 
     # Major submission requirements (dummy for now)
     major_submission_requirements = [
@@ -74,7 +83,7 @@ async def get_final_regulatory_report(product_id: str) -> FinalRegulatoryReportR
                 SpecialReviewProgramEligibility(
                     program_name=prog.programName,
                     is_qualified=prog.isQualified,
-                    reason=prog.reason
+                    reason=prog.reason,
                 )
             )
 

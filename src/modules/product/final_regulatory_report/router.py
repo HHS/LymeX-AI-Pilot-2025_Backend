@@ -7,6 +7,7 @@ from .schema import FinalRegulatoryReportResponse
 
 router = APIRouter()
 
+
 @router.get("/", response_model=FinalRegulatoryReportResponse)
 async def get_final_regulatory_report_handler(
     product: Annotated[Product, Depends(get_current_product)],
