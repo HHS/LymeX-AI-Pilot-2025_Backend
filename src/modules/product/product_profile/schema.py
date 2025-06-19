@@ -1,5 +1,7 @@
 from datetime import datetime
+
 from pydantic import BaseModel, Field
+
 from src.modules.user.schemas import UserResponse
 
 
@@ -120,11 +122,13 @@ class ProductProfileAnalysisResponse(BaseModel):
     updated_at: datetime = Field(
         ..., description="Date and time when the profile was last updated"
     )
-    fda_approved: bool = Field(
-        ..., description="Indicates if the product is FDA approved"
+    fda_approved: bool | None = Field(
+        None, description="Indicates if the product is FDA approved"
     )
-    ce_marked: bool = Field(..., description="Indicates if the product is CE marked")
+    ce_marked: bool | None = Field(
+        None, description="Indicates if the product is CE marked"
+    )
     features: list[Feature] = Field(..., description="List of features of the product")
     regulatory_classifications: list[RegulatoryClassification] = Field(
-        ..., description="List of regulatory classifications for the product"
+        ..., description="Li sst of regulatory classifications for the product"
     )
