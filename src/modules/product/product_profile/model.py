@@ -1,7 +1,8 @@
 from datetime import datetime
+
 from beanie import Document, PydanticObjectId
+
 from src.modules.product.models import Product
-from src.modules.product.schema import ProductResponse
 from src.modules.product.product_profile.schema import (
     AnalyzeProductProfileProgressResponse,
     Feature,
@@ -10,6 +11,7 @@ from src.modules.product.product_profile.schema import (
     ProductProfileResponse,
     RegulatoryClassification,
 )
+from src.modules.product.schema import ProductResponse
 
 
 class ProductProfile(Document):
@@ -22,13 +24,13 @@ class ProductProfile(Document):
     features: list[Feature]
     claims: list[str]
     conflict_alerts: list[str]
-    fda_approved: bool
-    ce_marked: bool
+    fda_approved: bool | None
+    ce_marked: bool | None
     device_ifu_description: str
     confidence_score: float
     sources: list[str]
     performance: Performance
-    price: int
+    price: int | None
     instructions: list[str]
     type_of_use: str
 

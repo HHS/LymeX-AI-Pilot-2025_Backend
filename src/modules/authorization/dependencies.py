@@ -38,11 +38,11 @@ async def get_current_company(
 
 
 async def get_current_company_member(
-    company_id: Annotated[str, Header()],
     current_user: Annotated[User, Depends(get_current_user)],
+    current_company: Annotated[Company, Depends(get_current_company)],
 ) -> CompanyRoles:
     company_member = await CompanyMember.find_one(
-        CompanyMember.company_id == company_id,
+        CompanyMember.company_id == str(current_company.id),
         CompanyMember.user_id == str(current_user.id),
         CompanyMember.status == CompanyMemberStatus.ACTIVE,
     )

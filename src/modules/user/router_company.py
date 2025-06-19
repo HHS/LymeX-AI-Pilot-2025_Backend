@@ -2,8 +2,11 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Header, status
 
 from src.modules.user.models import User
-from src.modules.company.models import CompanyMember
-from src.modules.authorization.dependencies import RequireCompanyRole
+from src.modules.company.models import Company, CompanyMember
+from src.modules.authorization.dependencies import (
+    RequireCompanyRole,
+    get_current_company,
+)
 from src.modules.authorization.roles import CompanyRoles
 
 from .schemas import CompanyAdminUpdateUserRequest
@@ -15,11 +18,11 @@ router = APIRouter()
 async def update_user_handler(
     user_id: str,
     payload: CompanyAdminUpdateUserRequest,
-    company_id: Annotated[str, Header()],
     _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.ADMINISTRATOR))],
+    current_company: Annotated[Company, Depends(get_current_company)],
 ) -> None:
     existing_member = await CompanyMember.find_one(
-        CompanyMember.company_id == company_id,
+        CompanyMember.company_id == str(current_company.id),
         CompanyMember.user_id == user_id,
     )
     if not existing_member:

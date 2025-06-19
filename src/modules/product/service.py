@@ -1,11 +1,12 @@
 from datetime import datetime, timezone
 
 from fastapi import HTTPException, status
+
 from src.infrastructure.minio import list_objects, remove_object
-from src.modules.product.storage import get_product_folder
-from src.modules.product.models import Product
 from src.modules.company.models import Company
+from src.modules.product.models import Product
 from src.modules.product.schema import CreateProductRequest
+from src.modules.product.storage import get_product_folder
 from src.modules.user.models import User
 
 
@@ -25,6 +26,7 @@ async def create_product(
 ) -> Product:
     product_code_exists = await Product.find_one(
         Product.company_id == str(current_company.id),
+        Product.name == payload.name,
         Product.model == payload.model,
     )
     if product_code_exists:
