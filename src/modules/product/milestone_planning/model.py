@@ -22,10 +22,12 @@ class MilestonePlanning(Document):
         }
 
     async def to_milestone_planning_response(self) -> MilestonePlanningResponse:
-        # Fetch the product to get its name
+        # Fetch the product to get its name and code 
         product = await Product.get(self.product_id)
         return MilestonePlanningResponse(
             product_id=self.product_id,
             product_name=product.name,
+            pathway="510(k)",
+            product_code=product.code,
             milestones=self.milestones,
         )
