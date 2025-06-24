@@ -24,6 +24,6 @@ async def search_products_handler(
     if not query.strip():
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Search query cannot be empty"
+            detail="Search query cannot be empty",
         )
     return await unified_search(current_company, query.strip())
