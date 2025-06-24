@@ -4,12 +4,19 @@ from src.modules.product.cost_estimation.schema import (
     Pathway,
     CostAnalysis,
     SaveCostEstimationRequest,
+    CostEstimationResponse,
 )
+from src.modules.product.models import Product
 
 
 async def get_product_cost_estimation(
     product_id: str | PydanticObjectId,
-) -> list[CostEstimation]:
+) -> list[CostEstimationResponse]:
+    # Get product data to include name and code
+    product = await Product.get(product_id)
+    product_name = product.name if product else ""
+    product_code = product.code if product else None
+    
     product_cost_estimations = await CostEstimation.find(
         {"product_id": str(product_id)}
     ).to_list()
@@ -54,9 +61,27 @@ async def get_product_cost_estimation(
         )
         # Save to database
         await dummy_cost_estimation.save()
-        return [dummy_cost_estimation]
+        
+        # Return with product data
+        return [CostEstimationResponse(
+            product_id=str(product_id),
+            product_name=product_name,
+            product_code=product_code,
+            can_apply_for_sbd=dummy_cost_estimation.can_apply_for_sbd,
+            pathways=dummy_cost_estimation.pathways
+        )]
 
-    return product_cost_estimations
+    # Convert existing estimations to response format with product data
+    return [
+        CostEstimationResponse(
+            product_id=estimation.product_id,
+            product_name=product_name,
+            product_code=product_code,
+            can_apply_for_sbd=estimation.can_apply_for_sbd,
+            pathways=estimation.pathways
+        )
+        for estimation in product_cost_estimations
+    ]
 
 
 async def save_product_cost_estimation(
