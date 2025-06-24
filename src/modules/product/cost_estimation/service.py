@@ -16,7 +16,7 @@ async def get_product_cost_estimation(
     product = await Product.get(product_id)
     product_name = product.name if product else ""
     product_code = product.code if product else None
-    
+
     product_cost_estimations = await CostEstimation.find(
         {"product_id": str(product_id)}
     ).to_list()
@@ -61,15 +61,17 @@ async def get_product_cost_estimation(
         )
         # Save to database
         await dummy_cost_estimation.save()
-        
+
         # Return with product data
-        return [CostEstimationResponse(
-            product_id=str(product_id),
-            product_name=product_name,
-            product_code=product_code,
-            can_apply_for_sbd=dummy_cost_estimation.can_apply_for_sbd,
-            pathways=dummy_cost_estimation.pathways
-        )]
+        return [
+            CostEstimationResponse(
+                product_id=str(product_id),
+                product_name=product_name,
+                product_code=product_code,
+                can_apply_for_sbd=dummy_cost_estimation.can_apply_for_sbd,
+                pathways=dummy_cost_estimation.pathways,
+            )
+        ]
 
     # Convert existing estimations to response format with product data
     return [
@@ -78,7 +80,7 @@ async def get_product_cost_estimation(
             product_name=product_name,
             product_code=product_code,
             can_apply_for_sbd=estimation.can_apply_for_sbd,
-            pathways=estimation.pathways
+            pathways=estimation.pathways,
         )
         for estimation in product_cost_estimations
     ]
