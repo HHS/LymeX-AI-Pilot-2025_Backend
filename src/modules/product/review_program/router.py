@@ -13,4 +13,4 @@ async def get_product_review_program_handler(
     product: Annotated[Product, Depends(get_current_product)],
 ) -> List[ReviewProgramResponse]:
     review_programs = await get_product_review_program(product.id)
-    return [program.to_review_program_response() for program in review_programs]
+    return review_programs
