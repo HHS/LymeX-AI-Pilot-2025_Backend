@@ -19,7 +19,7 @@ async def get_product_cost_estimation_handler(
     product: Annotated[Product, Depends(get_current_product)],
 ) -> List[CostEstimationResponse]:
     cost_estimations = await get_product_cost_estimation(product.id)
-    return [estimation.to_cost_estimation_response() for estimation in cost_estimations]
+    return cost_estimations
 
 
 @router.post("/save")

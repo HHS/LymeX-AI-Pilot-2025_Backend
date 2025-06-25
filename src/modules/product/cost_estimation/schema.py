@@ -17,6 +17,8 @@ class Pathway(BaseModel):
 
 class CostEstimationResponse(BaseModel):
     product_id: str
+    product_name: str
+    product_code: str | None
     can_apply_for_sbd: bool
     pathways: List[Pathway]
 
