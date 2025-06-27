@@ -54,12 +54,14 @@ async def create_enhanced_support_ticket(
         attachment_paths.append(file_path)
 
     logger.info(f"All attachment paths: {attachment_paths}")
-    
+
     # Send to specific support email instead of company administrators
     support_email = "nois2-192-lymex-support@crowdplat.com"
-    
+
     # Send email with attachments
-    logger.info(f"Sending email with {len(attachment_paths)} attachments to {support_email}")
+    logger.info(
+        f"Sending email with {len(attachment_paths)} attachments to {support_email}"
+    )
     send_email_task.delay(
         "enhanced_support_ticket",
         {
