@@ -2,7 +2,10 @@ from typing import Annotated, List
 from fastapi import APIRouter, Depends, UploadFile, File, Form
 from loguru import logger
 
-from src.modules.support.service import create_support_ticket, create_enhanced_support_ticket
+from src.modules.support.service import (
+    create_support_ticket,
+    create_enhanced_support_ticket,
+)
 from src.modules.company.models import Company
 from src.modules.authorization.dependencies import (
     RequireCompanyRole,
@@ -40,22 +43,24 @@ async def report_issue_with_attachments_handler(
 ) -> None:
     """
     Report an issue with attachments.
-    
+
     This endpoint accepts:
     - issue_type: string (form field)
     - description: string (form field)
     - attachments: list of files (optional)
-    
+
     The attachments will be included in the email sent to company administrators.
     """
     logger.info(f"Received {len(attachments)} attachments")
     for i, attachment in enumerate(attachments):
-        logger.info(f"Attachment {i}: {attachment.filename} ({attachment.content_type})")
-    
+        logger.info(
+            f"Attachment {i}: {attachment.filename} ({attachment.content_type})"
+        )
+
     await create_enhanced_support_ticket(
         issue_type=issue_type,
         description=description,
         attachments=attachments,
         company=current_company,
-        user=current_user
+        user=current_user,
     )

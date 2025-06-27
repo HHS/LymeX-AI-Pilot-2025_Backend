@@ -24,7 +24,7 @@ def send_email_task(
     cc = cc or []
     bcc = bcc or []
     attachments = attachments or []
-    
+
     logger.info(f"Sending email task: {email_template_name} with data: {data}")
     logger.info(f"Attachments: {attachments}")
     try:
@@ -59,7 +59,7 @@ async def send_email_task_async(
     cc = cc or []
     bcc = bcc or []
     attachments = attachments or []
-    
+
     email = await create_email(email_template_name, data)
     logger.info(f"Sending email: {email}")
     logger.info(f"to_email: {to_email}")

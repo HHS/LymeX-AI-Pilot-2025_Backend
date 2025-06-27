@@ -24,7 +24,7 @@ def send_email(
     logger.info(f"Email subject: {email['subject']}")
     logger.info(f"Number of attachments: {len(attachments)}")
     logger.info(f"Attachment paths: {attachments}")
-    
+
     message = EmailMessage()
     message["From"] = f"{email['from_name']} <{email['from_email']}>"
     message["To"] = to_email
@@ -45,19 +45,23 @@ def send_email(
                 with open(attachment_path, "rb") as f:
                     file_data = f.read()
                     filename = os.path.basename(attachment_path)
-                    logger.info(f"Adding attachment: {filename} ({len(file_data)} bytes)")
+                    logger.info(
+                        f"Adding attachment: {filename} ({len(file_data)} bytes)"
+                    )
                     message.add_attachment(
                         file_data,
                         maintype="application",
                         subtype="octet-stream",
-                        filename=filename
+                        filename=filename,
                     )
                 # Clean up the temporary file
                 try:
                     os.remove(attachment_path)
                     logger.info(f"Removed temporary file: {attachment_path}")
                 except Exception as e:
-                    logger.warning(f"Failed to remove temporary file {attachment_path}: {e}")
+                    logger.warning(
+                        f"Failed to remove temporary file {attachment_path}: {e}"
+                    )
             except Exception as e:
                 logger.error(f"Failed to process attachment {attachment_path}: {e}")
         else:

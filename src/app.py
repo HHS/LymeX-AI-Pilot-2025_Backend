@@ -130,7 +130,7 @@ class LogRequestMiddleware(BaseHTTPMiddleware):
         body = await request.body()
         logger.info(f"Request: {request.method} {request.url}")
         logger.info(f"Headers: {dict(request.headers)}")
-        
+
         # Handle body logging based on content type
         content_type = request.headers.get("content-type", "")
         if "multipart/form-data" in content_type:
