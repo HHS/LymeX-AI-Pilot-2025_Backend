@@ -13,15 +13,15 @@ async def create_support_ticket(
     company: Company,
     user: User,
 ) -> None:
-    company_administrators = await get_company_administrators(company)
-    to_emails = [user.email for user in company_administrators]
+    # Send to specific support email instead of company administrators
+    support_email = "nois2-192-lymex-support@crowdplat.com"
     send_email_task.delay(
         "support_ticket",
         {
             "user_email": user.email,
             "issue_description": issue_description,
         },
-        ", ".join(to_emails),
+        support_email,
     )
 
 
@@ -55,11 +55,13 @@ async def create_enhanced_support_ticket(
 
     logger.info(f"All attachment paths: {attachment_paths}")
 
-    company_administrators = await get_company_administrators(company)
-    to_emails = [user.email for user in company_administrators]
+    # Send to specific support email instead of company administrators
+    support_email = "nois2-192-lymex-support@crowdplat.com"
 
     # Send email with attachments
-    logger.info(f"Sending email with {len(attachment_paths)} attachments")
+    logger.info(
+        f"Sending email with {len(attachment_paths)} attachments to {support_email}"
+    )
     send_email_task.delay(
         "enhanced_support_ticket",
         {
@@ -70,6 +72,6 @@ async def create_enhanced_support_ticket(
             "description": description,
             "timestamp": datetime.now().strftime("%Y%m%d_%H%M%S"),
         },
-        ", ".join(to_emails),
+        support_email,
         attachments=attachment_paths,
     )
