@@ -130,7 +130,18 @@ class LogRequestMiddleware(BaseHTTPMiddleware):
         body = await request.body()
         logger.info(f"Request: {request.method} {request.url}")
         logger.info(f"Headers: {dict(request.headers)}")
-        logger.info(f"Body: {body.decode('utf-8') if body else 'No Body'}")
+
+        # Handle body logging based on content type
+        content_type = request.headers.get("content-type", "")
+        if "multipart/form-data" in content_type:
+            logger.info(f"Body: [Multipart form data - {len(body)} bytes]")
+        elif body:
+            try:
+                logger.info(f"Body: {body.decode('utf-8')}")
+            except UnicodeDecodeError:
+                logger.info(f"Body: [Binary data - {len(body)} bytes]")
+        else:
+            logger.info("Body: No Body")
 
         response = await call_next(request)
         logger.info(f"Response status: {response.status_code}")

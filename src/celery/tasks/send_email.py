@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any
+from typing import Any, List
 from fastapi import HTTPException
 from loguru import logger
 from src.infrastructure.email import send_email
@@ -16,10 +16,17 @@ def send_email_task(
     email_template_name: str,
     data: dict[str, Any],
     to_email: str,
-    cc: list[str] = [],
-    bcc: list[str] = [],
+    cc: list[str] = None,
+    bcc: list[str] = None,
+    attachments: List[str] = None,
 ) -> None:
+    # Handle None values
+    cc = cc or []
+    bcc = bcc or []
+    attachments = attachments or []
+
     logger.info(f"Sending email task: {email_template_name} with data: {data}")
+    logger.info(f"Attachments: {attachments}")
     try:
         loop = asyncio.get_event_loop()
         loop.run_until_complete(
@@ -29,6 +36,7 @@ def send_email_task(
                 to_email,
                 cc,
                 bcc,
+                attachments,
             )
         )
     except HTTPException as e:
@@ -43,11 +51,18 @@ async def send_email_task_async(
     email_template_name: str,
     data: dict[str, Any],
     to_email: str,
-    cc: list[str] = [],
-    bcc: list[str] = [],
+    cc: list[str] = None,
+    bcc: list[str] = None,
+    attachments: List[str] = None,
 ) -> None:
+    # Handle None values
+    cc = cc or []
+    bcc = bcc or []
+    attachments = attachments or []
+
     email = await create_email(email_template_name, data)
     logger.info(f"Sending email: {email}")
     logger.info(f"to_email: {to_email}")
-    send_email(email, to_email, cc, bcc)
+    logger.info(f"attachments: {attachments}")
+    send_email(email, to_email, cc, bcc, attachments)
     logger.info(f"Email sent successfully: {email_template_name}")
