@@ -28,4 +28,4 @@ async def save_product_cost_estimation_handler(
     cost_estimation: SaveCostEstimationRequest,
 ) -> CostEstimationResponse:
     saved_estimation = await save_product_cost_estimation(product.id, cost_estimation)
-    return saved_estimation.to_cost_estimation_response()
+    return saved_estimation.to_cost_estimation_response(product.name, product.code)

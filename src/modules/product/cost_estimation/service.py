@@ -31,7 +31,7 @@ async def get_product_cost_estimation(
                     pathway="510(k)",
                     costAnalysis=CostAnalysis(
                         base_mdufa_fee="19870",
-                        sbd_fee_reduction="14902",
+                        sbd_fee_reduction="75",
                         estimated_consulting_costs="10",
                         clinical_trial_costs="10",
                         total_estimated_cost="4968",
@@ -41,7 +41,7 @@ async def get_product_cost_estimation(
                     pathway="DeNovo",
                     costAnalysis=CostAnalysis(
                         base_mdufa_fee="19870",
-                        sbd_fee_reduction="14902",
+                        sbd_fee_reduction="75",
                         estimated_consulting_costs="10",
                         clinical_trial_costs="10",
                         total_estimated_cost="4968",
@@ -50,8 +50,8 @@ async def get_product_cost_estimation(
                 Pathway(
                     pathway="PMA",
                     costAnalysis=CostAnalysis(
-                        base_mdufa_fee="75",
-                        sbd_fee_reduction="14902",
+                        base_mdufa_fee="19870",
+                        sbd_fee_reduction="75",
                         estimated_consulting_costs="10",
                         clinical_trial_costs="10",
                         total_estimated_cost="4968",
@@ -62,26 +62,12 @@ async def get_product_cost_estimation(
         # Save to database
         await dummy_cost_estimation.save()
 
-        # Return with product data
-        return [
-            CostEstimationResponse(
-                product_id=str(product_id),
-                product_name=product_name,
-                product_code=product_code,
-                can_apply_for_sbd=dummy_cost_estimation.can_apply_for_sbd,
-                pathways=dummy_cost_estimation.pathways,
-            )
-        ]
+        # Return with product data using model method
+        return [dummy_cost_estimation.to_cost_estimation_response(product_name, product_code)]
 
-    # Convert existing estimations to response format with product data
+    # Convert existing estimations to response format with product data using model method
     return [
-        CostEstimationResponse(
-            product_id=estimation.product_id,
-            product_name=product_name,
-            product_code=product_code,
-            can_apply_for_sbd=estimation.can_apply_for_sbd,
-            pathways=estimation.pathways,
-        )
+        estimation.to_cost_estimation_response(product_name, product_code)
         for estimation in product_cost_estimations
     ]
 

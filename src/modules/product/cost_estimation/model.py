@@ -19,9 +19,11 @@ class CostEstimation(Document):
             PydanticObjectId: str,
         }
 
-    def to_cost_estimation_response(self) -> "CostEstimationResponse":
+    def to_cost_estimation_response(self, product_name: str = "", product_code: str | None = None) -> "CostEstimationResponse":
         return CostEstimationResponse(
             product_id=self.product_id,
+            product_name=product_name,
+            product_code=product_code,
             can_apply_for_sbd=self.can_apply_for_sbd,
             pathways=self.pathways,
         )
