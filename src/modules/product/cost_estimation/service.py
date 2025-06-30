@@ -63,7 +63,11 @@ async def get_product_cost_estimation(
         await dummy_cost_estimation.save()
 
         # Return with product data using model method
-        return [dummy_cost_estimation.to_cost_estimation_response(product_name, product_code)]
+        return [
+            dummy_cost_estimation.to_cost_estimation_response(
+                product_name, product_code
+            )
+        ]
 
     # Convert existing estimations to response format with product data using model method
     return [
