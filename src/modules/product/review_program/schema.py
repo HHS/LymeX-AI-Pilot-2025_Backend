@@ -6,6 +6,7 @@ class SpecialityProgram(BaseModel):
     programName: str
     isQualified: bool
     reason: str
+    description: str
     benefits: List[str]
 
 

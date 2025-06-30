@@ -28,6 +28,7 @@ async def get_product_review_program(
                     programName="Safer Technologies Program (STeP)",
                     isQualified=True,
                     reason="For devices significantly improving safety of current treatments",
+                    description="For devices significantly improving safety of current treatments.",
                     benefits=[
                         "Enhanced communication with FDA",
                         "Prioritized review timeline",
@@ -37,6 +38,7 @@ async def get_product_review_program(
                     programName="Humanitarian Use Device (HUD)",
                     isQualified=True,
                     reason="For devices benefiting patients with rare diseases",
+                    description="For devices benefiting patients with rare diseases.",
                     benefits=[
                         "Modified regulatory requirements",
                         "Special market incentives",
@@ -46,6 +48,7 @@ async def get_product_review_program(
                     programName="Breakthrough Device Designation",
                     isQualified=False,
                     reason="For devices that provide more effective treatment of life-threatening conditions",
+                    description="For devices that provide more effective treatment of life-threatening conditions.",
                     benefits=[
                         "Expedited development and review",
                         "Interactive and priority review",
