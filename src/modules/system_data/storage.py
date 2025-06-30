@@ -1,2 +1,2 @@
-def get_system_data_competitive_analysis_folder(category: str) -> str:
-    return f"system_document/competitive_analysis/{category}"
+def get_system_data_folder() -> str:
+    return "system_data"

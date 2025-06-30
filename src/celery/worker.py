@@ -1,9 +1,11 @@
 import asyncio
-from celery import Celery
-from src.infrastructure.database import init_db
-from src.environment import environment
+
 from loguru import logger
+
+from celery import Celery
 from celery.signals import worker_process_init
+from src.environment import environment
+from src.infrastructure.database import init_db
 
 
 @worker_process_init.connect
@@ -27,6 +29,7 @@ celery_queues = [
     "src.celery.tasks.analyze_clinical_trial",
     "src.celery.tasks.analyze_regulatory_pathway",
     "src.celery.tasks.analyze_milestone_planning",
+    "src.celery.tasks.index_system_data",
 ]
 
 celery = Celery(
@@ -60,6 +63,7 @@ celery.conf.task_routes = {
     "src.celery.tasks.analyze_milestone_planning": {
         "queue": "celery.analyze_milestone_planning"
     },
+    "src.celery.tasks.index_system_data": {"queue": "celery.index_system_data"},
     "src.celery.tasks.*": {"queue": "celery.default"},
 }
 celery.conf.task_acks_late = True
