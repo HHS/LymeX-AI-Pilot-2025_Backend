@@ -213,6 +213,7 @@ async def get_update_logo_url_handler(
         "url": update_avatar_url,
     }
 
+
 # In company router
 @router.patch("/active-product")
 async def set_active_product(
@@ -223,5 +224,5 @@ async def set_active_product(
     current_company.active_product_id = product_id
     current_company.updated_at = datetime.now()
     await current_company.save()
-    
+
     return {"message": "Active product updated", "active_product_id": product_id}
