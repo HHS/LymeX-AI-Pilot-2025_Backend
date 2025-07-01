@@ -27,7 +27,7 @@ async def get_product_review_program(
                 SpecialityProgram(
                     programName="Safer Technologies Program (STeP)",
                     isQualified=True,
-                    reason="For devices significantly improving safety of current treatments",
+                    reason="It is not qualified under this program because it is not a breakthrough technology already exist in market",
                     description="For devices significantly improving safety of current treatments.",
                     benefits=[
                         "Enhanced communication with FDA",
@@ -37,7 +37,7 @@ async def get_product_review_program(
                 SpecialityProgram(
                     programName="Humanitarian Use Device (HUD)",
                     isQualified=True,
-                    reason="For devices benefiting patients with rare diseases",
+                    reason="Because it is used for certain section of people with disabilities it can be qualified under HUD Program",
                     description="For devices benefiting patients with rare diseases.",
                     benefits=[
                         "Modified regulatory requirements",
@@ -47,7 +47,7 @@ async def get_product_review_program(
                 SpecialityProgram(
                     programName="Breakthrough Device Designation",
                     isQualified=False,
-                    reason="For devices that provide more effective treatment of life-threatening conditions",
+                    reason="The technology does not meet the breakthrough device criteria as it is not significantly more effective than existing alternatives",
                     description="For devices that provide more effective treatment of life-threatening conditions.",
                     benefits=[
                         "Expedited development and review",
