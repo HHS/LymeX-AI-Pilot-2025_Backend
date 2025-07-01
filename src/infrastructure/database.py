@@ -33,6 +33,7 @@ from src.modules.email.models import EmailTemplate
 from src.environment import environment
 from src.modules.product.milestone_planning.model import MilestonePlanning
 from src.modules.product.custom_test_plan.model import CustomTestPlan
+from src.modules.notification.model import Notification
 
 client = AsyncIOMotorClient(environment.mongo_uri)
 db = client[environment.mongo_db]
@@ -65,6 +66,7 @@ async def init_db() -> None:
             CostEstimation,
             ReviewProgram,
             CustomTestPlan,
+            Notification,
         ],
     )
     logger.info(
