@@ -21,6 +21,7 @@ class DashboardProductResponse(BaseModel):
     )
     regulatory_pathway_analysis_percentage: float = Field(default=0.0, ge=0, le=100)
 
+
 class ProductListResponse(BaseModel):
     id: str
     name: str
@@ -30,7 +31,6 @@ class ProductListResponse(BaseModel):
     category: str
     is_default: bool
     updated_at: datetime
-
 
 
 class DashboardResponse(BaseModel):

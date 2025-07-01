@@ -2,8 +2,9 @@ from src.modules.product.service import get_products
 from src.modules.dashboard.schema import DashboardProductResponse, ProductListResponse
 from src.modules.company.models import Company
 from src.modules.product.models import Product
-from typing import List      
+from typing import List
 from src.modules.user.models import User
+
 
 async def get_dashboard_products(
     current_company: Company, current_user: User
@@ -43,6 +44,7 @@ async def get_dashboard_products(
         )
     return dashboard_products
 
+
 async def get_active_products(
     current_company: Company, current_user: User, active_product_id: str
 ) -> List[DashboardProductResponse]:
@@ -53,8 +55,8 @@ async def get_active_products(
     # 0. HIGHEST PRECEDENCE: Check if company has an active product set
     if current_company.active_product_id:
         active_product = next(
-            (p for p in products if str(p.id) == current_company.active_product_id), 
-            None
+            (p for p in products if str(p.id) == current_company.active_product_id),
+            None,
         )
         if active_product:
             default_product = active_product
@@ -67,7 +69,9 @@ async def get_active_products(
     # 1. If no active product, find the most recently updated product by the current user
     if not default_product:
         user_products = [
-            p for p in products if getattr(p, "updated_by", None) == str(current_user.id)
+            p
+            for p in products
+            if getattr(p, "updated_by", None) == str(current_user.id)
         ]
         if user_products:
             # Sort by updated_at descending and pick the first
