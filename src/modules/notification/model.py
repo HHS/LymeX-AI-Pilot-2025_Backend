@@ -33,7 +33,7 @@ class Notification(Document):
 
     def to_notification_response(self):
         from src.modules.notification.schema import NotificationResponse
-        
+
         return NotificationResponse(
             id=str(self.id),
             user_id=self.user_id,
@@ -46,4 +46,4 @@ class Notification(Document):
             time=self.created_at,
             created_at=self.created_at,
             updated_at=self.updated_at,
-        ) 
+        )

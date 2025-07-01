@@ -50,4 +50,4 @@ class NotificationResponse(NotificationBase):
 class NotificationUpdate(BaseModel):
     is_read: Optional[bool] = None
     title: Optional[str] = None
-    text: Optional[str] = None 
+    text: Optional[str] = None

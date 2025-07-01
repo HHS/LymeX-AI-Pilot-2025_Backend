@@ -26,7 +26,9 @@ async def get_notifications(
     user: Annotated[User, Depends(get_current_user)],
     company: Annotated[Company, Depends(get_current_company)],
     is_read: Optional[bool] = Query(None, description="Filter by read status"),
-    category: Optional[NotificationCategory] = Query(None, description="Filter by category"),
+    category: Optional[NotificationCategory] = Query(
+        None, description="Filter by category"
+    ),
 ) -> List[NotificationResponse]:
     """Get notifications for the current user."""
     return await get_user_notifications(
@@ -41,7 +43,9 @@ async def get_notifications(
 async def get_unread_notifications_count(
     user: Annotated[User, Depends(get_current_user)],
     company: Annotated[Company, Depends(get_current_company)],
-    category: Optional[NotificationCategory] = Query(None, description="Filter by category"),
+    category: Optional[NotificationCategory] = Query(
+        None, description="Filter by category"
+    ),
 ) -> dict:
     """Get count of unread notifications for the current user."""
     count = await get_unread_count(
@@ -56,7 +60,9 @@ async def get_unread_notifications_count(
 async def mark_all_notifications_read(
     user: Annotated[User, Depends(get_current_user)],
     company: Annotated[Company, Depends(get_current_company)],
-    category: Optional[NotificationCategory] = Query(None, description="Filter by category"),
+    category: Optional[NotificationCategory] = Query(
+        None, description="Filter by category"
+    ),
 ) -> dict:
     """Mark all notifications as read for the current user."""
     await mark_all_notifications_as_read(
