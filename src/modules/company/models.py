@@ -13,6 +13,7 @@ class Company(Document):
     street_address: str | None = None
     city: str | None = None
     state: str | None = None
+    active_product_id: str | None = None 
     created_at: datetime
     updated_at: datetime
     deleted_at: datetime | None = None

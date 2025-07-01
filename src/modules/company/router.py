@@ -212,3 +212,16 @@ async def get_update_logo_url_handler(
     return {
         "url": update_avatar_url,
     }
+
+# In company router
+@router.patch("/active-product")
+async def set_active_product(
+    product_id: str,
+    current_company: Annotated[Company, Depends(get_current_company)],
+) -> dict:
+    """Set active product for the company."""
+    current_company.active_product_id = product_id
+    current_company.updated_at = datetime.now()
+    await current_company.save()
+    
+    return {"message": "Active product updated", "active_product_id": product_id}
