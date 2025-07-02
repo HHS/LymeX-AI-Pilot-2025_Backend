@@ -18,6 +18,7 @@ from src.modules.product.claim_builder.model import (
 from src.modules.product.product_profile.model import (
     AnalyzeProductProfileProgress,
     ProductProfile,
+    ProductProfileAudit,
 )
 from src.modules.product.competitive_analysis.model import (
     CompetitiveAnalysis,
@@ -53,6 +54,7 @@ async def init_db() -> None:
             CompetitiveAnalysis,
             AnalyzeCompetitiveAnalysisProgress,
             ProductProfile,
+            ProductProfileAudit,
             AnalyzeProductProfileProgress,
             ClaimBuilder,
             AnalyzeClaimBuilderProgress,
