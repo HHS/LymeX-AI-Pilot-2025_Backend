@@ -21,3 +21,7 @@ async def get_update_product_avatar_url(product_id: str) -> str:
 
 def get_product_folder(product_id: str) -> str:
     return f"product/{product_id}"
+
+
+def get_checklist_folder(product_id: str) -> str:
+    return f"product/{product_id}/checklist"

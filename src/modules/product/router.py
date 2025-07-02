@@ -79,6 +79,9 @@ from src.modules.product.custom_test_plan.router import (
     router as custom_test_plan_router,
 )
 
+from src.modules.checklist.router import (
+    router as checklist_router,
+)
 
 router = APIRouter()
 
@@ -281,3 +284,8 @@ router.include_router(
     final_regulatory_report_router,
     prefix="/{product_id}/final-regulatory-report",
 )
+router.include_router(
+    checklist_router,
+    prefix="/{product_id}/checklist",
+)
+
