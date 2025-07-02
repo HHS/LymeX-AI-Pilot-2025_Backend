@@ -2,7 +2,10 @@ from datetime import datetime, timezone
 from typing import Annotated
 from fastapi import APIRouter, Depends
 
-from src.modules.product.product_profile.service import create_audit_record, delete_product_profile
+from src.modules.product.product_profile.service import (
+    create_audit_record,
+    delete_product_profile,
+)
 from src.modules.product.competitive_analysis.service import (
     delete_product_competitive_analysis,
 )
