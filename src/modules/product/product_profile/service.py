@@ -1,10 +1,14 @@
+from datetime import datetime, timezone
+from typing import Any
 from beanie import PydanticObjectId
 from fastapi import HTTPException, status
 from src.modules.product.product_profile.model import (
     AnalyzeProductProfileProgress,
     ProductProfile,
+    ProductProfileAudit,
 )
 from src.modules.product.storage import get_product_folder
+from src.modules.user.models import User
 
 
 def get_profile_folder(
@@ -16,10 +20,10 @@ def get_profile_folder(
 
 
 async def get_analyze_product_profile_progress(
-    product_id: str,
+    product_id: str | PydanticObjectId,
 ) -> AnalyzeProductProfileProgress:
     analyze_product_profile_progress = await AnalyzeProductProfileProgress.find_one(
-        AnalyzeProductProfileProgress.product_id == product_id,
+        AnalyzeProductProfileProgress.product_id == str(product_id),
     )
     if not analyze_product_profile_progress:
         raise HTTPException(
@@ -47,3 +51,21 @@ async def get_product_profile(
         ProductProfile.product_id == str(product_id),
     )
     return product_profile
+
+
+async def create_audit_record(
+    product_id: str | PydanticObjectId,
+    user: User,
+    action: str,
+    data: Any,
+) -> ProductProfileAudit:
+    audit_record = ProductProfileAudit(
+        product_id=str(product_id),
+        user_id=str(user.id),
+        user_email=user.email,
+        action=action,
+        data=data,
+        timestamp=datetime.now(timezone.utc),
+    )
+    await audit_record.insert()
+    return audit_record

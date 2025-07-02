@@ -1,13 +1,16 @@
 from datetime import datetime
+from typing import Any
 
 from beanie import Document, PydanticObjectId
 
 from src.modules.product.models import Product
 from src.modules.product.product_profile.schema import (
     AnalyzeProductProfileProgressResponse,
+    AnalyzingStatus,
     Feature,
     Performance,
     ProductProfileAnalysisResponse,
+    ProductProfileAuditResponse,
     ProductProfileResponse,
     RegulatoryClassification,
 )
@@ -43,7 +46,9 @@ class ProductProfile(Document):
         }
 
     def to_product_profile_response(
-        self, product_response: ProductResponse | None
+        self,
+        product_response: ProductResponse | None,
+        analyze_progress: AnalyzeProductProfileProgressResponse | None,
     ) -> ProductProfileResponse:
         product_response = (
             {
@@ -72,11 +77,18 @@ class ProductProfile(Document):
             features=self.features,
             claims=self.claims,
             conflict_alerts=self.conflict_alerts,
+            analyzing_status=(
+                analyze_progress.analyzing_status
+                if analyze_progress
+                else AnalyzingStatus.PENDING
+            ),
             **product_response,
         )
 
     def to_product_profile_analysis_response(
-        self, product: Product
+        self,
+        product: Product,
+        analyze_progress: AnalyzeProductProfileProgressResponse | None = None,
     ) -> ProductProfileAnalysisResponse:
         return ProductProfileAnalysisResponse(
             product_id=str(product.id),
@@ -87,6 +99,11 @@ class ProductProfile(Document):
             ce_marked=self.ce_marked,
             features=self.features,
             regulatory_classifications=self.regulatory_classifications,
+            analyzing_status=(
+                analyze_progress.analyzing_status
+                if analyze_progress
+                else AnalyzingStatus.PENDING
+            ),
         )
 
 
@@ -107,9 +124,35 @@ class AnalyzeProductProfileProgress(Document):
     def to_analyze_product_profile_progress_response(
         self,
     ) -> AnalyzeProductProfileProgressResponse:
-        return {
-            "product_id": self.product_id,
-            "total_files": self.total_files,
-            "processed_files": self.processed_files,
-            "updated_at": self.updated_at,
-        }
+        return AnalyzeProductProfileProgressResponse(
+            product_id=self.product_id,
+            total_files=self.total_files,
+            processed_files=self.processed_files,
+            updated_at=self.updated_at,
+            analyzing_status=(
+                AnalyzingStatus.IN_PROGRESS
+                if self.processed_files < self.total_files
+                else AnalyzingStatus.COMPLETED
+            ),
+        )
+
+
+class ProductProfileAudit(Document):
+    product_id: str
+    user_id: str
+    user_email: str
+    action: str
+    data: Any
+    timestamp: datetime
+
+    def to_product_profile_audit_response(
+        self,
+    ) -> ProductProfileAuditResponse:
+        return ProductProfileAuditResponse(
+            product_id=self.product_id,
+            user_id=self.user_id,
+            user_email=self.user_email,
+            action=self.action,
+            data=self.data,
+            timestamp=self.timestamp,
+        )

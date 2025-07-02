@@ -1,4 +1,6 @@
 from datetime import datetime
+from enum import Enum
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -19,6 +21,12 @@ class Feature(BaseModel):
 class Performance(BaseModel):
     speed: int
     reliability: int
+
+
+class AnalyzingStatus(str, Enum):
+    PENDING = "Pending"
+    IN_PROGRESS = "In_Progress"
+    COMPLETED = "Completed"
 
 
 # ============================
@@ -91,6 +99,9 @@ class ProductProfileResponse(BaseModel):
     conflict_alerts: list[str] | None = Field(
         None, description="List of conflict alerts associated with the product"
     )
+    analyzing_status: AnalyzingStatus = Field(
+        ..., description="Current status of the product analysis"
+    )
 
 
 class ProductProfileDocumentResponse(BaseModel):
@@ -113,6 +124,9 @@ class AnalyzeProductProfileProgressResponse(BaseModel):
     updated_at: datetime = Field(
         ..., description="Date and time when the progress was last updated"
     )
+    analyzing_status: AnalyzingStatus = Field(
+        ..., description="Current status of the product analysis"
+    )
 
 
 class ProductProfileAnalysisResponse(BaseModel):
@@ -131,4 +145,20 @@ class ProductProfileAnalysisResponse(BaseModel):
     features: list[Feature] = Field(..., description="List of features of the product")
     regulatory_classifications: list[RegulatoryClassification] = Field(
         ..., description="Li sst of regulatory classifications for the product"
+    )
+    analyzing_status: AnalyzingStatus = Field(
+        ..., description="Current status of the product analysis"
+    )
+
+
+class ProductProfileAuditResponse(BaseModel):
+    product_id: str = Field(..., description="ID of the product")
+    user_id: str = Field(..., description="ID of the user who performed the action")
+    user_email: str = Field(
+        ..., description="Email of the user who performed the action"
+    )
+    action: str = Field(..., description="Action performed on the product profile")
+    data: Any = Field(..., description="Additional data related to the action")
+    timestamp: datetime = Field(
+        ..., description="Timestamp when the action was performed"
     )
