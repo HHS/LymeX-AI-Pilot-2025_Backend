@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from typing import Annotated
 from fastapi import APIRouter, Depends
 
-from src.modules.product.product_profile.service import delete_product_profile
+from src.modules.product.product_profile.service import create_audit_record, delete_product_profile
 from src.modules.product.competitive_analysis.service import (
     delete_product_competitive_analysis,
 )
@@ -98,6 +98,12 @@ async def create_product_handler(
 ) -> ProductResponse:
     created_product = await create_product(payload, current_user, current_company)
     created_product = await created_product.to_product_response()
+    await create_audit_record(
+        created_product.id,
+        current_user,
+        "Create product",
+        payload.model_dump(),
+    )
     return created_product
 
 
@@ -128,7 +134,7 @@ async def update_product_handler(
     ]
     for field in possible_fields:
         value = getattr(payload, field)
-        if value == None:
+        if value is None:
             continue
         have_update = True
         setattr(product, field, value)
@@ -136,6 +142,12 @@ async def update_product_handler(
         product.updated_by = str(current_user.id)
         product.updated_at = datetime.now(timezone.utc)
         await product.save()
+    await create_audit_record(
+        product.id,
+        current_user,
+        "Update product",
+        payload.model_dump(),
+    )
     product_response = await product.to_product_response()
     return product_response
 
@@ -156,6 +168,7 @@ async def get_update_avatar_url_handler(
 @router.delete("/{product_id}")
 async def delete_product_handler(
     product: Annotated[Product, Depends(get_current_product)],
+    current_user: Annotated[User, Depends(get_current_user)],
     _: Annotated[bool, Depends(check_product_edit_allowed)],
 ) -> None:
     await delete_product_competitive_analysis(
@@ -164,28 +177,48 @@ async def delete_product_handler(
     await delete_product_profile(
         str(product.id),
     )
+    await create_audit_record(
+        product.id,
+        current_user,
+        "Delete product",
+        {"product_id": str(product.id)},
+    )
     await product.delete()
 
 
 @router.post("/{product_id}/lock")
 async def lock_product_handler(
     product: Annotated[Product, Depends(get_current_product)],
+    current_user: Annotated[User, Depends(get_current_user)],
     _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.ADMINISTRATOR))],
 ) -> None:
     if product.edit_locked:
         return
     product.edit_locked = True
+    await create_audit_record(
+        product.id,
+        current_user,
+        "Lock product",
+        {"product_id": str(product.id)},
+    )
     await product.save()
 
 
 @router.post("/{product_id}/unlock")
 async def unlock_product_handler(
     product: Annotated[Product, Depends(get_current_product)],
+    current_user: Annotated[User, Depends(get_current_user)],
     _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.ADMINISTRATOR))],
 ) -> None:
     if not product.edit_locked:
         return
     product.edit_locked = False
+    await create_audit_record(
+        product.id,
+        current_user,
+        "Unlock product",
+        {"product_id": str(product.id)},
+    )
     await product.save()
 
 

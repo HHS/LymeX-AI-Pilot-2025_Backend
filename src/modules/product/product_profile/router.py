@@ -12,12 +12,14 @@ from src.modules.product.product_profile.storage import (
 from src.modules.user.models import User
 from src.celery.tasks.analyze_product_profile import analyze_product_profile_task
 from src.modules.product.product_profile.service import (
+    create_audit_record,
     get_analyze_product_profile_progress,
     get_product_profile,
 )
 from src.modules.product.product_profile.schema import (
     AnalyzeProductProfileProgressResponse,
     ProductProfileAnalysisResponse,
+    ProductProfileAuditResponse,
     ProductProfileDocumentResponse,
     ProductProfileResponse,
     UpdateProductProfileRequest,
@@ -31,6 +33,7 @@ from src.modules.product.models import Product
 from src.modules.product.product_profile.model import (
     AnalyzeProductProfileProgress,
     ProductProfile,
+    ProductProfileAudit,
 )
 
 
@@ -43,11 +46,17 @@ async def get_product_profile_handler(
 ) -> ProductProfileResponse:
     product_response = await product.to_product_response()
     product_profile = await get_product_profile(product.id)
+    analyze_product_profile_progress = await get_analyze_product_profile_progress(
+        product.id,
+    )
     if not product_profile:
         return ProductProfileResponse(
             **product_response.model_dump(),
         )
-    profile_response = product_profile.to_product_profile_response(product_response)
+    profile_response = product_profile.to_product_profile_response(
+        product_response,
+        analyze_product_profile_progress.to_analyze_product_profile_progress_response(),
+    )
     return profile_response
 
 
@@ -55,6 +64,7 @@ async def get_product_profile_handler(
 async def update_product_profile_handler(
     payload: UpdateProductProfileRequest,
     product: Annotated[Product, Depends(get_current_product)],
+    current_user: Annotated[User, Depends(get_current_user)],
     _: Annotated[bool, Depends(check_product_edit_allowed)],
 ) -> ProductProfileResponse:
     product_response = await product.to_product_response()
@@ -65,28 +75,35 @@ async def update_product_profile_handler(
             **payload.model_dump(),
         )
         await product_profile.insert()
-        product_profile_response = product_profile.to_product_profile_response(
-            product_response,
-        )
-        return product_profile_response
-    have_update = False
-    possible_fields = [
-        "description",
-        "regulatory_classifications",
-        "device_description",
-        "features",
-        "claims",
-        "conflict_alerts",
-    ]
-    for field in possible_fields:
-        value = getattr(payload, field)
-        if value != None:
-            have_update = True
-            setattr(product, field, value)
-    if have_update:
-        await product_profile.save()
+    else:
+        have_update = False
+        possible_fields = [
+            "description",
+            "regulatory_classifications",
+            "device_description",
+            "features",
+            "claims",
+            "conflict_alerts",
+        ]
+        for field in possible_fields:
+            value = getattr(payload, field)
+            if value is not None:
+                have_update = True
+                setattr(product, field, value)
+        if have_update:
+            await product_profile.save()
+    analyze_product_profile_progress = await get_analyze_product_profile_progress(
+        product.id,
+    )
     product_profile_response = product_profile.to_product_profile_response(
         product_response,
+        analyze_product_profile_progress.to_analyze_product_profile_progress_response(),
+    )
+    await create_audit_record(
+        product.id,
+        current_user,
+        "Update product profile",
+        payload.model_dump(),
     )
     return product_profile_response
 
@@ -96,7 +113,7 @@ async def get_analyze_product_profile_progress_handler(
     product: Annotated[Product, Depends(get_current_product)],
 ) -> AnalyzeProductProfileProgressResponse:
     analyze_product_profile_progress = await get_analyze_product_profile_progress(
-        str(product.id),
+        product.id,
     )
     return (
         analyze_product_profile_progress.to_analyze_product_profile_progress_response()
@@ -106,6 +123,7 @@ async def get_analyze_product_profile_progress_handler(
 @router.post("/analyze")
 async def analyze_product_profile_handler(
     product: Annotated[Product, Depends(get_current_product)],
+    current_user: Annotated[User, Depends(get_current_user)],
     _: Annotated[bool, Depends(check_product_edit_allowed)],
 ) -> None:
     await AnalyzeProductProfileProgress.find(
@@ -118,6 +136,12 @@ async def analyze_product_profile_handler(
         updated_at=datetime.now(timezone.utc),
     )
     await analyze_product_profile_progress.save()
+    await create_audit_record(
+        product.id,
+        current_user,
+        "Analyze product profile",
+        {},
+    )
     analyze_product_profile_task.delay(str(product.id))
 
 
@@ -168,17 +192,30 @@ async def upload_product_profile_text_input_handler(
             data=payload.text,
             headers={"Content-Type": "text/plain"},
         )
+    await create_audit_record(
+        product.id,
+        current_user,
+        "Upload product profile text input",
+        payload.model_dump(),
+    )
 
 
 @router.delete("/document/{document_name}")
 async def delete_product_profile_document_handler(
     document_name: str,
     product: Annotated[Product, Depends(get_current_product)],
+    current_user: Annotated[User, Depends(get_current_user)],
     _: Annotated[bool, Depends(check_product_edit_allowed)],
 ) -> None:
     await delete_product_profile_document(
         str(product.id),
         document_name,
+    )
+    await create_audit_record(
+        product.id,
+        current_user,
+        "Delete product profile document",
+        {"document_name": document_name},
     )
 
 
@@ -192,5 +229,22 @@ async def get_product_profile_analysis_handler(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Product profile not found. Please run analysis first.",
         )
-    analysis = product_profile.to_product_profile_analysis_response(product)
+    analyze_product_profile_progress = await get_analyze_product_profile_progress(
+        product.id,
+    )
+    analysis = product_profile.to_product_profile_analysis_response(
+        product,
+        analyze_product_profile_progress.to_analyze_product_profile_progress_response(),
+    )
     return analysis
+
+
+@router.get("/audit")
+async def get_product_profile_audit_handler(
+    product: Annotated[Product, Depends(get_current_product)],
+) -> list[ProductProfileAuditResponse]:
+    audits = await ProductProfileAudit.find(
+        ProductProfileAudit.product_id == str(product.id),
+        sort=[("timestamp", -1)],
+    ).to_list()
+    return [audit.to_product_profile_audit_response() for audit in audits]
