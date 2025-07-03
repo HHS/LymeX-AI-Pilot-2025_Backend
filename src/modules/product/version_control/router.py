@@ -6,6 +6,7 @@ from src.modules.product.claim_builder.model import ClaimBuilder
 from src.modules.product.claim_builder.service import get_claim_builder
 from src.modules.product.claim_builder.schema import ClaimBuilderResponse
 from src.modules.authentication.dependencies import get_current_user
+from src.modules.product.product_profile.service import create_audit_record
 from src.modules.user.models import User
 from src.modules.product.version_control.service import (
     get_product_version_control,
@@ -55,6 +56,15 @@ async def promote_major_version_handler(
         product_id=str(product.id),
         created_by=current_user.email,
     )
+    await create_audit_record(
+        product.id,
+        current_user,
+        "Promote major version",
+        {
+            "new_major_version": new_version.major_version,
+            "new_minor_version": new_version.minor_version,
+        },
+    )
     return new_version.to_product_version_control_response(
         is_current_version=True,
     )
@@ -89,5 +99,15 @@ async def reset_to_version_handler(
         current_claim_builder,
         f"Reset to version {payload.version}",
         user.email,
+    )
+    await create_audit_record(
+        product.id,
+        user,
+        "Reset to version",
+        {
+            "version": payload.version,
+            "major_version": major_version,
+            "minor_version": minor_version,
+        },
     )
     return current_claim_builder.to_claim_builder_response(product=product)

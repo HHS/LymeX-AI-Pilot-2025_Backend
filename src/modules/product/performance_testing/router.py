@@ -16,6 +16,7 @@ from src.modules.product.performance_testing.schema import (
     PerformanceTestingStatus,
     RejectedPerformanceTestingRequest,
 )
+from src.modules.product.product_profile.service import create_audit_record
 from src.modules.user.models import User
 from src.modules.product.dependencies import (
     check_product_edit_allowed,
@@ -52,6 +53,15 @@ async def create_performance_testing_handler(
         payload=payload,
         user_email=current_user.email,
     )
+    await create_audit_record(
+        product.id,
+        current_user,
+        "Create performance testing",
+        {
+            "performance_testing_id": performance_testing.id,
+            "payload": payload.model_dump(),
+        },
+    )
     return performance_testing.to_performance_testing_response()
 
 
@@ -78,6 +88,7 @@ async def get_performance_testing_handler(
 async def delete_performance_testing_handler(
     performance_testing_id: str,
     product: Annotated[Product, Depends(get_current_product)],
+    current_user: Annotated[User, Depends(get_current_user)],
     _: Annotated[bool, Depends(check_product_edit_allowed)],
 ) -> None:
     performance_testing = await get_performance_testing(performance_testing_id)
@@ -92,6 +103,14 @@ async def delete_performance_testing_handler(
             detail="Performance testing does not belong to this product.",
         )
     await performance_testing.delete()
+    await create_audit_record(
+        product.id,
+        current_user,
+        "Delete performance testing",
+        {
+            "performance_testing_id": performance_testing.id,
+        },
+    )
     return
 
 
@@ -99,6 +118,7 @@ async def delete_performance_testing_handler(
 async def analyze_performance_testing_handler(
     performance_testing_id: str,
     product: Annotated[Product, Depends(get_current_product)],
+    current_user: Annotated[User, Depends(get_current_user)],
     _: Annotated[bool, Depends(check_product_edit_allowed)],
 ) -> None:
     performance_testing = await get_performance_testing(performance_testing_id)
@@ -113,6 +133,14 @@ async def analyze_performance_testing_handler(
             detail="Performance testing does not belong to this product.",
         )
     analyze_performance_testing_task.delay(performance_testing_id)
+    await create_audit_record(
+        product.id,
+        current_user,
+        "Analyze performance testing",
+        {
+            "performance_testing_id": performance_testing.id,
+        },
+    )
     return
 
 
@@ -120,6 +148,7 @@ async def analyze_performance_testing_handler(
 async def accept_performance_testing_handler(
     performance_testing_id: str,
     product: Annotated[Product, Depends(get_current_product)],
+    current_user: Annotated[User, Depends(get_current_user)],
     _: Annotated[bool, Depends(check_product_edit_allowed)],
 ) -> PerformanceTestingResponse:
     performance_testing = await get_performance_testing(performance_testing_id)
@@ -140,6 +169,14 @@ async def accept_performance_testing_handler(
         )
     performance_testing.status = PerformanceTestingStatus.ACCEPTED
     await performance_testing.save()
+    await create_audit_record(
+        product.id,
+        current_user,
+        "Accept performance testing",
+        {
+            "performance_testing_id": performance_testing.id,
+        },
+    )
     return performance_testing.to_performance_testing_response()
 
 
@@ -148,6 +185,7 @@ async def reject_performance_testing_handler(
     payload: RejectedPerformanceTestingRequest,
     performance_testing_id: str,
     product: Annotated[Product, Depends(get_current_product)],
+    current_user: Annotated[User, Depends(get_current_user)],
     _: Annotated[bool, Depends(check_product_edit_allowed)],
 ) -> PerformanceTestingResponse:
     performance_testing = await get_performance_testing(performance_testing_id)
@@ -169,4 +207,13 @@ async def reject_performance_testing_handler(
     performance_testing.status = PerformanceTestingStatus.REJECTED
     performance_testing.rejected_justification = payload.rejected_justification
     await performance_testing.save()
+    await create_audit_record(
+        product.id,
+        current_user,
+        "Reject performance testing",
+        {
+            "performance_testing_id": performance_testing.id,
+            "rejected_justification": payload.rejected_justification,
+        },
+    )
     return performance_testing.to_performance_testing_response()

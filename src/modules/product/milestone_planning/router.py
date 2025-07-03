@@ -2,6 +2,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 
 from src.celery.tasks.analyze_milestone_planning import analyze_milestone_planning_task
+from src.modules.authentication.dependencies import get_current_user
 from src.modules.product.milestone_planning.schema import (
     MilestonePlanningResponse,
     SaveMilestonePlanningRequest,
@@ -12,6 +13,8 @@ from src.modules.product.milestone_planning.service import (
 )
 from src.modules.product.dependencies import get_current_product
 from src.modules.product.models import Product
+from src.modules.product.product_profile.service import create_audit_record
+from src.modules.user.models import User
 
 
 router = APIRouter()
@@ -19,10 +22,17 @@ router = APIRouter()
 
 @router.post("/analyze")
 async def analyze_milestone_planning_handler(
+    current_user: Annotated[User, Depends(get_current_user)],
     product: Annotated[Product, Depends(get_current_product)],
 ) -> None:
     analyze_milestone_planning_task.delay(
         product_id=str(product.id),
+    )
+    await create_audit_record(
+        product.id,
+        current_user,
+        "Analyze milestone planning",
+        {},
     )
 
 
@@ -41,9 +51,19 @@ async def get_product_milestone_planning_handler(
 async def save_milestone_planning_handler(
     product: Annotated[Product, Depends(get_current_product)],
     payload: SaveMilestonePlanningRequest,
+    current_user: Annotated[User, Depends(get_current_user)],
 ) -> MilestonePlanningResponse:
     milestone_planning = await save_milestone_planning(
         product_id=product.id,
         milestones=payload.milestones,
+    )
+    await create_audit_record(
+        product.id,
+        current_user,
+        "Save milestone planning",
+        {
+            "milestone_planning_id": milestone_planning.id,
+            "payload": payload.model_dump(),
+        },
     )
     return await milestone_planning.to_milestone_planning_response()
