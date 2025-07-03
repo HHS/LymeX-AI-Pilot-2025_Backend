@@ -9,13 +9,20 @@ from src.modules.checklist.schema import ChecklistQuestion, ChecklistProgress
 class Checklist(Document):
     product_id: str = Field(..., description="Product ID this checklist belongs to")
     ai_analysis_status: Literal["not_started", "in_progress", "completed"] = Field(
-        default="not_started", 
-        description="Status of AI analysis"
+        default="not_started", description="Status of AI analysis"
     )
-    checklist: ChecklistProgress = Field(..., description="Checklist progress information")
-    questions: List[ChecklistQuestion] = Field(..., description="List of checklist questions")
-    created_at: datetime = Field(default_factory=datetime.utcnow, description="Creation timestamp")
-    updated_at: datetime = Field(default_factory=datetime.utcnow, description="Last update timestamp")
+    checklist: ChecklistProgress = Field(
+        ..., description="Checklist progress information"
+    )
+    questions: List[ChecklistQuestion] = Field(
+        ..., description="List of checklist questions"
+    )
+    created_at: datetime = Field(
+        default_factory=datetime.utcnow, description="Creation timestamp"
+    )
+    updated_at: datetime = Field(
+        default_factory=datetime.utcnow, description="Last update timestamp"
+    )
 
     class Settings:
         name = "checklist"

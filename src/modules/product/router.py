@@ -288,4 +288,3 @@ router.include_router(
     checklist_router,
     prefix="/{product_id}/checklist",
 )
-
