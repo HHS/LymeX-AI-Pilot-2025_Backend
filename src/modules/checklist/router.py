@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
+from fastapi import APIRouter, UploadFile, File, HTTPException, Depends, Query
 from src.modules.checklist.service import (
     create_master_checklist_from_json,
     get_master_checklist,
@@ -42,11 +42,12 @@ async def get_master_checklist_endpoint():
 @router.post("/upload-file")
 async def upload_checklist_image(
     product: Annotated[Product, Depends(get_current_product)],
-    file: UploadFile = File(...),
+    question_id: str = Query(..., description="Question ID to upload file for"),
+    file: UploadFile = File(...)
 ):
-    """Upload a checklist file"""
+    """Upload a checklist file for a specific question"""
     try:
-        return await upload_checklist_file(str(product.id), file)
+        return await upload_checklist_file(str(product.id), question_id, file)
     except HTTPException:
         raise
     except Exception as e:
@@ -56,10 +57,11 @@ async def upload_checklist_image(
 @router.get("/documents")
 async def get_checklist_documents_endpoint(
     product: Annotated[Product, Depends(get_current_product)],
+    question_id: str = Query(None, description="Optional question ID to filter documents")
 ):
-    """Get all checklist documents for a product"""
+    """Get all checklist documents for a product, optionally filtered by question"""
     try:
-        return await get_checklist_documents(str(product.id))
+        return await get_checklist_documents(str(product.id), question_id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
