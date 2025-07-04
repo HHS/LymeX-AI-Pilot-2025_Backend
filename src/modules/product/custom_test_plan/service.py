@@ -58,10 +58,12 @@ async def clone_custom_test_plan(
         CustomTestPlan.product_id == str(product_id),
     ).to_list()
     if existing_plan:
-        await CustomTestPlan.insert_many([
-            CustomTestPlan(
-                **plan.model_dump(exclude={"id", "product_id"}),
-                product_id=str(new_product_id),
-            )
-            for plan in existing_plan
-        ])
+        await CustomTestPlan.insert_many(
+            [
+                CustomTestPlan(
+                    **plan.model_dump(exclude={"id", "product_id"}),
+                    product_id=str(new_product_id),
+                )
+                for plan in existing_plan
+            ]
+        )

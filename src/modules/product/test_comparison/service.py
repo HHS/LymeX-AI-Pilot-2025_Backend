@@ -41,10 +41,12 @@ async def clone_test_comparison(
         TestComparison.product_id == str(product_id),
     ).to_list()
     if existing_test_comparisons:
-        await TestComparison.insert_many([
-            TestComparison(
-                **comparison.model_dump(exclude={"id", "product_id"}),
-                product_id=str(new_product_id),
-            )
-            for comparison in existing_test_comparisons
-        ])
+        await TestComparison.insert_many(
+            [
+                TestComparison(
+                    **comparison.model_dump(exclude={"id", "product_id"}),
+                    product_id=str(new_product_id),
+                )
+                for comparison in existing_test_comparisons
+            ]
+        )

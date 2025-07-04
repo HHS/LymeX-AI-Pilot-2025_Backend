@@ -20,10 +20,12 @@ async def clone_clinical_trial(
     ).to_list()
     if not clinical_trials:
         return
-    await ClinicalTrial.insert_many([
-        ClinicalTrial(
-            **trial.model_dump(exclude={"id", "product_id"}),
-            product_id=str(new_product_id),
-        )
-        for trial in clinical_trials
-    ])
+    await ClinicalTrial.insert_many(
+        [
+            ClinicalTrial(
+                **trial.model_dump(exclude={"id", "product_id"}),
+                product_id=str(new_product_id),
+            )
+            for trial in clinical_trials
+        ]
+    )

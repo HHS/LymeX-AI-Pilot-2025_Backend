@@ -81,13 +81,15 @@ async def clone_product_profile(
     ).to_list()
 
     if existing_profile:
-        await ProductProfile.insert_many([
-            ProductProfile(
-                **profile.model_dump(exclude={"id", "product_id"}),
-                product_id=str(new_product_id),
-            )
-            for profile in existing_profile
-        ])
+        await ProductProfile.insert_many(
+            [
+                ProductProfile(
+                    **profile.model_dump(exclude={"id", "product_id"}),
+                    product_id=str(new_product_id),
+                )
+                for profile in existing_profile
+            ]
+        )
 
     analyze_progress = await AnalyzeProductProfileProgress.find_one(
         AnalyzeProductProfileProgress.product_id == str(product_id),

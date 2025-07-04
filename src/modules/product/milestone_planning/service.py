@@ -7,9 +7,9 @@ from src.modules.product.milestone_planning.schema import Milestone
 async def get_product_milestone_planning(
     product_id: str | PydanticObjectId,
 ) -> list[MilestonePlanning]:
-    product_milestone_plannings = await MilestonePlanning.find({
-        "product_id": str(product_id)
-    }).to_list()
+    product_milestone_plannings = await MilestonePlanning.find(
+        {"product_id": str(product_id)}
+    ).to_list()
     if not product_milestone_plannings:
         from datetime import datetime, timedelta
 
@@ -76,10 +76,12 @@ async def clone_milestone_planning(
     ).to_list()
 
     if existing_planning:
-        await MilestonePlanning.insert_many([
-            MilestonePlanning(
-                **planning.model_dump(exclude={"id", "product_id"}),
-                product_id=str(new_product_id),
-            )
-            for planning in existing_planning
-        ])
+        await MilestonePlanning.insert_many(
+            [
+                MilestonePlanning(
+                    **planning.model_dump(exclude={"id", "product_id"}),
+                    product_id=str(new_product_id),
+                )
+                for planning in existing_planning
+            ]
+        )

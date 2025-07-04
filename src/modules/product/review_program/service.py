@@ -15,9 +15,9 @@ async def get_product_review_program(
     product_name = product.name if product else ""
     product_code = product.code if product else None
 
-    product_review_programs = await ReviewProgram.find({
-        "productId": str(product_id)
-    }).to_list()
+    product_review_programs = await ReviewProgram.find(
+        {"productId": str(product_id)}
+    ).to_list()
 
     if not product_review_programs:
         # Create dummy data
@@ -91,10 +91,12 @@ async def clone_review_program(
     ).to_list()
 
     if existing_programs:
-        await ReviewProgram.insert_many([
-            ReviewProgram(
-                **program.model_dump(exclude={"id", "productId"}),
-                productId=str(new_product_id),
-            )
-            for program in existing_programs
-        ])
+        await ReviewProgram.insert_many(
+            [
+                ReviewProgram(
+                    **program.model_dump(exclude={"id", "productId"}),
+                    productId=str(new_product_id),
+                )
+                for program in existing_programs
+            ]
+        )
