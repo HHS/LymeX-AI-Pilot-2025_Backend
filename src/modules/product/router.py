@@ -1,6 +1,8 @@
+import asyncio
 from datetime import datetime, timezone
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
+from loguru import logger
 
 from src.modules.product.product_profile.service import (
     create_audit_record,
@@ -307,30 +309,53 @@ async def clone_product_handler(
 
     if not payload.retaining_options:
         payload.retaining_options = CloneProductRetainingOptions()
+
+    tasks = []
+
     if payload.retaining_options.claim_builder:
-        await clone_claim_builder(product.id, new_product.id)
+        logger.info(f"Cloning claim_builder from {product.id} to {new_product.id}")
+        tasks.append(clone_claim_builder(product.id, new_product.id))
     if payload.retaining_options.clinical_trial:
-        await clone_clinical_trial(product.id, new_product.id)
+        logger.info(f"Cloning clinical_trial from {product.id} to {new_product.id}")
+        tasks.append(clone_clinical_trial(product.id, new_product.id))
     if payload.retaining_options.competitive_analysis:
-        await clone_competitive_analysis(product.id, new_product.id)
+        logger.info(
+            f"Cloning competitive_analysis from {product.id} to {new_product.id}"
+        )
+        tasks.append(clone_competitive_analysis(product.id, new_product.id))
     if payload.retaining_options.cost_estimation:
-        await clone_cost_estimation(product.id, new_product.id)
+        logger.info(f"Cloning cost_estimation from {product.id} to {new_product.id}")
+        tasks.append(clone_cost_estimation(product.id, new_product.id))
     if payload.retaining_options.custom_test_plan:
-        await clone_custom_test_plan(product.id, new_product.id)
+        logger.info(f"Cloning custom_test_plan from {product.id} to {new_product.id}")
+        tasks.append(clone_custom_test_plan(product.id, new_product.id))
     if payload.retaining_options.feature_status:
-        await clone_feature_status(product.id, new_product.id)
+        logger.info(f"Cloning feature_status from {product.id} to {new_product.id}")
+        tasks.append(clone_feature_status(product.id, new_product.id))
     if payload.retaining_options.milestone_planning:
-        await clone_milestone_planning(product.id, new_product.id)
+        logger.info(f"Cloning milestone_planning from {product.id} to {new_product.id}")
+        tasks.append(clone_milestone_planning(product.id, new_product.id))
     if payload.retaining_options.performance_testing:
-        await clone_performance_testing(product.id, new_product.id)
+        logger.info(
+            f"Cloning performance_testing from {product.id} to {new_product.id}"
+        )
+        tasks.append(clone_performance_testing(product.id, new_product.id))
     if payload.retaining_options.product_profile:
-        await clone_product_profile(product.id, new_product.id)
+        logger.info(f"Cloning product_profile from {product.id} to {new_product.id}")
+        tasks.append(clone_product_profile(product.id, new_product.id))
     if payload.retaining_options.regulatory_pathway:
-        await clone_regulatory_pathway(product.id, new_product.id)
+        logger.info(f"Cloning regulatory_pathway from {product.id} to {new_product.id}")
+        tasks.append(clone_regulatory_pathway(product.id, new_product.id))
     if payload.retaining_options.review_program:
-        await clone_review_program(product.id, new_product.id)
+        logger.info(f"Cloning review_program from {product.id} to {new_product.id}")
+        tasks.append(clone_review_program(product.id, new_product.id))
     if payload.retaining_options.test_comparison:
-        await clone_test_comparison(product.id, new_product.id)
+        logger.info(f"Cloning test_comparison from {product.id} to {new_product.id}")
+        tasks.append(clone_test_comparison(product.id, new_product.id))
+
+    # Run all clone tasks concurrently (in parallel)
+    if tasks:
+        await asyncio.gather(*tasks)
 
     await create_audit_record(
         product.id,
