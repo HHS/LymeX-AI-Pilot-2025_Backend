@@ -67,6 +67,8 @@ class ChecklistUpdateRequest(BaseModel):
 class ChecklistResponse(BaseModel):
     id: str = Field(..., description="Checklist ID")
     product_id: str = Field(..., description="Product ID")
+    product_name: str = Field(..., description="Product name")
+    product_code: str | None = Field(None, description="Product code")
     ai_analysis_status: Literal["not_started", "in_progress", "completed"]
     checklist: ChecklistProgress
     questions: List[ChecklistQuestion]

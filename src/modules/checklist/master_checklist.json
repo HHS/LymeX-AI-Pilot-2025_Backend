@@ -68,6 +68,20 @@
         "draft": true,
         "is_yes_or_no_question": false,
         "default_answer": ""
+    },
+    {
+        "question": "Did you perform Precision (Repeatability/Reproducibility) study?",
+        "module": "Performance Testing",
+        "draft": true,
+        "is_yes_or_no_question": true,
+        "default_answer": "No"
+    },
+    {
+        "question": "Did you perform Linearity Study?",
+        "module": "Performance Testing",
+        "draft": true,
+        "is_yes_or_no_question": true,
+        "default_answer": "No"
     }
 ]
       
