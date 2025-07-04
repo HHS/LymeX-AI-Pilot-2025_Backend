@@ -43,7 +43,7 @@ async def get_master_checklist_endpoint():
 async def upload_checklist_image(
     product: Annotated[Product, Depends(get_current_product)],
     question_id: str = Query(..., description="Question ID to upload file for"),
-    file: UploadFile = File(...)
+    file: UploadFile = File(...),
 ):
     """Upload a checklist file for a specific question"""
     try:
@@ -57,7 +57,9 @@ async def upload_checklist_image(
 @router.get("/documents")
 async def get_checklist_documents_endpoint(
     product: Annotated[Product, Depends(get_current_product)],
-    question_id: str = Query(None, description="Optional question ID to filter documents")
+    question_id: str = Query(
+        None, description="Optional question ID to filter documents"
+    ),
 ):
     """Get all checklist documents for a product, optionally filtered by question"""
     try:
