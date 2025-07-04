@@ -6,7 +6,7 @@ from src.modules.checklist.service import (
     upload_checklist_file,
     get_checklist_documents,
     get_or_create_checklist,
-    submit_checklist_for_analysis
+    submit_checklist_for_analysis,
 )
 
 from src.modules.product.dependencies import get_current_product
@@ -86,7 +86,7 @@ async def get_or_create_checklist_endpoint(
 
 @router.post("/submit")
 async def submit_checklist_endpoint(
-    product: Annotated[Product, Depends(get_current_product)]
+    product: Annotated[Product, Depends(get_current_product)],
 ):
     """Submit checklist for AI analysis"""
     try:
@@ -94,4 +94,6 @@ async def submit_checklist_endpoint(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error submitting checklist: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Error submitting checklist: {str(e)}"
+        )

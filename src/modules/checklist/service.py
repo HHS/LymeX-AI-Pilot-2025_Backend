@@ -257,21 +257,25 @@ async def submit_checklist_for_analysis(product_id: str) -> Dict[str, Any]:
     """Submit checklist for AI analysis by updating status to in_progress"""
     # Get product information
     product_name, product_code = await get_product_info(product_id)
-    
+
     # Find the checklist
     checklist = await Checklist.find_one({"product_id": product_id})
     if not checklist:
-        raise HTTPException(status_code=404, detail="Checklist not found for this product")
-    
+        raise HTTPException(
+            status_code=404, detail="Checklist not found for this product"
+        )
+
     # Update the status to in_progress
     checklist.ai_analysis_status = "in_progress"
     checklist.updated_at = datetime.utcnow()
     await checklist.save()
-    
+
     # Convert to response format with product data
-    checklist_response = create_checklist_response(checklist, product_name, product_code)
-    
+    checklist_response = create_checklist_response(
+        checklist, product_name, product_code
+    )
+
     return {
         "message": "Checklist submitted for AI analysis successfully",
-        "checklist": checklist_response
+        "checklist": checklist_response,
     }
