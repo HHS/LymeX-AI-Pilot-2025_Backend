@@ -5,11 +5,11 @@ from datetime import datetime
 
 from src.modules.product.regulatory_background.model import RegulatoryBackground
 from src.modules.product.regulatory_background.schema import (
-    RegulatoryBackgroundResponse, 
-    RegulatorySummary, 
-    RegulatoryFinding, 
+    RegulatoryBackgroundResponse,
+    RegulatorySummary,
+    RegulatoryFinding,
     RegulatoryConflict,
-    SummaryHighlight
+    SummaryHighlight,
 )
 from src.modules.product.models import Product
 
@@ -24,7 +24,7 @@ async def get_product_info(product_id: str) -> tuple[str, str | None]:
 
 def create_mock_regulatory_background(product_id: str) -> RegulatoryBackground:
     """Create a mock regulatory background entry with sample data"""
-    
+
     # Create summary with highlights
     summary = RegulatorySummary(
         title="Regulatory Overview",
@@ -32,15 +32,15 @@ def create_mock_regulatory_background(product_id: str) -> RegulatoryBackground:
         highlights=[
             SummaryHighlight(
                 title="Previous FDA Communication",
-                detail="Pre-submission meeting (May 2023)"
+                detail="Pre-submission meeting (May 2023)",
             ),
             SummaryHighlight(
                 title="FDA Feedback Summary",
-                detail="Clinical trial not required per FDA call; additional data requested"
-            )
-        ]
+                detail="Clinical trial not required per FDA call; additional data requested",
+            ),
+        ],
     )
-    
+
     # Create findings
     findings = [
         RegulatoryFinding(
@@ -53,7 +53,7 @@ def create_mock_regulatory_background(product_id: str) -> RegulatoryBackground:
             tooltip=None,
             suggestion=None,
             confidence_score=None,
-            user_action=None
+            user_action=None,
         ),
         RegulatoryFinding(
             status="found",
@@ -65,7 +65,7 @@ def create_mock_regulatory_background(product_id: str) -> RegulatoryBackground:
             tooltip=None,
             suggestion=None,
             confidence_score=92.0,
-            user_action=True
+            user_action=True,
         ),
         RegulatoryFinding(
             status="missing",
@@ -77,7 +77,7 @@ def create_mock_regulatory_background(product_id: str) -> RegulatoryBackground:
             tooltip="Terms like 'Class II', '510(k)', or 'exempt' were not found in uploaded documents.",
             suggestion="Specify the product's risk class or exemption status.",
             confidence_score=None,
-            user_action=None
+            user_action=None,
         ),
         RegulatoryFinding(
             status="found",
@@ -89,7 +89,7 @@ def create_mock_regulatory_background(product_id: str) -> RegulatoryBackground:
             tooltip=None,
             suggestion=None,
             confidence_score=None,
-            user_action=False
+            user_action=False,
         ),
         RegulatoryFinding(
             status="missing",
@@ -101,10 +101,10 @@ def create_mock_regulatory_background(product_id: str) -> RegulatoryBackground:
             tooltip="No terms like 'intended use', 'indication', or 'user population' found in uploaded documents.",
             suggestion="Add a paragraph clearly defining the intended use context.",
             confidence_score=None,
-            user_action=None
-        )
+            user_action=None,
+        ),
     ]
-    
+
     # Create conflicts
     conflicts = [
         RegulatoryConflict(
@@ -113,7 +113,7 @@ def create_mock_regulatory_background(product_id: str) -> RegulatoryBackground:
             conflict="FDA flagged pediatric device review",
             source="pre_sub_feedback.pdf",
             suggestion="Review and align statements regarding pediatric population.",
-            user_action=None
+            user_action=None,
         ),
         RegulatoryConflict(
             field="useEnvironment",
@@ -121,7 +121,7 @@ def create_mock_regulatory_background(product_id: str) -> RegulatoryBackground:
             conflict="Submission lists hospital as primary setting",
             source="510k_summary.pdf",
             suggestion="Clarify intended use environment consistently across documents.",
-            user_action=True
+            user_action=True,
         ),
         RegulatoryConflict(
             field="sterility",
@@ -129,10 +129,10 @@ def create_mock_regulatory_background(product_id: str) -> RegulatoryBackground:
             conflict="Labeling draft omits sterility statement",
             source="labeling_draft.docx",
             suggestion="Ensure sterility status is consistently documented across files.",
-            user_action=None
-        )
+            user_action=None,
+        ),
     ]
-    
+
     # Create and return the mock regulatory background
     return RegulatoryBackground(
         product_id=product_id,
@@ -140,26 +140,25 @@ def create_mock_regulatory_background(product_id: str) -> RegulatoryBackground:
         findings=findings,
         conflicts=conflicts,
         created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow()
+        updated_at=datetime.utcnow(),
     )
 
 
-async def get_regulatory_background(product_id: str | PydanticObjectId) -> RegulatoryBackgroundResponse:
+async def get_regulatory_background(
+    product_id: str | PydanticObjectId,
+) -> RegulatoryBackgroundResponse:
     """Get regulatory background for a product with product information"""
     # Get product information
     product_name, product_code = await get_product_info(str(product_id))
-    
+
     # Find the regulatory background
     regulatory_bg = await RegulatoryBackground.find_one({"product_id": str(product_id)})
-    
+
     if not regulatory_bg:
         # Create mock entry with sample data
         regulatory_bg = create_mock_regulatory_background(str(product_id))
         # Save the mock entry to the database
         await regulatory_bg.insert()
-    
+
     # Convert to response format with product data
     return regulatory_bg.to_regulatory_background_response(product_name, product_code)
-
-
-
