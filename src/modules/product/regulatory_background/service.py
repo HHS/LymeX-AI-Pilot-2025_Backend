@@ -1,8 +1,13 @@
 from typing import Dict, Any
-from fastapi import HTTPException
+from fastapi import HTTPException, UploadFile
 from beanie import PydanticObjectId
 from datetime import datetime
+import io
+import asyncio
+import uuid
 
+from src.infrastructure.minio import minio_client, generate_get_object_presigned_url
+from src.environment import environment
 from src.modules.product.regulatory_background.model import RegulatoryBackground
 from src.modules.product.regulatory_background.schema import (
     RegulatoryBackgroundResponse,
@@ -14,12 +19,83 @@ from src.modules.product.regulatory_background.schema import (
 from src.modules.product.models import Product
 
 
+def get_regulatory_background_folder(product_id: str) -> str:
+    """Get the folder path for regulatory background files"""
+    return f"product/{product_id}/regulatory_background"
+
+
 async def get_product_info(product_id: str) -> tuple[str, str | None]:
     """Get product name and code for a given product ID"""
     product = await Product.get(product_id)
     product_name = product.name if product else ""
     product_code = product.code if product else None
     return product_name, product_code
+
+
+async def upload_regulatory_background_file(
+    product_id: str, file: UploadFile
+) -> Dict[str, Any]:
+    """Upload a regulatory background file to MinIO storage"""
+    # Validate that the product exists
+    product = await Product.get(product_id)
+    if not product:
+        raise HTTPException(
+            status_code=404, detail="Product not found"
+        )
+
+    # Generate a unique filename to prevent overwriting
+    unique_filename = f"{uuid.uuid4()}_{file.filename}"
+    object_name = f"{get_regulatory_background_folder(product_id)}/{unique_filename}"
+    file_content = await file.read()
+
+    minio_client.put_object(
+        bucket_name=environment.minio_bucket,
+        object_name=object_name,
+        length=len(file_content),
+        data=io.BytesIO(file_content),
+        content_type=file.content_type,
+    )
+
+    url = await generate_get_object_presigned_url(object_name)
+    return {
+        "object_name": object_name,
+        "url": url,
+        "message": "Regulatory background file uploaded successfully",
+    }
+
+
+async def get_regulatory_background_documents(
+    product_id: str
+) -> Dict[str, Any]:
+    """Get regulatory background documents for a product"""
+    # Validate that the product exists
+    product = await Product.get(product_id)
+    if not product:
+        raise HTTPException(
+            status_code=404, detail="Product not found"
+        )
+
+    prefix = f"{get_regulatory_background_folder(product_id)}/"
+
+    objects = await asyncio.to_thread(
+        minio_client.list_objects,
+        bucket_name=environment.minio_bucket,
+        prefix=prefix,
+        recursive=True,
+    )
+
+    documents = []
+    for obj in objects:
+        url = await generate_get_object_presigned_url(obj.object_name)
+        documents.append(
+            {
+                "object_name": obj.object_name,
+                "url": url,
+                "filename": obj.object_name.split("/")[-1] if "/" in obj.object_name else obj.object_name,
+            }
+        )
+
+    return {"documents": documents}
 
 
 def create_mock_regulatory_background(product_id: str) -> RegulatoryBackground:
