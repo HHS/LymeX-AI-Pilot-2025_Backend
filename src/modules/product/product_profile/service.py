@@ -7,6 +7,7 @@ from src.modules.product.product_profile.model import (
     ProductProfile,
     ProductProfileAudit,
 )
+from src.modules.product.product_profile.storage import clone_product_profile_documents
 from src.modules.product.storage import get_product_folder
 from src.modules.user.models import User
 
@@ -69,3 +70,37 @@ async def create_audit_record(
     )
     await audit_record.insert()
     return audit_record
+
+
+async def clone_product_profile(
+    product_id: str | PydanticObjectId,
+    new_product_id: str | PydanticObjectId,
+) -> None:
+    existing_profile = await ProductProfile.find(
+        ProductProfile.product_id == str(product_id),
+    ).to_list()
+
+    if existing_profile:
+        await ProductProfile.insert_many([
+            ProductProfile(
+                **profile.model_dump(exclude={"id", "product_id"}),
+                product_id=str(new_product_id),
+            )
+            for profile in existing_profile
+        ])
+
+    analyze_progress = await AnalyzeProductProfileProgress.find_one(
+        AnalyzeProductProfileProgress.product_id == str(product_id),
+    )
+
+    if analyze_progress:
+        new_analyze_progress = AnalyzeProductProfileProgress(
+            **analyze_progress.model_dump(exclude={"id", "product_id"}),
+            product_id=str(new_product_id),
+        )
+        await new_analyze_progress.insert()
+
+    await clone_product_profile_documents(
+        product_id=str(product_id),
+        new_product_id=str(new_product_id),
+    )

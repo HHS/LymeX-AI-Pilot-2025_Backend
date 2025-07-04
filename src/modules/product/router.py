@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from typing import Annotated
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
 from src.modules.product.product_profile.service import (
     create_audit_record,
@@ -22,6 +22,8 @@ from src.modules.product.service import (
     get_products,
 )
 from src.modules.product.schema import (
+    CloneProductRequest,
+    CloneProductRetainingOptions,
     CreateProductRequest,
     ProductResponse,
     UpdateAvatarUrlResponse,
@@ -79,6 +81,19 @@ from src.modules.product.custom_test_plan.router import (
     router as custom_test_plan_router,
 )
 
+from src.modules.product.claim_builder.service import clone_claim_builder
+from src.modules.product.clinical_trial.service import clone_clinical_trial
+from src.modules.product.competitive_analysis.service import clone_competitive_analysis
+from src.modules.product.cost_estimation.service import clone_cost_estimation
+from src.modules.product.custom_test_plan.service import clone_custom_test_plan
+from src.modules.product.feature_status.service import clone_feature_status
+from src.modules.product.milestone_planning.service import clone_milestone_planning
+from src.modules.product.performance_testing.service import clone_performance_testing
+from src.modules.product.product_profile.service import clone_product_profile
+from src.modules.product.regulatory_pathway.service import clone_regulatory_pathway
+from src.modules.product.review_program.service import clone_review_program
+from src.modules.product.test_comparison.service import clone_test_comparison
+
 
 router = APIRouter()
 
@@ -135,6 +150,17 @@ async def update_product_handler(
         "intend_use",
         "patient_contact",
     ]
+    # check if new name is existing
+    if payload.name and payload.name != product.name:
+        existing_product = await Product.find_one(
+            Product.name == payload.name,
+            Product.company_id == product.company_id,
+        )
+        if existing_product:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Product with name '{payload.name}' already exists in the company.",
+            )
     for field in possible_fields:
         value = getattr(payload, field)
         if value is None:
@@ -223,6 +249,96 @@ async def unlock_product_handler(
         {"product_id": str(product.id)},
     )
     await product.save()
+
+
+@router.post("/{product_id}/clone")
+async def clone_product_handler(
+    product: Annotated[Product, Depends(get_current_product)],
+    payload: CloneProductRequest,
+    current_user: Annotated[User, Depends(get_current_user)],
+    _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.CONTRIBUTOR))],
+) -> ProductResponse:
+    now = datetime.now(timezone.utc)
+    new_product = Product(
+        **product.model_dump(
+            exclude={
+                "_id",
+                "id",
+                "created_at",
+                "updated_at",
+                "created_by",
+                "updated_by",
+                "edit_locked",
+            }
+        ),
+        created_by=str(current_user.id),
+        created_at=now,
+        updated_by=str(current_user.id),
+        updated_at=now,
+    )
+    if payload.updated_fields:
+        new_name = payload.updated_fields.name
+        if not new_name:
+            new_name = f"{product.name} (Clone)"
+        if new_name and new_name != product.name:
+            existing_product = await Product.find_one(
+                Product.name == new_name,
+                Product.company_id == product.company_id,
+            )
+            if existing_product:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Product with name '{new_name}' already exists in the company.",
+                )
+        new_product.name = new_name
+        possible_fields = [
+            "code",
+            "model",
+            "revision",
+            "category",
+            "intend_use",
+            "patient_contact",
+        ]
+        for field in possible_fields:
+            value = getattr(payload.updated_fields, field)
+            if value is not None:
+                setattr(new_product, field, value)
+    await new_product.insert()
+
+    if not payload.retaining_options:
+        payload.retaining_options = CloneProductRetainingOptions()
+    if payload.retaining_options.claim_builder:
+        await clone_claim_builder(product.id, new_product.id)
+    if payload.retaining_options.clinical_trial:
+        await clone_clinical_trial(product.id, new_product.id)
+    if payload.retaining_options.competitive_analysis:
+        await clone_competitive_analysis(product.id, new_product.id)
+    if payload.retaining_options.cost_estimation:
+        await clone_cost_estimation(product.id, new_product.id)
+    if payload.retaining_options.custom_test_plan:
+        await clone_custom_test_plan(product.id, new_product.id)
+    if payload.retaining_options.feature_status:
+        await clone_feature_status(product.id, new_product.id)
+    if payload.retaining_options.milestone_planning:
+        await clone_milestone_planning(product.id, new_product.id)
+    if payload.retaining_options.performance_testing:
+        await clone_performance_testing(product.id, new_product.id)
+    if payload.retaining_options.product_profile:
+        await clone_product_profile(product.id, new_product.id)
+    if payload.retaining_options.regulatory_pathway:
+        await clone_regulatory_pathway(product.id, new_product.id)
+    if payload.retaining_options.review_program:
+        await clone_review_program(product.id, new_product.id)
+    if payload.retaining_options.test_comparison:
+        await clone_test_comparison(product.id, new_product.id)
+
+    await create_audit_record(
+        product.id,
+        current_user,
+        "Clone product",
+        payload.model_dump(),
+    )
+    return await new_product.to_product_response()
 
 
 router.include_router(

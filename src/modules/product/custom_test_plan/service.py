@@ -48,3 +48,20 @@ async def save_product_custom_test_plan(
     )
     await new_plan.save()
     return new_plan
+
+
+async def clone_custom_test_plan(
+    product_id: str | PydanticObjectId,
+    new_product_id: str | PydanticObjectId,
+) -> None:
+    existing_plan = await CustomTestPlan.find(
+        CustomTestPlan.product_id == str(product_id),
+    ).to_list()
+    if existing_plan:
+        await CustomTestPlan.insert_many([
+            CustomTestPlan(
+                **plan.model_dump(exclude={"id", "product_id"}),
+                product_id=str(new_product_id),
+            )
+            for plan in existing_plan
+        ])
