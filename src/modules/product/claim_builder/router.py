@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 
+from src.modules.product.product_profile.service import create_audit_record
 from src.modules.product.version_control.service import snapshot_minor_version
 from src.modules.authentication.dependencies import get_current_user
 from src.modules.user.models import User
@@ -55,6 +56,7 @@ async def get_analyze_claim_builder_progress_handler(
 @router.post("/analyze")
 async def analyze_claim_builder_handler(
     product: Annotated[Product, Depends(get_current_product)],
+    current_user: Annotated[User, Depends(get_current_user)],
     _: Annotated[bool, Depends(check_product_edit_allowed)],
 ) -> None:
     try:
@@ -76,6 +78,12 @@ async def analyze_claim_builder_handler(
         updated_at=datetime.now(timezone.utc),
     )
     await analyze_claim_builder_progress.save()
+    await create_audit_record(
+        product.id,
+        current_user,
+        "Unlock product",
+        {},
+    )
     analyze_claim_builder_task.delay(str(product.id))
 
 
@@ -118,7 +126,12 @@ async def update_claim_builder_draft_handler(
         "Update claim builder draft",
         user.email,
     )
-
+    await create_audit_record(
+        product.id,
+        user,
+        "Update claim builder draft",
+        payload.model_dump(),
+    )
     claim_builder_response = claim_builder.to_claim_builder_response(product)
     return claim_builder_response
 
@@ -154,6 +167,12 @@ async def submit_claim_builder_draft_handler(
         claim_builder,
         "Submit claim builder draft",
         user.email,
+    )
+    await create_audit_record(
+        product.id,
+        user,
+        "Submit claim builder draft",
+        {},
     )
     claim_builder_response = claim_builder.to_claim_builder_response(product)
     return claim_builder_response
@@ -192,6 +211,12 @@ async def reject_claim_builder_draft_handler(
         "Reject claim builder draft",
         user.email,
     )
+    await create_audit_record(
+        product.id,
+        user,
+        "Reject claim builder draft",
+        payload.model_dump(),
+    )
     claim_builder_response = claim_builder.to_claim_builder_response(product)
     return claim_builder_response
 
@@ -228,6 +253,12 @@ async def accept_claim_builder_draft_handler(
         "Accept claim builder draft",
         user.email,
     )
+    await create_audit_record(
+        product.id,
+        user,
+        "Accept claim builder draft",
+        {},
+    )
     profile_response = claim_builder.to_claim_builder_response(product)
     return profile_response
 
@@ -257,6 +288,12 @@ async def decide_missing_element_handler(
         ),
         user.email,
     )
+    await create_audit_record(
+        product.id,
+        user,
+        ("Accept missing element" if payload.accepted else "Reject missing element"),
+        payload.model_dump(),
+    )
     profile_response = claim_builder.to_claim_builder_response(product)
     return profile_response
 
@@ -282,6 +319,12 @@ async def accept_phrase_conflict_handler(
         f"Accept phrase conflict {payload.id}",
         user.email,
     )
+    await create_audit_record(
+        product.id,
+        user,
+        "Accept phrase conflict",
+        payload.model_dump(),
+    )
     profile_response = claim_builder.to_claim_builder_response(product)
     return profile_response
 
@@ -304,8 +347,14 @@ async def accept_all_phrase_conflict_handler(
     await claim_builder.save()
     await snapshot_minor_version(
         claim_builder,
-        f"Accept all phrase conflicts",
+        "Accept all phrase conflicts",
         user.email,
+    )
+    await create_audit_record(
+        product.id,
+        user,
+        "Accept all phrase conflicts",
+        {},
     )
     profile_response = claim_builder.to_claim_builder_response(product)
     return profile_response
@@ -332,6 +381,12 @@ async def reject_phrase_conflict_handler(
         f"Reject phrase conflict {payload.id}",
         user.email,
     )
+    await create_audit_record(
+        product.id,
+        user,
+        "Reject phrase conflict",
+        payload.model_dump,
+    )
     profile_response = claim_builder.to_claim_builder_response(product)
     return profile_response
 
@@ -339,10 +394,17 @@ async def reject_phrase_conflict_handler(
 @router.post("/accept")
 async def accept_claim_builder_handler(
     product: Annotated[Product, Depends(get_current_product)],
+    user: Annotated[User, Depends(get_current_user)],
     _: Annotated[bool, Depends(check_product_edit_allowed)],
 ) -> ClaimBuilderResponse:
     claim_builder = await get_claim_builder(product.id)
     claim_builder.user_acceptance = True
     await claim_builder.save()
+    await create_audit_record(
+        product.id,
+        user,
+        "Accept claim builder",
+        {},
+    )
     profile_response = claim_builder.to_claim_builder_response(product)
     return profile_response

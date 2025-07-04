@@ -80,3 +80,23 @@ async def get_product_review_program(
         )
         for program in product_review_programs
     ]
+
+
+async def clone_review_program(
+    product_id: str | PydanticObjectId,
+    new_product_id: str | PydanticObjectId,
+) -> None:
+    existing_programs = await ReviewProgram.find(
+        ReviewProgram.productId == str(product_id),
+    ).to_list()
+
+    if existing_programs:
+        await ReviewProgram.insert_many(
+            [
+                ReviewProgram(
+                    **program.model_dump(exclude={"id", "productId"}),
+                    productId=str(new_product_id),
+                )
+                for program in existing_programs
+            ]
+        )

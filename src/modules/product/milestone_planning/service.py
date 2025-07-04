@@ -65,3 +65,23 @@ async def save_milestone_planning(
     await milestone_planning.save()
 
     return milestone_planning
+
+
+async def clone_milestone_planning(
+    product_id: str | PydanticObjectId,
+    new_product_id: str | PydanticObjectId,
+) -> None:
+    existing_planning = await MilestonePlanning.find(
+        MilestonePlanning.product_id == str(product_id)
+    ).to_list()
+
+    if existing_planning:
+        await MilestonePlanning.insert_many(
+            [
+                MilestonePlanning(
+                    **planning.model_dump(exclude={"id", "product_id"}),
+                    product_id=str(new_product_id),
+                )
+                for planning in existing_planning
+            ]
+        )

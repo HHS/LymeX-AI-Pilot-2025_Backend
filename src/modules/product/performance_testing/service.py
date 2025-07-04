@@ -61,3 +61,22 @@ async def get_product_performance_testings(
         PerformanceTesting.product_id == str(product_id)
     ).to_list()
     return performance_testings
+
+
+async def clone_performance_testing(
+    product_id: str | PydanticObjectId,
+    new_product_id: str | PydanticObjectId,
+) -> None:
+    existing_testings = await PerformanceTesting.find(
+        PerformanceTesting.product_id == str(product_id),
+    ).to_list()
+    if existing_testings:
+        await PerformanceTesting.insert_many(
+            [
+                PerformanceTesting(
+                    **testing.model_dump(exclude={"id", "product_id"}),
+                    product_id=str(new_product_id),
+                )
+                for testing in existing_testings
+            ]
+        )

@@ -103,3 +103,22 @@ async def save_product_cost_estimation(
     )
     await new_estimation.save()
     return new_estimation
+
+
+async def clone_cost_estimation(
+    product_id: str | PydanticObjectId,
+    new_product_id: str | PydanticObjectId,
+) -> None:
+    existing_estimation = await CostEstimation.find(
+        CostEstimation.product_id == str(product_id)
+    ).to_list()
+    if existing_estimation:
+        await CostEstimation.insert_many(
+            [
+                CostEstimation(
+                    **estimation.model_dump(exclude={"id", "product_id"}),
+                    product_id=str(new_product_id),
+                )
+                for estimation in existing_estimation
+            ]
+        )

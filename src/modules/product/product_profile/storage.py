@@ -3,6 +3,7 @@ from typing import TypedDict
 import mimetypes
 from loguru import logger
 from src.infrastructure.minio import (
+    copy_objects,
     generate_get_object_presigned_url,
     generate_put_object_presigned_url,
     list_objects,
@@ -125,3 +126,12 @@ def analyze_profile_document_info(profile_document_info: str) -> ProfileDocument
         PROFILE_DOCUMENT_INFO_SCHEMA,
     )
     return profile_document_info
+
+
+async def clone_product_profile_documents(
+    product_id: str,
+    new_product_id: str,
+) -> None:
+    folder = get_product_profile_folder(product_id)
+    new_folder = get_product_profile_folder(new_product_id)
+    await copy_objects(folder, new_folder)

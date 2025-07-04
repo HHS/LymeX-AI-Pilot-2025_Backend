@@ -34,6 +34,26 @@ class UpdateProductRequest(BaseModel):
     )
 
 
+class CloneProductRetainingOptions(BaseModel):
+    claim_builder: bool = Field(True)
+    clinical_trial: bool = Field(True)
+    competitive_analysis: bool = Field(True)
+    cost_estimation: bool = Field(True)
+    custom_test_plan: bool = Field(True)
+    feature_status: bool = Field(True)
+    milestone_planning: bool = Field(True)
+    performance_testing: bool = Field(True)
+    product_profile: bool = Field(True)
+    regulatory_pathway: bool = Field(True)
+    review_program: bool = Field(True)
+    test_comparison: bool = Field(True)
+
+
+class CloneProductRequest(BaseModel):
+    updated_fields: UpdateProductRequest | None = Field(None)
+    retaining_options: CloneProductRetainingOptions | None = Field(None)
+
+
 # ============================
 # Product Response
 # ============================

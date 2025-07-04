@@ -19,7 +19,7 @@ class IdentifiedGapAndSuggestedAdjustment(BaseModel):
         ..., description="Description of the identified gap and suggested adjustment"
     )
     suggestion: str = Field(
-        ...,
+        "",
         description="Suggestion for improvement of the identified gap and suggested adjustment",
     )
     accepted: bool | None = Field(

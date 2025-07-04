@@ -6,7 +6,10 @@ from src.modules.product.competitive_analysis.model import (
     AnalyzeCompetitiveAnalysisProgress,
     CompetitiveAnalysis,
 )
-from src.modules.product.product_profile.service import get_product_profile
+from src.modules.product.product_profile.service import (
+    create_audit_record,
+    get_product_profile,
+)
 from src.modules.authentication.dependencies import get_current_user
 from src.modules.user.models import User
 from src.modules.product.competitive_analysis.storage import (
@@ -63,6 +66,7 @@ async def get_analyze_competitive_analysis_progress_handler(
 @router.post("/analyze")
 async def analyze_competitive_analysis_handler(
     product: Annotated[Product, Depends(get_current_product)],
+    user: Annotated[User, Depends(get_current_user)],
     _: Annotated[bool, Depends(check_product_edit_allowed)],
 ) -> None:
     await AnalyzeCompetitiveAnalysisProgress.find(
@@ -76,6 +80,12 @@ async def analyze_competitive_analysis_handler(
     )
     await analyze_competitive_analysis_progress.save()
     analyze_competitive_analysis_task.delay(str(product.id))
+    await create_audit_record(
+        product.id,
+        user,
+        "Analyze competitive analysis",
+        {},
+    )
 
 
 @router.get("/document")
@@ -128,17 +138,30 @@ async def upload_competitive_analysis_text_input_handler(
             data=payload.text,
             headers={"Content-Type": "text/plain"},
         )
+    await create_audit_record(
+        product.id,
+        current_user,
+        "Upload competitive analysis text input",
+        payload.model_dump(),
+    )
 
 
 @router.delete("/document/{document_name}")
 async def delete_competitive_analysis_document_handler(
     document_name: str,
     product: Annotated[Product, Depends(get_current_product)],
+    current_user: Annotated[User, Depends(get_current_user)],
     _: Annotated[bool, Depends(check_product_edit_allowed)],
 ):
     await delete_competitive_analysis_document(
         str(product.id),
         document_name,
+    )
+    await create_audit_record(
+        product.id,
+        current_user,
+        "Delete competitive analysis document",
+        {"document_name": document_name},
     )
 
 
@@ -235,11 +258,18 @@ async def competitive_analysis_compare_device_analysis_handler(
 async def delete_competitive_analysis_handler(
     competitive_analysis_id: str,
     product: Annotated[Product, Depends(get_current_product)],
+    current_user: Annotated[User, Depends(get_current_user)],
     _: Annotated[bool, Depends(check_product_edit_allowed)],
 ):
     await delete_competitive_analysis(
         str(product.id),
         competitive_analysis_id,
+    )
+    await create_audit_record(
+        product.id,
+        current_user,
+        "Delete competitive analysis",
+        {"competitive_analysis_id": competitive_analysis_id},
     )
 
 
@@ -248,6 +278,7 @@ async def update_competitive_analysis_handler(
     competitive_analysis_id: str,
     payload: UpdateCompetitiveAnalysisRequest,
     product: Annotated[Product, Depends(get_current_product)],
+    current_user: Annotated[User, Depends(get_current_user)],
     _: Annotated[bool, Depends(check_product_edit_allowed)],
 ) -> CompetitiveAnalysisResponse:
     competitive_analysis = await update_competitive_analysis(
@@ -257,5 +288,14 @@ async def update_competitive_analysis_handler(
     )
     competitive_analysis_response = (
         competitive_analysis.to_competitive_analysis_response()
+    )
+    await create_audit_record(
+        product.id,
+        current_user,
+        "Update competitive analysis",
+        {
+            "competitive_analysis_id": competitive_analysis_id,
+            "payload": payload.model_dump(),
+        },
     )
     return competitive_analysis_response
