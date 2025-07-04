@@ -5,12 +5,11 @@ from src.modules.checklist.service import (
     get_master_checklist,
     upload_checklist_file,
     get_checklist_documents,
-    get_or_create_checklist
+    get_or_create_checklist,
 )
 
 from src.modules.product.dependencies import get_current_product
 from src.modules.product.models import Product
-
 
 
 router = APIRouter()
@@ -43,7 +42,7 @@ async def get_master_checklist_endpoint():
 @router.post("/upload-file")
 async def upload_checklist_image(
     product: Annotated[Product, Depends(get_current_product)],
-    file: UploadFile = File(...)
+    file: UploadFile = File(...),
 ):
     """Upload a checklist file"""
     try:
@@ -56,7 +55,7 @@ async def upload_checklist_image(
 
 @router.get("/documents")
 async def get_checklist_documents_endpoint(
-    product: Annotated[Product, Depends(get_current_product)]
+    product: Annotated[Product, Depends(get_current_product)],
 ):
     """Get all checklist documents for a product"""
     try:
@@ -67,7 +66,7 @@ async def get_checklist_documents_endpoint(
 
 @router.get("/")
 async def get_or_create_checklist_endpoint(
-    product: Annotated[Product, Depends(get_current_product)]
+    product: Annotated[Product, Depends(get_current_product)],
 ):
     """Get checklist by product_id, create if not exists using master checklist"""
     try:
