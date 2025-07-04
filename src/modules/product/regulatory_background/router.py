@@ -4,9 +4,11 @@ from fastapi import APIRouter, HTTPException, Depends, File, UploadFile, Query
 from src.modules.product.regulatory_background.service import (
     get_regulatory_background,
     upload_regulatory_background_file,
-    get_regulatory_background_documents
+    get_regulatory_background_documents,
 )
-from src.modules.product.regulatory_background.schema import RegulatoryBackgroundResponse
+from src.modules.product.regulatory_background.schema import (
+    RegulatoryBackgroundResponse,
+)
 from src.modules.product.dependencies import get_current_product
 from src.modules.product.models import Product
 
@@ -25,8 +27,7 @@ async def get_regulatory_background_endpoint(
         raise
     except Exception as e:
         raise HTTPException(
-            status_code=500, 
-            detail=f"Error getting regulatory background: {str(e)}"
+            status_code=500, detail=f"Error getting regulatory background: {str(e)}"
         )
 
 

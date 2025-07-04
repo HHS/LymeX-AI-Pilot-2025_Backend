@@ -39,9 +39,7 @@ async def upload_regulatory_background_file(
     # Validate that the product exists
     product = await Product.get(product_id)
     if not product:
-        raise HTTPException(
-            status_code=404, detail="Product not found"
-        )
+        raise HTTPException(status_code=404, detail="Product not found")
 
     # Generate a unique filename to prevent overwriting
     unique_filename = f"{uuid.uuid4()}_{file.filename}"
@@ -64,16 +62,12 @@ async def upload_regulatory_background_file(
     }
 
 
-async def get_regulatory_background_documents(
-    product_id: str
-) -> Dict[str, Any]:
+async def get_regulatory_background_documents(product_id: str) -> Dict[str, Any]:
     """Get regulatory background documents for a product"""
     # Validate that the product exists
     product = await Product.get(product_id)
     if not product:
-        raise HTTPException(
-            status_code=404, detail="Product not found"
-        )
+        raise HTTPException(status_code=404, detail="Product not found")
 
     prefix = f"{get_regulatory_background_folder(product_id)}/"
 
@@ -91,7 +85,11 @@ async def get_regulatory_background_documents(
             {
                 "object_name": obj.object_name,
                 "url": url,
-                "filename": obj.object_name.split("/")[-1] if "/" in obj.object_name else obj.object_name,
+                "filename": (
+                    obj.object_name.split("/")[-1]
+                    if "/" in obj.object_name
+                    else obj.object_name
+                ),
             }
         )
 
