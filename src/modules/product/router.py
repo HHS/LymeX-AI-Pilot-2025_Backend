@@ -82,6 +82,12 @@ from src.modules.product.final_regulatory_report.router import (
 from src.modules.product.custom_test_plan.router import (
     router as custom_test_plan_router,
 )
+from src.modules.product.regulatory_background.router import (
+    router as regulatory_background_router,
+)
+from src.modules.checklist.router import (
+    router as checklist_router,
+)
 
 from src.modules.product.claim_builder.service import clone_claim_builder
 from src.modules.product.clinical_trial.service import clone_clinical_trial
@@ -95,7 +101,6 @@ from src.modules.product.product_profile.service import clone_product_profile
 from src.modules.product.regulatory_pathway.service import clone_regulatory_pathway
 from src.modules.product.review_program.service import clone_review_program
 from src.modules.product.test_comparison.service import clone_test_comparison
-
 
 router = APIRouter()
 
@@ -421,4 +426,12 @@ router.include_router(
 router.include_router(
     final_regulatory_report_router,
     prefix="/{product_id}/final-regulatory-report",
+)
+router.include_router(
+    checklist_router,
+    prefix="/{product_id}/checklist",
+)
+router.include_router(
+    regulatory_background_router,
+    prefix="/{product_id}/regulatory-background",
 )

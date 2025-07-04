@@ -35,6 +35,9 @@ from src.environment import environment
 from src.modules.product.milestone_planning.model import MilestonePlanning
 from src.modules.product.custom_test_plan.model import CustomTestPlan
 from src.modules.notification.model import Notification
+from src.modules.checklist.master_checklist_model import MasterChecklist
+from src.modules.checklist.model import Checklist
+from src.modules.product.regulatory_background.model import RegulatoryBackground
 
 client = AsyncIOMotorClient(environment.mongo_uri)
 db = client[environment.mongo_db]
@@ -69,6 +72,9 @@ async def init_db() -> None:
             ReviewProgram,
             CustomTestPlan,
             Notification,
+            MasterChecklist,
+            Checklist,
+            RegulatoryBackground,
         ],
     )
     logger.info(
