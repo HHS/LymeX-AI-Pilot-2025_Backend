@@ -1,7 +1,9 @@
+from datetime import datetime
 from beanie import Document, PydanticObjectId
 
 from src.modules.product.regulatory_pathway.schema import (
     AlternativePathway,
+    AnalyzeRegulatoryPathwayProgressResponse,
     RegulatoryPathwayJustification,
     RegulatoryPathwayResponse,
 )
@@ -35,4 +37,29 @@ class RegulatoryPathway(Document):
             alternative_pathways=self.alternative_pathways,
             justifications=self.justifications,
             supporting_documents=self.supporting_documents,
+        )
+
+
+class AnalyzeRegulatoryPathwayProgress(Document):
+    product_id: str
+    total_files: int
+    processed_files: int
+    updated_at: datetime
+
+    class Settings:
+        name = "analyze_regulatory_pathway_progress"
+
+    class Config:
+        json_encoders = {
+            PydanticObjectId: str,
+        }
+
+    def to_analyze_regulatory_pathway_progress_response(
+        self,
+    ) -> AnalyzeRegulatoryPathwayProgressResponse:
+        return AnalyzeRegulatoryPathwayProgressResponse(
+            product_id=self.product_id,
+            total_files=self.total_files,
+            processed_files=self.processed_files,
+            updated_at=self.updated_at,
         )

@@ -92,9 +92,9 @@ class AnalyzeClaimBuilderProgress(Document):
     def to_analyze_claim_builder_progress_response(
         self,
     ) -> AnalyzeClaimBuilderProgressResponse:
-        return {
-            "product_id": self.product_id,
-            "total_files": self.total_files,
-            "processed_files": self.processed_files,
-            "updated_at": self.updated_at,
-        }
+        return AnalyzeClaimBuilderProgressResponse(
+            product_id=self.product_id,
+            total_files=self.total_files,
+            processed_files=self.processed_files,
+            updated_at=self.updated_at,
+        )

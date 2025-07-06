@@ -4,8 +4,12 @@ from fastapi import APIRouter, Depends
 from src.celery.tasks.analyze_regulatory_pathway import analyze_regulatory_pathway_task
 from src.modules.authentication.dependencies import get_current_user
 from src.modules.product.product_profile.service import create_audit_record
-from src.modules.product.regulatory_pathway.schema import RegulatoryPathwayResponse
+from src.modules.product.regulatory_pathway.schema import (
+    AnalyzeRegulatoryPathwayProgressResponse,
+    RegulatoryPathwayResponse,
+)
 from src.modules.product.regulatory_pathway.service import (
+    get_analyze_regulatory_pathway_progress,
     get_product_regulatory_pathways,
 )
 from src.modules.product.dependencies import get_current_product
@@ -30,6 +34,16 @@ async def analyze_regulatory_pathway_handler(
         "Analyze regulatory pathway",
         {},
     )
+
+
+@router.get("/analyze-progress")
+async def get_analyze_regulatory_pathway_progress_handler(
+    product: Annotated[Product, Depends(get_current_product)],
+) -> AnalyzeRegulatoryPathwayProgressResponse:
+    analyze_regulatory_pathway_progress = await get_analyze_regulatory_pathway_progress(
+        str(product.id),
+    )
+    return analyze_regulatory_pathway_progress.to_analyze_regulatory_pathway_progress_response()
 
 
 @router.get("/")
