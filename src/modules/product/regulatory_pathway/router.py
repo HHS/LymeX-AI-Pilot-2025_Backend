@@ -43,7 +43,9 @@ async def get_analyze_regulatory_pathway_progress_handler(
     analyze_regulatory_pathway_progress = await get_analyze_regulatory_pathway_progress(
         str(product.id),
     )
-    return analyze_regulatory_pathway_progress.to_analyze_regulatory_pathway_progress_response()
+    return (
+        analyze_regulatory_pathway_progress.to_analyze_regulatory_pathway_progress_response()
+    )
 
 
 @router.get("/")

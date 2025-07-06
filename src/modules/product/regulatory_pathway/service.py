@@ -23,13 +23,15 @@ async def clone_regulatory_pathway(
         RegulatoryPathway.product_id == str(product_id),
     ).to_list()
     if existing_regulatory_pathways:
-        await RegulatoryPathway.insert_many([
-            RegulatoryPathway(
-                **pathway.model_dump(exclude={"id", "product_id"}),
-                product_id=str(new_product_id),
-            )
-            for pathway in existing_regulatory_pathways
-        ])
+        await RegulatoryPathway.insert_many(
+            [
+                RegulatoryPathway(
+                    **pathway.model_dump(exclude={"id", "product_id"}),
+                    product_id=str(new_product_id),
+                )
+                for pathway in existing_regulatory_pathways
+            ]
+        )
 
 
 async def get_analyze_regulatory_pathway_progress(
