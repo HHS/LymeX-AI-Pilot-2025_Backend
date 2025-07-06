@@ -6,7 +6,10 @@ from src.infrastructure.init.init_system_admin_user import init_system_admin_use
 from src.modules.product.clinical_trial.model import ClinicalTrial
 from src.modules.product.feature_status.model import FeaturesStatus
 from src.modules.product.performance_testing.model import PerformanceTesting
-from src.modules.product.regulatory_pathway.model import RegulatoryPathway
+from src.modules.product.regulatory_pathway.model import (
+    AnalyzeRegulatoryPathwayProgress,
+    RegulatoryPathway,
+)
 from src.modules.product.test_comparison.model import (
     TestComparison,
 )
@@ -66,6 +69,7 @@ async def init_db() -> None:
             TestComparison,
             ClinicalTrial,
             RegulatoryPathway,
+            AnalyzeRegulatoryPathwayProgress,
             FeaturesStatus,
             MilestonePlanning,
             CostEstimation,

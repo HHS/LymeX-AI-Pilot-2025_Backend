@@ -1,3 +1,4 @@
+from datetime import datetime
 from pydantic import BaseModel, Field
 
 
@@ -32,4 +33,15 @@ class RegulatoryPathwayResponse(BaseModel):
     )
     supporting_documents: list[str] = Field(
         ..., description="List of supporting document URLs or identifiers"
+    )
+
+
+class AnalyzeRegulatoryPathwayProgressResponse(BaseModel):
+    product_id: str = Field(..., description="ID of the product")
+    total_files: int = Field(..., description="Total number of files")
+    processed_files: int = Field(
+        ..., description="Number of files that have been processed"
+    )
+    updated_at: datetime = Field(
+        ..., description="Date and time when the progress was last updated"
     )
