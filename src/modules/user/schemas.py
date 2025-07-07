@@ -60,6 +60,12 @@ class UserUpdatePasswordRequest(BaseModel):
 # -------- Response DTO --------
 
 
+class ActiveProduct(BaseModel):
+    id: str = Field(..., description="Product ID")
+    name: str = Field(..., description="Product name")
+    code: str | None = Field(None, description="Product code")
+
+
 class UserCompany(BaseModel):
     id: str = Field(..., description="Company ID")
     name: str = Field(..., description="Company name")
@@ -80,6 +86,9 @@ class UserCompany(BaseModel):
         ...,
         description="Status of the user in the company",
         examples=[status.value for status in CompanyMemberStatus],
+    )
+    active_product: ActiveProduct | None = Field(
+        None, description="Active product for this company"
     )
 
 

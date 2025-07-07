@@ -5,6 +5,7 @@ from src.modules.company.storage import get_company_logo_url
 from src.modules.company.models import CompanyMember
 from src.modules.user.storage import get_user_avatar_url
 from src.modules.user.schemas import UserCompany, UserResponse
+from src.modules.user.utils import get_active_product_for_company
 
 
 async def get_user_companies(user_id: str) -> list[UserCompany]:
@@ -38,10 +39,21 @@ async def get_user_companies(user_id: str) -> list[UserCompany]:
         },
     ]
     results = await CompanyMember.aggregate(pipeline).to_list()
-    return [
-        UserCompany(**doc, logo=await get_company_logo_url(doc["id"]))
-        for doc in results
-    ]
+    
+    user_companies = []
+    for doc in results:
+        # Get active product for this company
+        active_product = await get_active_product_for_company(doc["id"], user_id)
+        
+        user_companies.append(
+            UserCompany(
+                **doc, 
+                logo=await get_company_logo_url(doc["id"]),
+                active_product=active_product
+            )
+        )
+    
+    return user_companies
 
 
 class User(Document):
