@@ -3,11 +3,13 @@ from src.modules.company.models import Company
 from src.modules.user.schemas import ActiveProduct
 
 
-async def get_active_product_for_company(company_id: str, current_user_id: str) -> ActiveProduct | None:
+async def get_active_product_for_company(
+    company_id: str, current_user_id: str
+) -> ActiveProduct | None:
     """Determine the active product for a company using the same logic as get_active_products"""
     # Import Product here to avoid circular imports
     from src.modules.product.models import Product
-    
+
     products = await Product.find(
         Product.company_id == company_id,
     ).to_list()
@@ -30,13 +32,12 @@ async def get_active_product_for_company(company_id: str, current_user_id: str) 
             return ActiveProduct(
                 id=str(active_product.id),
                 name=active_product.name,
-                code=active_product.code
+                code=active_product.code,
             )
 
     # 1. If no active product, find the most recently updated product by the current user
     user_products = [
-        p for p in products
-        if getattr(p, "updated_by", None) == current_user_id
+        p for p in products if getattr(p, "updated_by", None) == current_user_id
     ]
     if user_products:
         # Sort by updated_at descending and pick the first
@@ -44,7 +45,7 @@ async def get_active_product_for_company(company_id: str, current_user_id: str) 
         return ActiveProduct(
             id=str(default_product.id),
             name=default_product.name,
-            code=default_product.code
+            code=default_product.code,
         )
 
     # 2. Else, pick the most recently updated product by anyone
@@ -53,7 +54,7 @@ async def get_active_product_for_company(company_id: str, current_user_id: str) 
         return ActiveProduct(
             id=str(default_product.id),
             name=default_product.name,
-            code=default_product.code
+            code=default_product.code,
         )
 
-    return None 
+    return None

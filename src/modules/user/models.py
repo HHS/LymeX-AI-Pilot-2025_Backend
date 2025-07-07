@@ -39,20 +39,20 @@ async def get_user_companies(user_id: str) -> list[UserCompany]:
         },
     ]
     results = await CompanyMember.aggregate(pipeline).to_list()
-    
+
     user_companies = []
     for doc in results:
         # Get active product for this company
         active_product = await get_active_product_for_company(doc["id"], user_id)
-        
+
         user_companies.append(
             UserCompany(
-                **doc, 
+                **doc,
                 logo=await get_company_logo_url(doc["id"]),
-                active_product=active_product
+                active_product=active_product,
             )
         )
-    
+
     return user_companies
 
 
