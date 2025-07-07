@@ -13,11 +13,11 @@ async def calculate_remaining_tasks(product_id: str) -> int:
         # Get or create checklist for the product
         checklist_response = await get_or_create_checklist(product_id)
         checklist = checklist_response["checklist"]
-        
+
         # Use existing checklist progress data
         # remaining_tasks = total - completed
         remaining_tasks = checklist.checklist.total - checklist.checklist.completed
-        
+
         return remaining_tasks
     except Exception as e:
         # If there's any error getting the checklist, return 0
@@ -49,7 +49,7 @@ async def get_dashboard_products(
     for product in products:
         # Calculate remaining tasks for this product
         remaining_tasks = await calculate_remaining_tasks(str(product.id))
-        
+
         dashboard_products.append(
             DashboardProductResponse(
                 id=str(product.id),
@@ -109,7 +109,7 @@ async def get_active_products(
     for product in products:
         # Calculate remaining tasks for this product
         remaining_tasks = await calculate_remaining_tasks(str(product.id))
-        
+
         dashboard_products.append(
             ProductListResponse(
                 id=str(product.id),
