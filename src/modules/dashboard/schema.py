@@ -20,6 +20,7 @@ class DashboardProductResponse(BaseModel):
         default=0.0, ge=0, le=100
     )
     regulatory_pathway_analysis_percentage: float = Field(default=0.0, ge=0, le=100)
+    remaining_tasks: int = Field(default=0, ge=0, description="Number of remaining tasks")
 
 
 class ProductListResponse(BaseModel):
@@ -31,6 +32,7 @@ class ProductListResponse(BaseModel):
     category: str
     is_default: bool
     updated_at: datetime
+    remaining_tasks: int = Field(default=0, ge=0, description="Number of remaining tasks")
 
 
 class DashboardResponse(BaseModel):

@@ -4,6 +4,25 @@ from src.modules.company.models import Company
 from src.modules.product.models import Product
 from typing import List
 from src.modules.user.models import User
+from src.modules.checklist.service import get_or_create_checklist
+
+
+async def calculate_remaining_tasks(product_id: str) -> int:
+    """Calculate remaining tasks for a product using existing checklist progress data"""
+    try:
+        # Get or create checklist for the product
+        checklist_response = await get_or_create_checklist(product_id)
+        checklist = checklist_response["checklist"]
+        
+        # Use existing checklist progress data
+        # remaining_tasks = total - completed
+        remaining_tasks = checklist.checklist.total - checklist.checklist.completed
+        
+        return remaining_tasks
+    except Exception as e:
+        # If there's any error getting the checklist, return 0
+        print(f"Error calculating remaining tasks for product {product_id}: {e}")
+        return 0
 
 
 async def get_dashboard_products(
@@ -28,6 +47,9 @@ async def get_dashboard_products(
 
     dashboard_products = []
     for product in products:
+        # Calculate remaining tasks for this product
+        remaining_tasks = await calculate_remaining_tasks(str(product.id))
+        
         dashboard_products.append(
             DashboardProductResponse(
                 id=str(product.id),
@@ -40,6 +62,7 @@ async def get_dashboard_products(
                 standards_guidance_documents_percentage=product.standards_guidance_documents_percentage,
                 performance_testing_requirements_percentage=product.performance_testing_requirements_percentage,
                 regulatory_pathway_analysis_percentage=product.regulatory_pathway_analysis_percentage,
+                remaining_tasks=remaining_tasks,
             )
         )
     return dashboard_products
@@ -84,6 +107,9 @@ async def get_active_products(
 
     dashboard_products = []
     for product in products:
+        # Calculate remaining tasks for this product
+        remaining_tasks = await calculate_remaining_tasks(str(product.id))
+        
         dashboard_products.append(
             ProductListResponse(
                 id=str(product.id),
@@ -94,6 +120,7 @@ async def get_active_products(
                 category=product.category,
                 is_default=(default_product and product.id == default_product.id),
                 updated_at=product.updated_at,
+                remaining_tasks=remaining_tasks,
             )
         )
     return dashboard_products
