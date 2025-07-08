@@ -82,6 +82,9 @@ class ProductResponse(BaseModel):
     edit_locked: bool = Field(
         ..., description="Indicates if the product is locked for editing"
     )
+    is_active_profile: bool = Field(
+        default=False, description="Indicates if this is the active profile for the company"
+    )
 
 
 class UploadDocumentUrlResponse(BaseModel):

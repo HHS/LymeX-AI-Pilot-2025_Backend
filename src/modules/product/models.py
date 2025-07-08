@@ -45,6 +45,33 @@ class Product(Document):
         created_by = await get_user_by_id(self.created_by)
         updated_by = await get_user_by_id(self.updated_by)
         avatar_url = await get_product_avatar_url(self)
+        
+        # Calculate is_active_profile using the same logic as get_active_products
+        is_active_profile = False
+        try:
+            # Get the company to check for active_product_id
+            company = await Company.get(self.company_id)
+            if company:
+                # 0. HIGHEST PRECEDENCE: Check if company has an active product set
+                if company.active_product_id:
+                    is_active_profile = str(self.id) == company.active_product_id
+                else:
+                    # If no active product set, check if this is the most recently updated product
+                    # Get all products for this company
+                    from src.modules.product.models import Product
+                    products = await Product.find(
+                        Product.company_id == self.company_id,
+                    ).to_list()
+                    
+                    if products:
+                        # Find the most recently updated product
+                        most_recent_product = max(products, key=lambda p: p.updated_at)
+                        is_active_profile = self.id == most_recent_product.id
+        except Exception as e:
+            # If there's any error, default to False
+            print(f"Error calculating is_active_profile for product {self.id}: {e}")
+            is_active_profile = False
+        
         return ProductResponse(
             id=str(self.id),
             code=self.code,
@@ -60,4 +87,5 @@ class Product(Document):
             updated_by=await updated_by.to_user_response(populate_companies=False),
             updated_at=self.updated_at,
             edit_locked=self.edit_locked,
+            is_active_profile=is_active_profile,
         )
