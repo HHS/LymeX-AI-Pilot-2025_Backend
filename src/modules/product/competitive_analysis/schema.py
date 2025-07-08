@@ -1,7 +1,11 @@
 from datetime import datetime
 from pydantic import BaseModel, Field
 
-from src.modules.product.product_profile.schema import Feature, Performance
+from src.modules.product.product_profile.schema import (
+    AnalyzingStatus,
+    Feature,
+    Performance,
+)
 
 
 # ============================
@@ -160,4 +164,7 @@ class AnalyzeCompetitiveAnalysisProgressResponse(BaseModel):
     )
     updated_at: datetime = Field(
         ..., description="Date and time when the progress was last updated"
+    )
+    analyzing_status: AnalyzingStatus = Field(
+        ..., description="Current status of the product analysis"
     )

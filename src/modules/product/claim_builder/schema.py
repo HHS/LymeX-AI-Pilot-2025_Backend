@@ -2,6 +2,8 @@ from datetime import datetime
 from enum import Enum
 from pydantic import BaseModel, Field
 
+from src.modules.product.product_profile.schema import AnalyzingStatus
+
 
 class IFUSource(BaseModel):
     source: str = Field(..., description="Source of the IFU phrase")
@@ -169,4 +171,7 @@ class AnalyzeClaimBuilderProgressResponse(BaseModel):
     )
     updated_at: datetime = Field(
         ..., description="Date and time when the progress was last updated"
+    )
+    analyzing_status: AnalyzingStatus = Field(
+        ..., description="Current status of the product analysis"
     )
