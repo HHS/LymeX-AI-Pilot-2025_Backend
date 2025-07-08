@@ -3,7 +3,7 @@ from beanie import Document, PydanticObjectId
 
 from src.modules.product.models import Product
 from src.modules.product.product_profile.model import ProductProfile
-from src.modules.product.product_profile.schema import Feature, Performance
+from src.modules.product.product_profile.schema import AnalyzingStatus, Feature, Performance
 from src.modules.product.competitive_analysis.schema import (
     AnalyzeCompetitiveAnalysisProgressResponse,
     CompetitiveAnalysisCompareItemResponse,
@@ -128,9 +128,14 @@ class AnalyzeCompetitiveAnalysisProgress(Document):
     def to_analyze_competitive_analysis_progress_response(
         self,
     ) -> AnalyzeCompetitiveAnalysisProgressResponse:
-        return {
-            "reference_product_id": self.reference_product_id,
-            "total_files": self.total_files,
-            "processed_files": self.processed_files,
-            "updated_at": self.updated_at,
-        }
+        return AnalyzeCompetitiveAnalysisProgressResponse(
+            reference_product_id=self.reference_product_id,
+            total_files=self.total_files,
+            processed_files=self.processed_files,
+            updated_at=self.updated_at,
+            analyzing_status=(
+                AnalyzingStatus.IN_PROGRESS
+                if self.processed_files < self.total_files
+                else AnalyzingStatus.COMPLETED
+            ),
+        )
