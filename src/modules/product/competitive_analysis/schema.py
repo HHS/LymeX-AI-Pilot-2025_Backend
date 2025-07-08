@@ -1,7 +1,11 @@
 from datetime import datetime
 from pydantic import BaseModel, Field
 
-from src.modules.product.product_profile.schema import AnalyzingStatus, Feature, Performance
+from src.modules.product.product_profile.schema import (
+    AnalyzingStatus,
+    Feature,
+    Performance,
+)
 
 
 # ============================

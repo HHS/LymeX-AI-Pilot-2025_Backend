@@ -3,7 +3,11 @@ from beanie import Document, PydanticObjectId
 
 from src.modules.product.models import Product
 from src.modules.product.product_profile.model import ProductProfile
-from src.modules.product.product_profile.schema import AnalyzingStatus, Feature, Performance
+from src.modules.product.product_profile.schema import (
+    AnalyzingStatus,
+    Feature,
+    Performance,
+)
 from src.modules.product.competitive_analysis.schema import (
     AnalyzeCompetitiveAnalysisProgressResponse,
     CompetitiveAnalysisCompareItemResponse,
