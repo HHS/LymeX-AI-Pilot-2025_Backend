@@ -83,7 +83,8 @@ class ProductResponse(BaseModel):
         ..., description="Indicates if the product is locked for editing"
     )
     is_active_profile: bool = Field(
-        default=False, description="Indicates if this is the active profile for the company"
+        default=False,
+        description="Indicates if this is the active profile for the company",
     )
 
 
