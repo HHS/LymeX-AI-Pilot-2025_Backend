@@ -80,27 +80,6 @@ class CompetitiveAnalysisCompareSummary(BaseModel):
     )
 
 
-class CompetitiveAnalysisCompareItemResponse(BaseModel):
-    product_name: str = Field(..., description="Name of the product")
-    price: int = Field(..., description="Price of the product")
-    features: list[Feature] = Field(..., description="List of features of the product")
-    performance: Performance = Field(
-        ..., description="Performance metrics of the product"
-    )
-    summary: CompetitiveAnalysisCompareSummary = Field(
-        ..., description="Summary of the competitive analysis item"
-    )
-
-
-class CompetitiveAnalysisCompareResponse(BaseModel):
-    your_product: CompetitiveAnalysisCompareItemResponse = Field(
-        ..., description="Details of your product in the competitive analysis"
-    )
-    competitor: CompetitiveAnalysisCompareItemResponse = Field(
-        ..., description="Details of the competitor product in the competitive analysis"
-    )
-
-
 class CompetitiveDeviceAnalysisKeyDifferenceResponse(BaseModel):
     title: str = Field(..., description="Title of the key difference")
     content: str = Field(
@@ -352,9 +331,6 @@ class CompetitiveDeviceAnalysisItemResponse(BaseModel):
         ..., description="Indicates if the device is FDA approved"
     )
     ce_marked: bool = Field(..., description="Indicates if the device is CE marked")
-    detail: CompetitiveAnalysisDetail = Field(
-        ..., description="Detailed information about the device"
-    )
 
 
 class CompetitiveDeviceAnalysisResponse(BaseModel):
@@ -369,4 +345,28 @@ class CompetitiveDeviceAnalysisResponse(BaseModel):
     )
     recommendations: list[str] = Field(
         ..., description="List of recommendations based on the competitive analysis"
+    )
+
+
+class CompetitiveAnalysisCompareItemResponse(BaseModel):
+    product_name: str = Field(..., description="Name of the product")
+    price: int = Field(..., description="Price of the product")
+    features: list[Feature] = Field(..., description="List of features of the product")
+    performance: Performance = Field(
+        ..., description="Performance metrics of the product"
+    )
+    summary: CompetitiveAnalysisCompareSummary = Field(
+        ..., description="Summary of the competitive analysis item"
+    )
+    detail: CompetitiveAnalysisDetail = Field(
+        ..., description="Detailed information about the device"
+    )
+
+
+class CompetitiveAnalysisCompareResponse(BaseModel):
+    your_product: CompetitiveAnalysisCompareItemResponse = Field(
+        ..., description="Details of your product in the competitive analysis"
+    )
+    competitor: CompetitiveAnalysisCompareItemResponse = Field(
+        ..., description="Details of the competitor product in the competitive analysis"
     )

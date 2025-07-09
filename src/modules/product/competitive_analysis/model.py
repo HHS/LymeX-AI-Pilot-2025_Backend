@@ -79,6 +79,7 @@ class CompetitiveAnalysis(Document):
             features=product_profile.features,
             performance=product_profile.performance,
             summary=self.your_product_summary,
+            detail=self.your_product,
         )
         competitor = CompetitiveAnalysisCompareItemResponse(
             product_name=self.product_name,
@@ -86,6 +87,7 @@ class CompetitiveAnalysis(Document):
             features=self.features,
             performance=self.performance,
             summary=self.competitor_summary,
+            detail=self.competitor,
         )
         return CompetitiveAnalysisCompareResponse(
             your_product=your_product,
@@ -104,7 +106,6 @@ class CompetitiveAnalysis(Document):
                 type_of_use=product_profile.type_of_use,
                 fda_approved=product_profile.fda_approved,
                 ce_marked=product_profile.ce_marked,
-                detail=self.your_product,
             ),
             competitor_device=CompetitiveDeviceAnalysisItemResponse(
                 id=str(self.id),
@@ -113,7 +114,6 @@ class CompetitiveAnalysis(Document):
                 type_of_use=self.type_of_use,
                 fda_approved=self.fda_approved,
                 ce_marked=self.ce_marked,
-                detail=self.competitor,
             ),
             key_differences=self.key_differences,
             recommendations=self.recommendations,
