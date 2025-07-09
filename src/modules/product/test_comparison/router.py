@@ -48,7 +48,7 @@ async def analyze_product_test_comparison_handler(
         product_id=str(product.id),
     )
     await create_audit_record(
-        product.id,
+        product,
         current_user,
         "Analyze product test comparison",
         {},
@@ -64,7 +64,7 @@ async def analyze_product_test_comparison_handler_2(
         product_id=str(product.id),
     )
     await create_audit_record(
-        product.id,
+        product,
         current_user,
         "Analyze product test comparison",
         {},
@@ -84,7 +84,7 @@ async def accept_test_comparison_suggestion_handler(
     ].accepted = True
     await test_comparison.save()
     await create_audit_record(
-        product.id,
+        product,
         current_user,
         "Accept test comparison suggestion",
         {
@@ -107,7 +107,7 @@ async def reject_test_comparison_suggestion_handler(
     ].accepted = False
     await test_comparison.save()
     await create_audit_record(
-        product.id,
+        product,
         current_user,
         "Reject test comparison suggestion",
         {

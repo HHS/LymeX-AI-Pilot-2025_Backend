@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 from typing import Any
 from beanie import PydanticObjectId
 from fastapi import HTTPException, status
+from src.modules.product.models import Product
 from src.modules.product.product_profile.model import (
     AnalyzeProductProfileProgress,
     ProductProfile,
@@ -55,15 +56,17 @@ async def get_product_profile(
 
 
 async def create_audit_record(
-    product_id: str | PydanticObjectId,
+    product: Product,
     user: User,
     action: str,
     data: Any,
 ) -> ProductProfileAudit:
     audit_record = ProductProfileAudit(
-        product_id=str(product_id),
+        product_id=str(product.id),
+        product_name=product.name,
         user_id=str(user.id),
         user_email=user.email,
+        user_name=f"{user.first_name} {user.last_name}",
         action=action,
         data=data,
         timestamp=datetime.now(timezone.utc),

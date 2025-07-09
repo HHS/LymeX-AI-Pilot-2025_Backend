@@ -153,12 +153,19 @@ class ProductProfileAnalysisResponse(BaseModel):
 
 class ProductProfileAuditResponse(BaseModel):
     product_id: str = Field(..., description="ID of the product")
+    product_name: str | None = Field(None, description="Name of the product")
     user_id: str = Field(..., description="ID of the user who performed the action")
     user_email: str = Field(
         ..., description="Email of the user who performed the action"
+    )
+    user_name: str | None = Field(
+        None, description="Name of the user who performed the action"
     )
     action: str = Field(..., description="Action performed on the product profile")
     data: Any = Field(..., description="Additional data related to the action")
     timestamp: datetime = Field(
         ..., description="Timestamp when the action was performed"
+    )
+    version: str = Field(
+        ..., description="Version of the product profile at the time of the action"
     )

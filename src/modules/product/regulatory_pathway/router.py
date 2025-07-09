@@ -29,7 +29,7 @@ async def analyze_regulatory_pathway_handler(
         product_id=str(product.id),
     )
     await create_audit_record(
-        product.id,
+        product,
         current_user,
         "Analyze regulatory pathway",
         {},

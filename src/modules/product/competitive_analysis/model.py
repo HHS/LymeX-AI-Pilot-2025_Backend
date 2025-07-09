@@ -13,6 +13,7 @@ from src.modules.product.competitive_analysis.schema import (
     CompetitiveAnalysisCompareItemResponse,
     CompetitiveAnalysisCompareResponse,
     CompetitiveAnalysisCompareSummary,
+    CompetitiveAnalysisDetail,
     CompetitiveAnalysisResponse,
     CompetitiveDeviceAnalysisItemResponse,
     CompetitiveDeviceAnalysisKeyDifferenceResponse,
@@ -43,6 +44,8 @@ class CompetitiveAnalysis(Document):
     competitor_summary: CompetitiveAnalysisCompareSummary
     instructions: list[str]
     type_of_use: str
+    your_product: CompetitiveAnalysisDetail
+    competitor: CompetitiveAnalysisDetail
 
     class Settings:
         name = "competitive_analysis"
@@ -76,6 +79,7 @@ class CompetitiveAnalysis(Document):
             features=product_profile.features,
             performance=product_profile.performance,
             summary=self.your_product_summary,
+            detail=self.your_product,
         )
         competitor = CompetitiveAnalysisCompareItemResponse(
             product_name=self.product_name,
@@ -83,6 +87,7 @@ class CompetitiveAnalysis(Document):
             features=self.features,
             performance=self.performance,
             summary=self.competitor_summary,
+            detail=self.competitor,
         )
         return CompetitiveAnalysisCompareResponse(
             your_product=your_product,

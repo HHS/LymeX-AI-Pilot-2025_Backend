@@ -23,7 +23,7 @@ async def analyze_clinical_trial_handler(
         product_id=str(product.id),
     )
     await create_audit_record(
-        product.id,
+        product,
         current_user,
         "Analyze clinical trial",
         {},

@@ -79,7 +79,7 @@ async def analyze_claim_builder_handler(
     )
     await analyze_claim_builder_progress.save()
     await create_audit_record(
-        product.id,
+        product,
         current_user,
         "Unlock product",
         {},
@@ -127,7 +127,7 @@ async def update_claim_builder_draft_handler(
         user.email,
     )
     await create_audit_record(
-        product.id,
+        product,
         user,
         "Update claim builder draft",
         payload.model_dump(),
@@ -169,7 +169,7 @@ async def submit_claim_builder_draft_handler(
         user.email,
     )
     await create_audit_record(
-        product.id,
+        product,
         user,
         "Submit claim builder draft",
         {},
@@ -212,7 +212,7 @@ async def reject_claim_builder_draft_handler(
         user.email,
     )
     await create_audit_record(
-        product.id,
+        product,
         user,
         "Reject claim builder draft",
         payload.model_dump(),
@@ -254,7 +254,7 @@ async def accept_claim_builder_draft_handler(
         user.email,
     )
     await create_audit_record(
-        product.id,
+        product,
         user,
         "Accept claim builder draft",
         {},
@@ -289,7 +289,7 @@ async def decide_missing_element_handler(
         user.email,
     )
     await create_audit_record(
-        product.id,
+        product,
         user,
         ("Accept missing element" if payload.accepted else "Reject missing element"),
         payload.model_dump(),
@@ -320,7 +320,7 @@ async def accept_phrase_conflict_handler(
         user.email,
     )
     await create_audit_record(
-        product.id,
+        product,
         user,
         "Accept phrase conflict",
         payload.model_dump(),
@@ -351,7 +351,7 @@ async def accept_all_phrase_conflict_handler(
         user.email,
     )
     await create_audit_record(
-        product.id,
+        product,
         user,
         "Accept all phrase conflicts",
         {},
@@ -382,7 +382,7 @@ async def reject_phrase_conflict_handler(
         user.email,
     )
     await create_audit_record(
-        product.id,
+        product,
         user,
         "Reject phrase conflict",
         payload.model_dump,
@@ -401,7 +401,7 @@ async def accept_claim_builder_handler(
     claim_builder.user_acceptance = True
     await claim_builder.save()
     await create_audit_record(
-        product.id,
+        product,
         user,
         "Accept claim builder",
         {},

@@ -100,7 +100,7 @@ async def update_product_profile_handler(
         analyze_product_profile_progress.to_analyze_product_profile_progress_response(),
     )
     await create_audit_record(
-        product.id,
+        product,
         current_user,
         "Update product profile",
         payload.model_dump(),
@@ -137,7 +137,7 @@ async def analyze_product_profile_handler(
     )
     await analyze_product_profile_progress.save()
     await create_audit_record(
-        product.id,
+        product,
         current_user,
         "Analyze product profile",
         {},
@@ -193,7 +193,7 @@ async def upload_product_profile_text_input_handler(
             headers={"Content-Type": "text/plain"},
         )
     await create_audit_record(
-        product.id,
+        product,
         current_user,
         "Upload product profile text input",
         payload.model_dump(),
@@ -212,7 +212,7 @@ async def delete_product_profile_document_handler(
         document_name,
     )
     await create_audit_record(
-        product.id,
+        product,
         current_user,
         "Delete product profile document",
         {"document_name": document_name},
@@ -247,4 +247,7 @@ async def get_product_profile_audit_handler(
         ProductProfileAudit.product_id == str(product.id),
         sort=[("timestamp", -1)],
     ).to_list()
-    return [audit.to_product_profile_audit_response() for audit in audits]
+    return [
+        audit.to_product_profile_audit_response(f"V{i}")
+        for i, audit in enumerate(audits)
+    ]
