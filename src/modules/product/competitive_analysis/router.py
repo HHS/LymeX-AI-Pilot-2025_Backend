@@ -81,7 +81,7 @@ async def analyze_competitive_analysis_handler(
     await analyze_competitive_analysis_progress.save()
     analyze_competitive_analysis_task.delay(str(product.id))
     await create_audit_record(
-        product.id,
+        product,
         user,
         "Analyze competitive analysis",
         {},
@@ -139,7 +139,7 @@ async def upload_competitive_analysis_text_input_handler(
             headers={"Content-Type": "text/plain"},
         )
     await create_audit_record(
-        product.id,
+        product,
         current_user,
         "Upload competitive analysis text input",
         payload.model_dump(),
@@ -158,7 +158,7 @@ async def delete_competitive_analysis_document_handler(
         document_name,
     )
     await create_audit_record(
-        product.id,
+        product,
         current_user,
         "Delete competitive analysis document",
         {"document_name": document_name},
@@ -266,7 +266,7 @@ async def delete_competitive_analysis_handler(
         competitive_analysis_id,
     )
     await create_audit_record(
-        product.id,
+        product,
         current_user,
         "Delete competitive analysis",
         {"competitive_analysis_id": competitive_analysis_id},
@@ -290,7 +290,7 @@ async def update_competitive_analysis_handler(
         competitive_analysis.to_competitive_analysis_response()
     )
     await create_audit_record(
-        product.id,
+        product,
         current_user,
         "Update competitive analysis",
         {

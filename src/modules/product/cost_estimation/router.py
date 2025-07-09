@@ -33,7 +33,7 @@ async def save_product_cost_estimation_handler(
 ) -> CostEstimationResponse:
     saved_estimation = await save_product_cost_estimation(product.id, cost_estimation)
     await create_audit_record(
-        product.id,
+        product,
         current_user,
         "Save product cost estimation",
         {

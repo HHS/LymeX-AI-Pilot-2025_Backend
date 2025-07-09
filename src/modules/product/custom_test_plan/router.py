@@ -33,7 +33,7 @@ async def save_product_custom_test_plan_handler(
 ) -> CustomTestPlanResponse:
     saved_plan = await save_product_custom_test_plan(product.id, test_plan)
     await create_audit_record(
-        product.id,
+        product,
         current_user,
         "Save custom test plan",
         {

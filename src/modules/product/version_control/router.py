@@ -57,7 +57,7 @@ async def promote_major_version_handler(
         created_by=current_user.email,
     )
     await create_audit_record(
-        product.id,
+        product,
         current_user,
         "Promote major version",
         {
@@ -101,7 +101,7 @@ async def reset_to_version_handler(
         user.email,
     )
     await create_audit_record(
-        product.id,
+        product,
         user,
         "Reset to version",
         {

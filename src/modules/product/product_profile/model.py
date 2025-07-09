@@ -139,20 +139,26 @@ class AnalyzeProductProfileProgress(Document):
 
 class ProductProfileAudit(Document):
     product_id: str
+    product_name: str | None = None
     user_id: str
     user_email: str
+    user_name: str | None = None
     action: str
     data: Any
     timestamp: datetime
 
     def to_product_profile_audit_response(
         self,
+        version: str,
     ) -> ProductProfileAuditResponse:
         return ProductProfileAuditResponse(
             product_id=self.product_id,
+            product_name=self.product_name,
             user_id=self.user_id,
             user_email=self.user_email,
+            user_name=self.user_name,
             action=self.action,
             data=self.data,
             timestamp=self.timestamp,
+            version=version,
         )

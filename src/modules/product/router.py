@@ -124,7 +124,7 @@ async def create_product_handler(
     created_product = await create_product(payload, current_user, current_company)
     created_product = await created_product.to_product_response()
     await create_audit_record(
-        created_product.id,
+        created_product,
         current_user,
         "Create product",
         payload.model_dump(),
@@ -179,7 +179,7 @@ async def update_product_handler(
         product.updated_at = datetime.now(timezone.utc)
         await product.save()
     await create_audit_record(
-        product.id,
+        product,
         current_user,
         "Update product",
         payload.model_dump(),
@@ -214,7 +214,7 @@ async def delete_product_handler(
         str(product.id),
     )
     await create_audit_record(
-        product.id,
+        product,
         current_user,
         "Delete product",
         {"product_id": str(product.id)},
@@ -232,7 +232,7 @@ async def lock_product_handler(
         return
     product.edit_locked = True
     await create_audit_record(
-        product.id,
+        product,
         current_user,
         "Lock product",
         {"product_id": str(product.id)},
@@ -250,7 +250,7 @@ async def unlock_product_handler(
         return
     product.edit_locked = False
     await create_audit_record(
-        product.id,
+        product,
         current_user,
         "Unlock product",
         {"product_id": str(product.id)},
@@ -363,7 +363,7 @@ async def clone_product_handler(
         await asyncio.gather(*tasks)
 
     await create_audit_record(
-        product.id,
+        product,
         current_user,
         "Clone product",
         payload.model_dump(),

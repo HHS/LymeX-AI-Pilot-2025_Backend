@@ -54,7 +54,7 @@ async def create_performance_testing_handler(
         user_email=current_user.email,
     )
     await create_audit_record(
-        product.id,
+        product,
         current_user,
         "Create performance testing",
         {
@@ -104,7 +104,7 @@ async def delete_performance_testing_handler(
         )
     await performance_testing.delete()
     await create_audit_record(
-        product.id,
+        product,
         current_user,
         "Delete performance testing",
         {
@@ -134,7 +134,7 @@ async def analyze_performance_testing_handler(
         )
     analyze_performance_testing_task.delay(performance_testing_id)
     await create_audit_record(
-        product.id,
+        product,
         current_user,
         "Analyze performance testing",
         {
@@ -170,7 +170,7 @@ async def accept_performance_testing_handler(
     performance_testing.status = PerformanceTestingStatus.ACCEPTED
     await performance_testing.save()
     await create_audit_record(
-        product.id,
+        product,
         current_user,
         "Accept performance testing",
         {
@@ -208,7 +208,7 @@ async def reject_performance_testing_handler(
     performance_testing.rejected_justification = payload.rejected_justification
     await performance_testing.save()
     await create_audit_record(
-        product.id,
+        product,
         current_user,
         "Reject performance testing",
         {
