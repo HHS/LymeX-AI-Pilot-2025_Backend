@@ -245,9 +245,10 @@ async def get_product_profile_audit_handler(
 ) -> list[ProductProfileAuditResponse]:
     audits = await ProductProfileAudit.find(
         ProductProfileAudit.product_id == str(product.id),
-        sort=[("timestamp", -1)],
+        sort=[("timestamp", 1)],
     ).to_list()
-    return [
+    result = [
         audit.to_product_profile_audit_response(f"V{i}")
         for i, audit in enumerate(audits)
     ]
+    return result[::-1]
