@@ -2,6 +2,15 @@ from datetime import datetime, timezone
 
 from fastapi import HTTPException, status
 
+from src.celery.tasks.analyze_claim_builder import analyze_claim_builder_task
+from src.celery.tasks.analyze_clinical_trial import analyze_clinical_trial_task
+from src.celery.tasks.analyze_competitive_analysis import (
+    analyze_competitive_analysis_task,
+)
+from src.celery.tasks.analyze_milestone_planning import analyze_milestone_planning_task
+from src.celery.tasks.analyze_product_profile import analyze_product_profile_task
+from src.celery.tasks.analyze_regulatory_pathway import analyze_regulatory_pathway_task
+from src.celery.tasks.analyze_test_comparison import analyze_test_comparison_task
 from src.infrastructure.minio import list_objects, remove_object
 from src.modules.company.models import Company
 from src.modules.product.models import Product
@@ -63,3 +72,15 @@ async def delete_product_folder(
         if obj.is_dir:
             continue
         await remove_object(obj.object_name)
+
+
+async def analyze_all(
+    product_id: str,
+) -> None:
+    analyze_claim_builder_task.delay(product_id)
+    analyze_clinical_trial_task.delay(product_id)
+    analyze_competitive_analysis_task.delay(product_id)
+    analyze_milestone_planning_task.delay(product_id)
+    analyze_product_profile_task.delay(product_id)
+    analyze_regulatory_pathway_task.delay(product_id)
+    analyze_test_comparison_task.delay(product_id)
