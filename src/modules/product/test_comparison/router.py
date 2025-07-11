@@ -25,7 +25,7 @@ async def get_product_all_test_comparison_handler(
 ) -> list[TestComparisonResponse]:
     test_comparisons = await get_product_all_test_comparison(product.id)
     return [
-        test_comparison.to_test_comparison_response()
+        await test_comparison.to_test_comparison_response()
         for test_comparison in test_comparisons
     ]
 
@@ -36,7 +36,7 @@ async def get_product_test_comparison_handler(
     product: Annotated[Product, Depends(get_current_product)],
 ) -> TestComparisonResponse:
     test_comparison = await get_product_test_comparison(comparison_id, product.id)
-    return test_comparison.to_test_comparison_response()
+    return await test_comparison.to_test_comparison_response()
 
 
 @router.post("/")

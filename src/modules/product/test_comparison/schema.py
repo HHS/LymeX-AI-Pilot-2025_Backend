@@ -37,6 +37,7 @@ class IdentifiedGapAndSuggestedAdjustment(BaseModel):
 class TestComparisonResponse(BaseModel):
     id: str = Field(..., description="Unique identifier for the test comparison")
     product_id: str = Field(..., description="ID of the product")
+    product_name: str = Field(..., description="Name of the product")
     comparison_name: str = Field(..., description="Name of the test comparison")
     requirements: list[TestInfo] = Field(
         ..., description="List of test requirements for the product"
