@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Literal
 from beanie import Document, PydanticObjectId
 from pydantic import Field
 
@@ -23,6 +24,9 @@ class Product(Document):
     updated_by: str
     updated_at: datetime
     edit_locked: bool = False
+    ai_analysis_status: Literal["not_started", "in_progress", "completed"] = Field(
+        default="not_started", description="Status of AI analysis"
+    )
 
     regulatory_background_percentage: float = Field(default=0.0, ge=0, le=100)
     claims_builder_percentage: float = Field(default=0.0, ge=0, le=100)
