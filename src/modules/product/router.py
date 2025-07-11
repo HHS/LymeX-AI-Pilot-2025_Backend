@@ -20,6 +20,7 @@ from src.modules.product.storage import (
     get_update_product_avatar_url,
 )
 from src.modules.product.service import (
+    analyze_all,
     create_product,
     get_products,
 )
@@ -256,6 +257,21 @@ async def unlock_product_handler(
         {"product_id": str(product.id)},
     )
     await product.save()
+
+
+@router.post("/{product_id}/analyze-all")
+async def analyze_all_handler(
+    product: Annotated[Product, Depends(get_current_product)],
+    current_user: Annotated[User, Depends(get_current_user)],
+    _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.ADMINISTRATOR))],
+) -> None:
+    analyze_all()
+    await create_audit_record(
+        product,
+        current_user,
+        "ANALYZE ALL",
+        {"product_id": str(product.id)},
+    )
 
 
 @router.post("/{product_id}/clone")
