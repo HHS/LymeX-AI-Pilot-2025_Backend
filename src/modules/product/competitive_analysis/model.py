@@ -33,6 +33,7 @@ class CompetitiveAnalysis(Document):
     key_differences: list[CompetitiveDeviceAnalysisKeyDifferenceResponse]
     recommendations: list[str]
     is_ai_generated: bool
+    use_system_data: bool
     features: list[Feature]
     claims: list[str]
     reference_number: str
@@ -64,6 +65,7 @@ class CompetitiveAnalysis(Document):
             fda_approved=self.fda_approved,
             ce_marked=self.ce_marked,
             is_ai_generated=self.is_ai_generated,
+            use_system_data=self.use_system_data,
             confidence_score=self.confidence_score,
             sources=self.sources,
         )

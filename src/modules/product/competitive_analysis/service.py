@@ -93,6 +93,8 @@ async def update_competitive_analysis(
         competitive_analysis.ce_marked = payload.ce_marked
     if payload.is_ai_generated is not None:
         competitive_analysis.is_ai_generated = payload.is_ai_generated
+    if payload.use_system_data is not None:
+        competitive_analysis.use_system_data = payload.use_system_data
     await competitive_analysis.save()
     return competitive_analysis
 
@@ -132,15 +134,13 @@ async def clone_competitive_analysis(
         CompetitiveAnalysis.reference_product_id == product_id,
     ).to_list()
     if competitive_analysis:
-        await CompetitiveAnalysis.insert_many(
-            [
-                CompetitiveAnalysis(
-                    **analysis.model_dump(exclude={"id", "reference_product_id"}),
-                    reference_product_id=str(new_product_id),
-                )
-                for analysis in competitive_analysis
-            ]
-        )
+        await CompetitiveAnalysis.insert_many([
+            CompetitiveAnalysis(
+                **analysis.model_dump(exclude={"id", "reference_product_id"}),
+                reference_product_id=str(new_product_id),
+            )
+            for analysis in competitive_analysis
+        ])
 
     analyze_competitive_analysis_progress = (
         await AnalyzeCompetitiveAnalysisProgress.find_one(
