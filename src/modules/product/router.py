@@ -265,12 +265,13 @@ async def analyze_all_handler(
     current_user: Annotated[User, Depends(get_current_user)],
     _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.ADMINISTRATOR))],
 ) -> None:
-    analyze_all()
+    product_id = str(product.id)
+    analyze_all(product_id)
     await create_audit_record(
         product,
         current_user,
         "ANALYZE ALL",
-        {"product_id": str(product.id)},
+        {"product_id": product_id},
     )
 
 
