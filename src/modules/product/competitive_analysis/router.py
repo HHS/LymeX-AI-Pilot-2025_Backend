@@ -184,6 +184,7 @@ async def get_all_competitive_analysis_handler(
         fda_approved=product_profile.fda_approved,
         ce_marked=product_profile.ce_marked,
         is_ai_generated=False,
+        use_system_data=False,
         confidence_score=product_profile.confidence_score,
         sources=product_profile.sources,
     )

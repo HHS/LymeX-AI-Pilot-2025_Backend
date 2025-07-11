@@ -162,6 +162,7 @@ async def analyze_competitive_analysis_task_async(
                 "Recommendation 3",
             ],
             is_ai_generated=False,
+            use_system_data=False,
             features=[
                 {
                     "name": "Feature 1",
@@ -245,6 +246,7 @@ async def analyze_competitive_analysis_task_async(
                 "Recommendation 3",
             ],
             is_ai_generated=True,
+            use_system_data=True,
             features=[
                 {
                     "name": "Feature 1",

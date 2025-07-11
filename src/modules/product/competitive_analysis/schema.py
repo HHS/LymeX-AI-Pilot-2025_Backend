@@ -33,6 +33,9 @@ class UpdateCompetitiveAnalysisRequest(BaseModel):
     is_ai_generated: bool | None = Field(
         None, description="Indicates if the analysis is AI generated"
     )
+    use_system_data: bool | None = Field(
+        None, description="Indicates if system data is used in the analysis"
+    )
 
 
 class UploadTextInputDocumentRequest(BaseModel):
@@ -60,6 +63,9 @@ class CompetitiveAnalysisResponse(BaseModel):
     ce_marked: bool = Field(..., description="Indicates if the product is CE marked")
     is_ai_generated: bool = Field(
         ..., description="Indicates if the analysis is AI generated"
+    )
+    use_system_data: bool = Field(
+        ..., description="Indicates if system data is used in the analysis"
     )
     confidence_score: float = Field(
         ..., description="Confidence score of the competitive analysis"

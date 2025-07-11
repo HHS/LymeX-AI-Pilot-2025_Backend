@@ -93,6 +93,8 @@ async def update_competitive_analysis(
         competitive_analysis.ce_marked = payload.ce_marked
     if payload.is_ai_generated is not None:
         competitive_analysis.is_ai_generated = payload.is_ai_generated
+    if payload.use_system_data is not None:
+        competitive_analysis.use_system_data = payload.use_system_data
     await competitive_analysis.save()
     return competitive_analysis
 
