@@ -1,5 +1,6 @@
 from datetime import datetime
 from enum import Enum
+from typing import Literal
 from pydantic import BaseModel, Field
 
 from src.modules.user.schemas import UserResponse
@@ -85,6 +86,13 @@ class ProductResponse(BaseModel):
     is_active_profile: bool = Field(
         default=False,
         description="Indicates if this is the active profile for the company",
+    )
+    # Product Profile fields
+    description: str | None = Field(None, description="Description of the product")
+    fda_approved: bool | None = Field(None, description="Indicates if the product is FDA approved")
+    ce_marked: bool | None = Field(None, description="Indicates if the product is CE marked")
+    analyzing_status: Literal["Pending", "In_Progress", "Completed"] | None = Field(
+        None, description="Current status of the product analysis"
     )
 
 
