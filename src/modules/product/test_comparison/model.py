@@ -26,7 +26,7 @@ class TestComparison(Document):
         # Fetch product name
         product = await Product.get(self.product_id)
         product_name = product.name if product else "Unknown Product"
-        
+
         return TestComparisonResponse(
             id=str(self.id),
             comparison_name=self.comparison_name,
