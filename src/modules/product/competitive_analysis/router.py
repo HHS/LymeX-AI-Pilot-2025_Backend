@@ -13,6 +13,7 @@ from src.modules.product.product_profile.service import (
 from src.modules.authentication.dependencies import get_current_user
 from src.modules.user.models import User
 from src.modules.product.competitive_analysis.storage import (
+    AnalysisDocumentInfo,
     delete_competitive_analysis_document,
     get_competitive_analysis_documents,
     get_upload_competitive_analysis_document_url,
@@ -101,18 +102,18 @@ async def get_competitive_analysis_document_handler(
 @router.get("/document/upload-url")
 async def get_upload_competitive_analysis_document_url_handler(
     file_name: str,
-    category: str,
+    competitor_name: str,
     product: Annotated[Product, Depends(get_current_product)],
     current_user: Annotated[User, Depends(get_current_user)],
     _: Annotated[bool, Depends(check_product_edit_allowed)],
 ) -> str:
     upload_url = await get_upload_competitive_analysis_document_url(
         str(product.id),
-        {
-            "file_name": file_name,
-            "author": current_user.email,
-            "category": category,
-        },
+        AnalysisDocumentInfo(
+            file_name=file_name,
+            author=current_user.email,
+            competitor_name=competitor_name,
+        ),
     )
     return upload_url
 
@@ -126,11 +127,11 @@ async def upload_competitive_analysis_text_input_handler(
 ) -> None:
     upload_url = await get_upload_competitive_analysis_document_url(
         str(product.id),
-        {
-            "file_name": "TextInput.txt",
-            "author": current_user.email,
-            "category": payload.category,
-        },
+        AnalysisDocumentInfo(
+            file_name="TextInput.txt",
+            author=current_user.email,
+            competitor_name=payload.competitor_name,
+        ),
     )
     async with httpx.AsyncClient() as client:
         await client.put(
