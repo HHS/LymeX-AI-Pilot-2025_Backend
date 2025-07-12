@@ -1,7 +1,7 @@
 import asyncio
 from datetime import datetime, timezone
-from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException
+from typing import Annotated, List
+from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Form
 from loguru import logger
 
 from src.modules.product.product_profile.service import (
@@ -23,6 +23,7 @@ from src.modules.product.service import (
     analyze_all,
     create_product,
     get_products,
+    upload_product_files,
 )
 from src.modules.product.schema import (
     CloneProductRequest,
@@ -117,20 +118,44 @@ async def get_products_handler(
 
 @router.post("/")
 async def create_product_handler(
-    payload: CreateProductRequest,
     current_user: Annotated[User, Depends(get_current_user)],
     current_company: Annotated[Company, Depends(get_current_company)],
     _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.CONTRIBUTOR))],
+    name: str = Form(..., description="Product name"),
+    code: str | None = Form(None, description="Product code"),
+    model: str | None = Form(None, description="Product model"),
+    revision: str | None = Form(None, description="Product revision"),
+    category: str | None = Form(None, description="Product category"),
+    intend_use: str | None = Form(None, description="Intended use of the product"),
+    patient_contact: bool | None = Form(None, description="Indicates if the product has patient contact"),
+    files: List[UploadFile] = File([], description="Files to upload with the product"),
 ) -> ProductResponse:
+    # Create payload from form data
+    payload = CreateProductRequest(
+        name=name,
+        code=code,
+        model=model,
+        revision=revision,
+        category=category,
+        intend_use=intend_use,
+        patient_contact=patient_contact,
+    )
+    
+    # Create the product
     created_product = await create_product(payload, current_user, current_company)
-    created_product = await created_product.to_product_response()
+    
+    # Upload files if provided
+    if files:
+        await upload_product_files(str(created_product.id), files)
+    
+    created_product_response = await created_product.to_product_response()
     await create_audit_record(
         created_product,
         current_user,
         "Create product",
         payload.model_dump(),
     )
-    return created_product
+    return created_product_response
 
 
 @router.get("/{product_id}")
