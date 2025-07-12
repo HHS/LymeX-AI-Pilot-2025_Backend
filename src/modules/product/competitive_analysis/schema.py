@@ -40,7 +40,7 @@ class UpdateCompetitiveAnalysisRequest(BaseModel):
 
 class UploadTextInputDocumentRequest(BaseModel):
     text: str = Field(..., description="Text input for the document")
-    category: str = Field(..., description="Category of the document")
+    competitor_name: str = Field(..., description="Competitor name of the document")
 
 
 # ============================
@@ -100,7 +100,7 @@ class CompetitiveAnalysisDocumentResponse(BaseModel):
     )
     file_name: str = Field(..., description="Name of the document")
     url: str = Field(..., description="URL to access the document")
-    category: str = Field(..., description="Category of the document")
+    competitor_name: str = Field(..., description="Competitive Name of the document")
     uploaded_at: str = Field(
         ..., description="Date and time when the document was uploaded"
     )
