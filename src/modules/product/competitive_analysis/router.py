@@ -27,6 +27,7 @@ from src.celery.tasks.analyze_competitive_analysis import (
     analyze_competitive_analysis_task,
 )
 from src.modules.product.competitive_analysis.schema import (
+    AcceptCompetitiveAnalysisRequest,
     AnalyzeCompetitiveAnalysisProgressResponse,
     CompetitiveAnalysisCompareResponse,
     CompetitiveAnalysisDocumentResponse,
@@ -301,3 +302,39 @@ async def update_competitive_analysis_handler(
         },
     )
     return competitive_analysis_response
+
+
+@router.post("/accept/{competitive_analysis_id}")
+async def accept_competitive_analysis_handler(
+    payload: AcceptCompetitiveAnalysisRequest,
+    competitive_analysis_id: str,
+    product: Annotated[Product, Depends(get_current_product)],
+    current_user: Annotated[User, Depends(get_current_user)],
+    _: Annotated[bool, Depends(check_product_edit_allowed)],
+) -> CompetitiveAnalysisResponse:
+    competitive_analysis = await CompetitiveAnalysis.find_one(
+        CompetitiveAnalysis.id == string_to_id(competitive_analysis_id),
+        CompetitiveAnalysis.reference_product_id == str(product.id),
+    )
+    if not competitive_analysis:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Competitive analysis not found",
+        )
+
+    competitive_analysis.accepted = payload.accepted
+    competitive_analysis.accept_reject_reason = payload.accept_reject_reason
+    await competitive_analysis.save()
+
+    await create_audit_record(
+        product,
+        current_user,
+        "Accept competitive analysis",
+        {
+            "competitive_analysis_id": competitive_analysis_id,
+            "payload": payload.model_dump(),
+        },
+    )
+
+    return competitive_analysis.to_competitive_analysis_response()
+
