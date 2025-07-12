@@ -62,6 +62,17 @@ class UploadTextInputDocumentRequest(BaseModel):
 # ============================
 
 
+class ProductProfileDocumentResponse(BaseModel):
+    document_name: str = Field(..., description="Name of the product profile document")
+    file_name: str = Field(..., description="Name of the document")
+    url: str = Field(..., description="URL to access the document")
+    uploaded_at: str = Field(
+        ..., description="Date and time when the document was uploaded"
+    )
+    author: str = Field(..., description="Author of the document")
+    size: int = Field(..., description="Size of the document in bytes")
+
+
 class ProductProfileResponse(BaseModel):
     id: str = Field(..., description="Product ID")
     name: str = Field(..., description="Product name")
@@ -102,17 +113,9 @@ class ProductProfileResponse(BaseModel):
     analyzing_status: AnalyzingStatus = Field(
         ..., description="Current status of the product analysis"
     )
-
-
-class ProductProfileDocumentResponse(BaseModel):
-    document_name: str = Field(..., description="Name of the product profile document")
-    file_name: str = Field(..., description="Name of the document")
-    url: str = Field(..., description="URL to access the document")
-    uploaded_at: str = Field(
-        ..., description="Date and time when the document was uploaded"
+    documents: list[ProductProfileDocumentResponse] = Field(
+        default=[], description="List of all documents uploaded for this product"
     )
-    author: str = Field(..., description="Author of the document")
-    size: int = Field(..., description="Size of the document in bytes")
 
 
 class AnalyzeProductProfileProgressResponse(BaseModel):

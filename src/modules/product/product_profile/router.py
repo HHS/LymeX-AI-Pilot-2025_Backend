@@ -15,6 +15,7 @@ from src.modules.product.product_profile.service import (
     create_audit_record,
     get_analyze_product_profile_progress,
     get_product_profile,
+    get_product_documents,
 )
 from src.modules.product.product_profile.schema import (
     AnalyzeProductProfileProgressResponse,
@@ -49,14 +50,21 @@ async def get_product_profile_handler(
     analyze_product_profile_progress = await get_analyze_product_profile_progress(
         product.id,
     )
+    
+    # Get all documents for the product
+    documents = await get_product_documents(str(product.id))
+    
     if not product_profile:
         return ProductProfileResponse(
             **product_response.model_dump(),
+            documents=documents,
         )
     profile_response = product_profile.to_product_profile_response(
         product_response,
         analyze_product_profile_progress.to_analyze_product_profile_progress_response(),
     )
+    # Add documents to the response
+    profile_response.documents = documents
     return profile_response
 
 

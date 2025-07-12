@@ -8,9 +8,12 @@ from src.modules.product.product_profile.model import (
     ProductProfile,
     ProductProfileAudit,
 )
+import asyncio
 from src.modules.product.product_profile.storage import clone_product_profile_documents
 from src.modules.product.storage import get_product_folder
 from src.modules.user.models import User
+from src.infrastructure.minio import minio_client, generate_get_object_presigned_url
+from src.environment import environment
 
 
 def get_profile_folder(
@@ -109,3 +112,51 @@ async def clone_product_profile(
         product_id=str(product_id),
         new_product_id=str(new_product_id),
     )
+
+
+async def get_product_documents(product_id: str) -> list[dict]:
+    """Get all documents uploaded for a product"""
+    # Get all files from the product files folder
+    product_folder = get_product_folder(product_id)
+    files_folder = f"{product_folder}/files/"
+    
+    # List all objects in the product files folder
+    objects = await asyncio.to_thread(
+        minio_client.list_objects,
+        bucket_name=environment.minio_bucket,
+        prefix=files_folder,
+        recursive=True,
+    )
+    
+    documents = []
+    for obj in objects:
+        # Skip directories
+        if obj.is_dir:
+            continue
+            
+        # Generate presigned URL for the document
+        url = await generate_get_object_presigned_url(obj.object_name)
+        
+        # Extract filename from object name
+        filename = obj.object_name.split("/")[-1]
+        
+        # Remove UUID prefix if present (from our upload logic)
+        if "_" in filename:
+            parts = filename.split("_", 1)
+            if len(parts) == 2:
+                original_filename = parts[1]
+            else:
+                original_filename = filename
+        else:
+            original_filename = filename
+        
+        documents.append({
+            "document_name": original_filename,
+            "file_name": original_filename,
+            "url": url,
+            "uploaded_at": obj.last_modified.isoformat() if obj.last_modified else "",
+            "author": "System",  # We don't track author in MinIO metadata
+            "size": obj.size,
+        })
+    
+    return documents
