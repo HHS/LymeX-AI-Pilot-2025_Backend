@@ -33,16 +33,29 @@ async def create_product(
     current_user: User,
     current_company: Company,
 ) -> Product:
-    product_code_exists = await Product.find_one(
+    # Check if product name already exists for this company
+    product_name_exists = await Product.find_one(
         Product.company_id == str(current_company.id),
         Product.name == payload.name,
-        Product.model == payload.model,
     )
-    if product_code_exists:
+    if product_name_exists:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Product code already exists for this company.",
+            detail="Product name already exists for this company.",
         )
+    
+    # Check if product code already exists for this company (if model is provided)
+    if payload.model:
+        product_code_exists = await Product.find_one(
+            Product.company_id == str(current_company.id),
+            Product.name == payload.name,
+            Product.model == payload.model,
+        )
+        if product_code_exists:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Product code already exists for this company.",
+            )
     now = datetime.now(timezone.utc)
     product = Product(
         code=payload.code,
