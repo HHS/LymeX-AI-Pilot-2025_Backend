@@ -54,17 +54,29 @@ async def get_product_profile_handler(
     # Get all documents for the product
     documents = await get_product_documents(str(product.id))
     
+    # Get last 3 audit records
+    audits = await ProductProfileAudit.find(
+        ProductProfileAudit.product_id == str(product.id),
+        sort=[("timestamp", -1)],
+    ).limit(3).to_list()
+    latest_audits = [
+        audit.to_product_profile_audit_response(f"V{len(audits) - i}")
+        for i, audit in enumerate(audits)
+    ]
+    
     if not product_profile:
         return ProductProfileResponse(
             **product_response.model_dump(),
             documents=documents,
+            latest_audits=latest_audits,
         )
     profile_response = product_profile.to_product_profile_response(
         product_response,
         analyze_product_profile_progress.to_analyze_product_profile_progress_response(),
     )
-    # Add documents to the response
+    # Add documents and latest audits to the response
     profile_response.documents = documents
+    profile_response.latest_audits = latest_audits
     return profile_response
 
 

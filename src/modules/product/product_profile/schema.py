@@ -73,6 +73,26 @@ class ProductProfileDocumentResponse(BaseModel):
     size: int = Field(..., description="Size of the document in bytes")
 
 
+class ProductProfileAuditResponse(BaseModel):
+    product_id: str = Field(..., description="ID of the product")
+    product_name: str | None = Field(None, description="Name of the product")
+    user_id: str = Field(..., description="ID of the user who performed the action")
+    user_email: str = Field(
+        ..., description="Email of the user who performed the action"
+    )
+    user_name: str | None = Field(
+        None, description="Name of the user who performed the action"
+    )
+    action: str = Field(..., description="Action performed on the product profile")
+    data: Any = Field(..., description="Additional data related to the action")
+    timestamp: datetime = Field(
+        ..., description="Timestamp when the action was performed"
+    )
+    version: str = Field(
+        ..., description="Version of the product profile at the time of the action"
+    )
+
+
 class ProductProfileResponse(BaseModel):
     id: str = Field(..., description="Product ID")
     name: str = Field(..., description="Product name")
@@ -116,6 +136,9 @@ class ProductProfileResponse(BaseModel):
     documents: list[ProductProfileDocumentResponse] = Field(
         default=[], description="List of all documents uploaded for this product"
     )
+    latest_audits: list[ProductProfileAuditResponse] = Field(
+        default=[], description="Last three audit records for this product"
+    )
 
 
 class AnalyzeProductProfileProgressResponse(BaseModel):
@@ -154,21 +177,4 @@ class ProductProfileAnalysisResponse(BaseModel):
     )
 
 
-class ProductProfileAuditResponse(BaseModel):
-    product_id: str = Field(..., description="ID of the product")
-    product_name: str | None = Field(None, description="Name of the product")
-    user_id: str = Field(..., description="ID of the user who performed the action")
-    user_email: str = Field(
-        ..., description="Email of the user who performed the action"
-    )
-    user_name: str | None = Field(
-        None, description="Name of the user who performed the action"
-    )
-    action: str = Field(..., description="Action performed on the product profile")
-    data: Any = Field(..., description="Additional data related to the action")
-    timestamp: datetime = Field(
-        ..., description="Timestamp when the action was performed"
-    )
-    version: str = Field(
-        ..., description="Version of the product profile at the time of the action"
-    )
+
