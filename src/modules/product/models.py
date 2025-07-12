@@ -24,7 +24,6 @@ class Product(Document):
     updated_by: str
     updated_at: datetime
     edit_locked: bool = False
-    
 
     regulatory_background_percentage: float = Field(default=0.0, ge=0, le=100)
     claims_builder_percentage: float = Field(default=0.0, ge=0, le=100)
@@ -77,18 +76,23 @@ class Product(Document):
 
         # Fetch product profile data (using dynamic import to avoid circular import)
         try:
-            from src.modules.product.product_profile.model import ProductProfile, AnalyzeProductProfileProgress
-            
-            product_profile = await ProductProfile.find_one(ProductProfile.product_id == str(self.id))
+            from src.modules.product.product_profile.model import (
+                ProductProfile,
+                AnalyzeProductProfileProgress,
+            )
+
+            product_profile = await ProductProfile.find_one(
+                ProductProfile.product_id == str(self.id)
+            )
             analyze_progress = await AnalyzeProductProfileProgress.find_one(
                 AnalyzeProductProfileProgress.product_id == str(self.id)
             )
-            
+
             # Extract product profile fields
             description = product_profile.description if product_profile else None
             fda_approved = product_profile.fda_approved if product_profile else None
             ce_marked = product_profile.ce_marked if product_profile else None
-            
+
             # Determine analyzing status
             analyzing_status = None
             if analyze_progress:
@@ -106,7 +110,7 @@ class Product(Document):
             fda_approved = None
             ce_marked = None
             analyzing_status = "Pending"
-        
+
         return ProductResponse(
             id=str(self.id),
             code=self.code,

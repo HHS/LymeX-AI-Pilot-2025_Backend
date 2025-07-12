@@ -175,6 +175,3 @@ class ProductProfileAnalysisResponse(BaseModel):
     analyzing_status: AnalyzingStatus = Field(
         ..., description="Current status of the product analysis"
     )
-
-
-

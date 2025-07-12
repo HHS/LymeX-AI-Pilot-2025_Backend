@@ -47,7 +47,7 @@ async def create_product(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Product name already exists for this company.",
         )
-    
+
     # Check if product code already exists for this company (if model is provided)
     if payload.model:
         product_code_exists = await Product.find_one(
@@ -67,7 +67,9 @@ async def create_product(
         model=payload.model or "Default Model",
         revision=payload.revision or "1.0",
         intend_use=payload.intend_use or "General Use",
-        patient_contact=payload.patient_contact if payload.patient_contact is not None else False,
+        patient_contact=(
+            payload.patient_contact if payload.patient_contact is not None else False
+        ),
         category=payload.category or "General",
         company_id=str(current_company.id),
         created_by=str(current_user.id),
@@ -105,7 +107,7 @@ async def analyze_all(
 async def upload_product_files(product_id: str, files: list[UploadFile]) -> list[dict]:
     """Upload files for a product to MinIO storage"""
     uploaded_files = []
-    
+
     for file in files:
         # Generate a unique filename to prevent overwriting
         unique_filename = f"{uuid.uuid4()}_{file.filename}"
@@ -119,12 +121,14 @@ async def upload_product_files(product_id: str, files: list[UploadFile]) -> list
             data=io.BytesIO(file_content),
             content_type=file.content_type,
         )
-        
-        uploaded_files.append({
-            "original_filename": file.filename,
-            "object_name": object_name,
-            "content_type": file.content_type,
-            "size": len(file_content)
-        })
-    
+
+        uploaded_files.append(
+            {
+                "original_filename": file.filename,
+                "object_name": object_name,
+                "content_type": file.content_type,
+                "size": len(file_content),
+            }
+        )
+
     return uploaded_files

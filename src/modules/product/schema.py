@@ -89,8 +89,12 @@ class ProductResponse(BaseModel):
     )
     # Product Profile fields
     description: str | None = Field(None, description="Description of the product")
-    fda_approved: bool | None = Field(None, description="Indicates if the product is FDA approved")
-    ce_marked: bool | None = Field(None, description="Indicates if the product is CE marked")
+    fda_approved: bool | None = Field(
+        None, description="Indicates if the product is FDA approved"
+    )
+    ce_marked: bool | None = Field(
+        None, description="Indicates if the product is CE marked"
+    )
     analyzing_status: Literal["Pending", "In_Progress", "Completed"] | None = Field(
         None, description="Current status of the product analysis"
     )

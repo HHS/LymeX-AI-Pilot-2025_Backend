@@ -127,7 +127,9 @@ async def create_product_handler(
     revision: str | None = Form(None, description="Product revision"),
     category: str | None = Form(None, description="Product category"),
     intend_use: str | None = Form(None, description="Intended use of the product"),
-    patient_contact: bool | None = Form(None, description="Indicates if the product has patient contact"),
+    patient_contact: bool | None = Form(
+        None, description="Indicates if the product has patient contact"
+    ),
     files: List[UploadFile] = File([], description="Files to upload with the product"),
 ) -> ProductResponse:
     # Create payload from form data
@@ -140,14 +142,14 @@ async def create_product_handler(
         intend_use=intend_use,
         patient_contact=patient_contact,
     )
-    
+
     # Create the product
     created_product = await create_product(payload, current_user, current_company)
-    
+
     # Upload files if provided
     if files:
         await upload_product_files(str(created_product.id), files)
-    
+
     created_product_response = await created_product.to_product_response()
     await create_audit_record(
         created_product,

@@ -50,20 +50,24 @@ async def get_product_profile_handler(
     analyze_product_profile_progress = await get_analyze_product_profile_progress(
         product.id,
     )
-    
+
     # Get all documents for the product
     documents = await get_product_documents(str(product.id))
-    
+
     # Get last 3 audit records
-    audits = await ProductProfileAudit.find(
-        ProductProfileAudit.product_id == str(product.id),
-        sort=[("timestamp", -1)],
-    ).limit(3).to_list()
+    audits = (
+        await ProductProfileAudit.find(
+            ProductProfileAudit.product_id == str(product.id),
+            sort=[("timestamp", -1)],
+        )
+        .limit(3)
+        .to_list()
+    )
     latest_audits = [
         audit.to_product_profile_audit_response(f"V{len(audits) - i}")
         for i, audit in enumerate(audits)
     ]
-    
+
     if not product_profile:
         return ProductProfileResponse(
             **product_response.model_dump(),

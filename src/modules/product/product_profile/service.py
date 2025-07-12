@@ -119,7 +119,7 @@ async def get_product_documents(product_id: str) -> list[dict]:
     # Get all files from the product files folder
     product_folder = get_product_folder(product_id)
     files_folder = f"{product_folder}/files/"
-    
+
     # List all objects in the product files folder
     objects = await asyncio.to_thread(
         minio_client.list_objects,
@@ -127,19 +127,19 @@ async def get_product_documents(product_id: str) -> list[dict]:
         prefix=files_folder,
         recursive=True,
     )
-    
+
     documents = []
     for obj in objects:
         # Skip directories
         if obj.is_dir:
             continue
-            
+
         # Generate presigned URL for the document
         url = await generate_get_object_presigned_url(obj.object_name)
-        
+
         # Extract filename from object name
         filename = obj.object_name.split("/")[-1]
-        
+
         # Remove UUID prefix if present (from our upload logic)
         if "_" in filename:
             parts = filename.split("_", 1)
@@ -149,14 +149,18 @@ async def get_product_documents(product_id: str) -> list[dict]:
                 original_filename = filename
         else:
             original_filename = filename
-        
-        documents.append({
-            "document_name": original_filename,
-            "file_name": original_filename,
-            "url": url,
-            "uploaded_at": obj.last_modified.isoformat() if obj.last_modified else "",
-            "author": "System",  # We don't track author in MinIO metadata
-            "size": obj.size,
-        })
-    
+
+        documents.append(
+            {
+                "document_name": original_filename,
+                "file_name": original_filename,
+                "url": url,
+                "uploaded_at": (
+                    obj.last_modified.isoformat() if obj.last_modified else ""
+                ),
+                "author": "System",  # We don't track author in MinIO metadata
+                "size": obj.size,
+            }
+        )
+
     return documents
