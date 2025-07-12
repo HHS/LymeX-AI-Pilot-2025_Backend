@@ -4,6 +4,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 import httpx
 
 from src.modules.authentication.dependencies import get_current_user
+from src.modules.product.product_profile.analyze_product_profile_progress import (
+    AnalyzeProductProfileProgress,
+    get_analyze_product_profile_progress,
+)
 from src.modules.product.product_profile.storage import (
     delete_product_profile_document,
     get_product_profile_documents,
@@ -13,7 +17,6 @@ from src.modules.user.models import User
 from src.celery.tasks.analyze_product_profile import analyze_product_profile_task
 from src.modules.product.product_profile.service import (
     create_audit_record,
-    get_analyze_product_profile_progress,
     get_product_profile,
 )
 from src.modules.product.product_profile.schema import (
@@ -31,7 +34,6 @@ from src.modules.product.dependencies import (
 )
 from src.modules.product.models import Product
 from src.modules.product.product_profile.model import (
-    AnalyzeProductProfileProgress,
     ProductProfile,
     ProductProfileAudit,
 )
@@ -55,7 +57,9 @@ async def get_product_profile_handler(
         )
     profile_response = product_profile.to_product_profile_response(
         product_response,
-        analyze_product_profile_progress.to_analyze_product_profile_progress_response(),
+        analyze_product_profile_progress.to_analyze_product_profile_progress_response()
+        if analyze_product_profile_progress
+        else None,
     )
     return profile_response
 
@@ -97,7 +101,9 @@ async def update_product_profile_handler(
     )
     product_profile_response = product_profile.to_product_profile_response(
         product_response,
-        analyze_product_profile_progress.to_analyze_product_profile_progress_response(),
+        analyze_product_profile_progress.to_analyze_product_profile_progress_response()
+        if analyze_product_profile_progress
+        else None,
     )
     await create_audit_record(
         product,
@@ -117,6 +123,8 @@ async def get_analyze_product_profile_progress_handler(
     )
     return (
         analyze_product_profile_progress.to_analyze_product_profile_progress_response()
+        if analyze_product_profile_progress
+        else None,
     )
 
 
@@ -234,7 +242,9 @@ async def get_product_profile_analysis_handler(
     )
     analysis = product_profile.to_product_profile_analysis_response(
         product,
-        analyze_product_profile_progress.to_analyze_product_profile_progress_response(),
+        analyze_product_profile_progress.to_analyze_product_profile_progress_response()
+        if analyze_product_profile_progress
+        else None,
     )
     return analysis
 

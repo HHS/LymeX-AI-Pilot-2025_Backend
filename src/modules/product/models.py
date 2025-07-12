@@ -3,10 +3,13 @@ from beanie import Document, PydanticObjectId
 from pydantic import Field
 
 from src.modules.company.models import Company
+from src.modules.product.product_profile.analyze_product_profile_progress import (
+    get_analyze_product_profile_progress,
+)
+from src.modules.product.product_profile.schema import AnalyzingStatus
 from src.modules.product.storage import get_product_avatar_url
 from src.modules.user.service import get_user_by_id
 from src.modules.product.schema import ProductResponse
-from src.modules.product.feature_status.schema import FeatureStatus
 
 
 class Product(Document):
@@ -72,7 +75,9 @@ class Product(Document):
             # If there's any error, default to False
             print(f"Error calculating is_active_profile for product {self.id}: {e}")
             is_active_profile = False
-
+        analyze_product_profile_progress = await get_analyze_product_profile_progress(
+            self.id,
+        )
         return ProductResponse(
             id=str(self.id),
             code=self.code,
@@ -89,4 +94,9 @@ class Product(Document):
             updated_at=self.updated_at,
             edit_locked=self.edit_locked,
             is_active_profile=is_active_profile,
+            analyzing_status=(
+                analyze_product_profile_progress.to_analyze_product_profile_progress_response().analyzing_status
+                if analyze_product_profile_progress
+                else AnalyzingStatus.PENDING
+            ),
         )

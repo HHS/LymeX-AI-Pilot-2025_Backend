@@ -107,36 +107,6 @@ class ProductProfile(Document):
         )
 
 
-class AnalyzeProductProfileProgress(Document):
-    product_id: str
-    total_files: int
-    processed_files: int
-    updated_at: datetime
-
-    class Settings:
-        name = "analyze_product_profile_progress"
-
-    class Config:
-        json_encoders = {
-            PydanticObjectId: str,
-        }
-
-    def to_analyze_product_profile_progress_response(
-        self,
-    ) -> AnalyzeProductProfileProgressResponse:
-        return AnalyzeProductProfileProgressResponse(
-            product_id=self.product_id,
-            total_files=self.total_files,
-            processed_files=self.processed_files,
-            updated_at=self.updated_at,
-            analyzing_status=(
-                AnalyzingStatus.IN_PROGRESS
-                if self.processed_files < self.total_files
-                else AnalyzingStatus.COMPLETED
-            ),
-        )
-
-
 class ProductProfileAudit(Document):
     product_id: str
     product_name: str | None = None
