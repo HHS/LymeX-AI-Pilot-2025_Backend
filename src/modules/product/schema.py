@@ -14,12 +14,12 @@ from src.modules.user.schemas import UserResponse
 class CreateProductRequest(BaseModel):
     name: str = Field(..., description="Product name")
     code: str | None = Field(None, description="Product code")
-    model: str = Field(..., description="Product model")
-    revision: str = Field(..., description="Product revision")
-    category: str = Field(..., description="Product category")
-    intend_use: str = Field(..., description="Intended use of the product")
-    patient_contact: bool = Field(
-        ..., description="Indicates if the product has patient contact"
+    model: str | None = Field(None, description="Product model")
+    revision: str | None = Field(None, description="Product revision")
+    category: str | None = Field(None, description="Product category")
+    intend_use: str | None = Field(None, description="Intended use of the product")
+    patient_contact: bool | None = Field(
+        None, description="Indicates if the product has patient contact"
     )
 
 

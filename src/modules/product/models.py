@@ -8,7 +8,6 @@ from src.modules.product.storage import get_product_avatar_url
 from src.modules.user.service import get_user_by_id
 from src.modules.product.schema import ProductResponse
 from src.modules.product.feature_status.schema import FeatureStatus
-from src.modules.product.product_profile.model import ProductProfile, AnalyzeProductProfileProgress
 
 
 class Product(Document):
@@ -76,27 +75,36 @@ class Product(Document):
             print(f"Error calculating is_active_profile for product {self.id}: {e}")
             is_active_profile = False
 
-        # Fetch product profile data
-        product_profile = await ProductProfile.find_one(ProductProfile.product_id == str(self.id))
-        analyze_progress = await AnalyzeProductProfileProgress.find_one(
-            AnalyzeProductProfileProgress.product_id == str(self.id)
-        )
-        
-        # Extract product profile fields
-        description = product_profile.description if product_profile else None
-        fda_approved = product_profile.fda_approved if product_profile else None
-        ce_marked = product_profile.ce_marked if product_profile else None
-        
-        # Determine analyzing status
-        analyzing_status = None
-        if analyze_progress:
-            if analyze_progress.processed_files < analyze_progress.total_files:
-                analyzing_status = "In_Progress"
-            else:
+        # Fetch product profile data (using dynamic import to avoid circular import)
+        try:
+            from src.modules.product.product_profile.model import ProductProfile, AnalyzeProductProfileProgress
+            
+            product_profile = await ProductProfile.find_one(ProductProfile.product_id == str(self.id))
+            analyze_progress = await AnalyzeProductProfileProgress.find_one(
+                AnalyzeProductProfileProgress.product_id == str(self.id)
+            )
+            
+            # Extract product profile fields
+            description = product_profile.description if product_profile else None
+            fda_approved = product_profile.fda_approved if product_profile else None
+            ce_marked = product_profile.ce_marked if product_profile else None
+            
+            # Determine analyzing status
+            analyzing_status = None
+            if analyze_progress:
+                if analyze_progress.processed_files < analyze_progress.total_files:
+                    analyzing_status = "In_Progress"
+                else:
+                    analyzing_status = "Completed"
+            elif product_profile:
                 analyzing_status = "Completed"
-        elif product_profile:
-            analyzing_status = "Completed"
-        else:
+            else:
+                analyzing_status = "Pending"
+        except ImportError:
+            # Fallback if import fails
+            description = None
+            fda_approved = None
+            ce_marked = None
             analyzing_status = "Pending"
         
         return ProductResponse(
