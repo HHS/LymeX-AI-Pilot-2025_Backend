@@ -1,7 +1,7 @@
 from datetime import datetime
 from enum import Enum
 from pydantic import BaseModel, Field
-
+from uuid import uuid4
 from src.modules.product.product_profile.schema import AnalyzingStatus
 from src.modules.user.schemas import UserResponse
 
@@ -11,9 +11,14 @@ from src.modules.user.schemas import UserResponse
 # ============================
 
 
+def create_uuid() -> str:
+    """Generate a new UUID."""
+    return str(uuid4())
+
+
 class CreateProductRequest(BaseModel):
     name: str = Field(..., description="Product name")
-    code: str | None = Field(None, description="Product code")
+    code: str = Field(default_factory=create_uuid, description="Product code")
     model: str = Field(..., description="Product model")
     revision: str = Field(..., description="Product revision")
     category: str = Field(..., description="Product category")

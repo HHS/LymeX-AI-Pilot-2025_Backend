@@ -74,7 +74,7 @@ async def delete_product_folder(
         await remove_object(obj.object_name)
 
 
-async def analyze_all(
+def analyze_all(
     product_id: str,
 ) -> None:
     analyze_claim_builder_task.delay(product_id)
