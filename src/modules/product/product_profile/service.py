@@ -2,7 +2,9 @@ from datetime import datetime, timezone
 from typing import Any
 from beanie import PydanticObjectId
 from src.modules.product.models import Product
-from src.modules.product.product_profile.analyze_product_profile_progress import AnalyzeProductProfileProgress
+from src.modules.product.product_profile.analyze_product_profile_progress import (
+    AnalyzeProductProfileProgress,
+)
 from src.modules.product.product_profile.model import (
     ProductProfile,
     ProductProfileAudit,
@@ -69,13 +71,15 @@ async def clone_product_profile(
     ).to_list()
 
     if existing_profile:
-        await ProductProfile.insert_many([
-            ProductProfile(
-                **profile.model_dump(exclude={"id", "product_id"}),
-                product_id=str(new_product_id),
-            )
-            for profile in existing_profile
-        ])
+        await ProductProfile.insert_many(
+            [
+                ProductProfile(
+                    **profile.model_dump(exclude={"id", "product_id"}),
+                    product_id=str(new_product_id),
+                )
+                for profile in existing_profile
+            ]
+        )
 
     analyze_progress = await AnalyzeProductProfileProgress.find_one(
         AnalyzeProductProfileProgress.product_id == str(product_id),

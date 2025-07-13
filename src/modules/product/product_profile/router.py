@@ -57,9 +57,11 @@ async def get_product_profile_handler(
         )
     profile_response = product_profile.to_product_profile_response(
         product_response,
-        analyze_product_profile_progress.to_analyze_product_profile_progress_response()
-        if analyze_product_profile_progress
-        else None,
+        (
+            analyze_product_profile_progress.to_analyze_product_profile_progress_response()
+            if analyze_product_profile_progress
+            else None
+        ),
     )
     return profile_response
 
@@ -101,9 +103,11 @@ async def update_product_profile_handler(
     )
     product_profile_response = product_profile.to_product_profile_response(
         product_response,
-        analyze_product_profile_progress.to_analyze_product_profile_progress_response()
-        if analyze_product_profile_progress
-        else None,
+        (
+            analyze_product_profile_progress.to_analyze_product_profile_progress_response()
+            if analyze_product_profile_progress
+            else None
+        ),
     )
     await create_audit_record(
         product,
@@ -122,9 +126,11 @@ async def get_analyze_product_profile_progress_handler(
         product.id,
     )
     return (
-        analyze_product_profile_progress.to_analyze_product_profile_progress_response()
-        if analyze_product_profile_progress
-        else None,
+        (
+            analyze_product_profile_progress.to_analyze_product_profile_progress_response()
+            if analyze_product_profile_progress
+            else None
+        ),
     )
 
 
@@ -242,9 +248,11 @@ async def get_product_profile_analysis_handler(
     )
     analysis = product_profile.to_product_profile_analysis_response(
         product,
-        analyze_product_profile_progress.to_analyze_product_profile_progress_response()
-        if analyze_product_profile_progress
-        else None,
+        (
+            analyze_product_profile_progress.to_analyze_product_profile_progress_response()
+            if analyze_product_profile_progress
+            else None
+        ),
     )
     return analysis
 

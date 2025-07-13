@@ -337,4 +337,3 @@ async def accept_competitive_analysis_handler(
     )
 
     return competitive_analysis.to_competitive_analysis_response()
-
