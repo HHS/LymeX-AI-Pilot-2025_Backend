@@ -87,7 +87,6 @@ async def get_performance_testing_document_handler(
 @router.get("/document/upload-url")
 async def get_upload_performance_testing_document_url_handler(
     file_name: str,
-    competitor_name: str,
     product: Annotated[Product, Depends(get_current_product)],
     current_user: Annotated[User, Depends(get_current_user)],
     _: Annotated[bool, Depends(check_product_edit_allowed)],
@@ -97,7 +96,6 @@ async def get_upload_performance_testing_document_url_handler(
         TestingDocumentInfo(
             file_name=file_name,
             author=current_user.email,
-            competitor_name=competitor_name,
         ),
     )
     return upload_url
@@ -115,7 +113,6 @@ async def upload_performance_testing_text_input_handler(
         TestingDocumentInfo(
             file_name="TextInput.txt",
             author=current_user.email,
-            competitor_name=payload.competitor_name,
         ),
     )
     async with httpx.AsyncClient() as client:

@@ -1,5 +1,4 @@
 from datetime import datetime
-from enum import Enum
 from beanie import Document, PydanticObjectId
 
 from src.modules.product.performance_testing.schema import (
