@@ -73,6 +73,16 @@ class CompetitiveAnalysisResponse(BaseModel):
     sources: list[str] = Field(
         ..., description="List of sources for the competitive analysis"
     )
+    accepted: bool | None = Field(
+        None, description="Indicates if the competitive analysis is accepted"
+    )
+    accept_reject_reason: str | None = Field(
+        None,
+        description="Reason for acceptance or rejection of the competitive analysis",
+    )
+    accept_reject_by: str | None = Field(
+        None, description="User who accepted or rejected the competitive analysis"
+    )
 
 
 class CompetitiveAnalysisDetailResponse(BaseModel): ...
@@ -375,4 +385,24 @@ class CompetitiveAnalysisCompareResponse(BaseModel):
     )
     competitor: CompetitiveAnalysisCompareItemResponse = Field(
         ..., description="Details of the competitor product in the competitive analysis"
+    )
+    accepted: bool | None = Field(
+        None, description="Indicates if the competitive analysis is accepted"
+    )
+    accept_reject_reason: str | None = Field(
+        None,
+        description="Reason for acceptance or rejection of the competitive analysis",
+    )
+    accept_reject_by: str | None = Field(
+        None, description="User who accepted or rejected the competitive analysis"
+    )
+
+
+class AcceptCompetitiveAnalysisRequest(BaseModel):
+    accepted: bool = Field(
+        ..., description="Indicates if the competitive analysis is accepted"
+    )
+    accept_reject_reason: str | None = Field(
+        None,
+        description="Reason for acceptance or rejection of the competitive analysis",
     )

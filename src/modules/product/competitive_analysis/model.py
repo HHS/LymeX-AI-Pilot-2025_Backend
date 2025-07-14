@@ -47,6 +47,9 @@ class CompetitiveAnalysis(Document):
     type_of_use: str
     your_product: CompetitiveAnalysisDetail
     competitor: CompetitiveAnalysisDetail
+    accepted: bool | None = None
+    accept_reject_reason: str | None = None
+    accept_reject_by: str | None = None
 
     class Settings:
         name = "competitive_analysis"
@@ -68,6 +71,9 @@ class CompetitiveAnalysis(Document):
             use_system_data=self.use_system_data,
             confidence_score=self.confidence_score,
             sources=self.sources,
+            accepted=self.accepted,
+            accept_reject_reason=self.accept_reject_reason,
+            accept_reject_by=self.accept_reject_by,
         )
 
     def to_competitive_compare_response(
@@ -94,6 +100,9 @@ class CompetitiveAnalysis(Document):
         return CompetitiveAnalysisCompareResponse(
             your_product=your_product,
             competitor=competitor,
+            accepted=self.accepted,
+            accept_reject_reason=self.accept_reject_reason,
+            accept_reject_by=self.accept_reject_by,
         )
 
     def to_competitive_device_analysis_response(
