@@ -4,6 +4,10 @@ from beanie import Document, PydanticObjectId
 from pydantic import Field
 
 from src.modules.company.models import Company
+from src.modules.product.product_profile.analyze_product_profile_progress import (
+    get_analyze_product_profile_progress,
+)
+from src.modules.product.product_profile.schema import AnalyzingStatus
 from src.modules.product.storage import get_product_avatar_url
 from src.modules.user.service import get_user_by_id
 from src.modules.product.schema import ProductResponse
@@ -78,21 +82,15 @@ class Product(Document):
         try:
             from src.modules.product.product_profile.model import (
                 ProductProfile,
-                AnalyzeProductProfileProgress,
             )
 
             product_profile = await ProductProfile.find_one(
                 ProductProfile.product_id == str(self.id)
             )
-            analyze_progress = await AnalyzeProductProfileProgress.find_one(
-                AnalyzeProductProfileProgress.product_id == str(self.id)
-            )
-
             # Extract product profile fields
             description = product_profile.description if product_profile else None
             fda_approved = product_profile.fda_approved if product_profile else None
             ce_marked = product_profile.ce_marked if product_profile else None
-
             # Extract additional product profile fields
             reference_number = (
                 product_profile.reference_number if product_profile else None
@@ -132,24 +130,11 @@ class Product(Document):
             price = product_profile.price if product_profile else None
             instructions = product_profile.instructions if product_profile else None
             type_of_use = product_profile.type_of_use if product_profile else None
-
-            # Determine analyzing status
-            analyzing_status = None
-            if analyze_progress:
-                if analyze_progress.processed_files < analyze_progress.total_files:
-                    analyzing_status = "In_Progress"
-                else:
-                    analyzing_status = "Completed"
-            elif product_profile:
-                analyzing_status = "Completed"
-            else:
-                analyzing_status = "Pending"
         except ImportError:
             # Fallback if import fails
             description = None
             fda_approved = None
             ce_marked = None
-            analyzing_status = "Pending"
             # Additional product profile fields fallback
             reference_number = None
             regulatory_pathway = None
@@ -165,6 +150,10 @@ class Product(Document):
             price = None
             instructions = None
             type_of_use = None
+
+        analyze_product_profile_progress = await get_analyze_product_profile_progress(
+            self.id,
+        )
 
         return ProductResponse(
             id=str(self.id),
@@ -182,11 +171,15 @@ class Product(Document):
             updated_at=self.updated_at,
             edit_locked=self.edit_locked,
             is_active_profile=is_active_profile,
+            analyzing_status=(
+                analyze_product_profile_progress.to_analyze_product_profile_progress_response().analyzing_status
+                if analyze_product_profile_progress
+                else AnalyzingStatus.PENDING
+            ),
             # Product Profile fields
             description=description,
             fda_approved=fda_approved,
             ce_marked=ce_marked,
-            analyzing_status=analyzing_status,
             # Additional Product Profile fields
             reference_number=reference_number,
             regulatory_pathway=regulatory_pathway,

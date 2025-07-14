@@ -4,6 +4,7 @@ from typing import Literal
 from uuid import uuid4
 from pydantic import BaseModel, Field
 
+from src.modules.product.product_profile.schema import AnalyzingStatus
 from src.modules.user.schemas import UserResponse
 
 
@@ -92,6 +93,9 @@ class ProductResponse(BaseModel):
     is_active_profile: bool = Field(
         default=False,
         description="Indicates if this is the active profile for the company",
+    )
+    analyzing_status: AnalyzingStatus = Field(
+        ..., description="Current status of the product analysis"
     )
     # Product Profile fields
     description: str | None = Field(None, description="Description of the product")

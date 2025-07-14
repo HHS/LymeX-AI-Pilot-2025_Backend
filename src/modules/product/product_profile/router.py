@@ -4,6 +4,10 @@ from fastapi import APIRouter, Depends, HTTPException, status, Form, File, Uploa
 import httpx
 
 from src.modules.authentication.dependencies import get_current_user
+from src.modules.product.product_profile.analyze_product_profile_progress import (
+    AnalyzeProductProfileProgress,
+    get_analyze_product_profile_progress,
+)
 from src.modules.product.product_profile.storage import (
     delete_product_profile_document,
     get_product_profile_documents,
@@ -13,8 +17,6 @@ from src.modules.user.models import User
 from src.celery.tasks.analyze_product_profile import analyze_product_profile_task
 from src.modules.product.product_profile.service import (
     create_audit_record,
-    get_analyze_product_profile_progress,
-    get_analyze_product_profile_progress_or_default,
     get_product_profile,
     get_product_documents,
 )
@@ -33,7 +35,6 @@ from src.modules.product.dependencies import (
 )
 from src.modules.product.models import Product
 from src.modules.product.product_profile.model import (
-    AnalyzeProductProfileProgress,
     ProductProfile,
     ProductProfileAudit,
 )
@@ -48,14 +49,8 @@ async def get_product_profile_handler(
 ) -> ProductProfileResponse:
     product_response = await product.to_product_response()
     product_profile = await get_product_profile(product.id)
-
-    analyze_product_profile_progress = (
-        await get_analyze_product_profile_progress_or_default(
-            product.id,
-        )
-    )
-    progress_response = (
-        analyze_product_profile_progress.to_analyze_product_profile_progress_response()
+    analyze_product_profile_progress = await get_analyze_product_profile_progress(
+        product.id,
     )
 
     # Get all documents for the product
@@ -83,7 +78,11 @@ async def get_product_profile_handler(
         )
     profile_response = product_profile.to_product_profile_response(
         product_response,
-        progress_response,
+        (
+            analyze_product_profile_progress.to_analyze_product_profile_progress_response()
+            if analyze_product_profile_progress
+            else None
+        ),
     )
     # Add documents and latest audits to the response
     profile_response.documents = documents
@@ -123,17 +122,16 @@ async def update_product_profile_handler(
                 setattr(product, field, value)
         if have_update:
             await product_profile.save()
-    analyze_product_profile_progress = (
-        await get_analyze_product_profile_progress_or_default(
-            product.id,
-        )
-    )
-    progress_response = (
-        analyze_product_profile_progress.to_analyze_product_profile_progress_response()
+    analyze_product_profile_progress = await get_analyze_product_profile_progress(
+        product.id,
     )
     product_profile_response = product_profile.to_product_profile_response(
         product_response,
-        progress_response,
+        (
+            analyze_product_profile_progress.to_analyze_product_profile_progress_response()
+            if analyze_product_profile_progress
+            else None
+        ),
     )
     await create_audit_record(
         product,
@@ -153,6 +151,8 @@ async def get_analyze_product_profile_progress_handler(
     )
     return (
         analyze_product_profile_progress.to_analyze_product_profile_progress_response()
+        if analyze_product_profile_progress
+        else None
     )
 
 
@@ -273,17 +273,16 @@ async def get_product_profile_analysis_handler(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Product profile not found. Please run analysis first.",
         )
-    analyze_product_profile_progress = (
-        await get_analyze_product_profile_progress_or_default(
-            product.id,
-        )
-    )
-    progress_response = (
-        analyze_product_profile_progress.to_analyze_product_profile_progress_response()
+    analyze_product_profile_progress = await get_analyze_product_profile_progress(
+        product.id,
     )
     analysis = product_profile.to_product_profile_analysis_response(
         product,
-        progress_response,
+        (
+            analyze_product_profile_progress.to_analyze_product_profile_progress_response()
+            if analyze_product_profile_progress
+            else None
+        ),
     )
     return analysis
 

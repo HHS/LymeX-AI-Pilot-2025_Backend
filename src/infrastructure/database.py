@@ -6,6 +6,9 @@ from src.infrastructure.init.init_system_admin_user import init_system_admin_use
 from src.modules.product.clinical_trial.model import ClinicalTrial
 from src.modules.product.feature_status.model import FeaturesStatus
 from src.modules.product.performance_testing.model import PerformanceTesting
+from src.modules.product.product_profile.analyze_product_profile_progress import (
+    AnalyzeProductProfileProgress,
+)
 from src.modules.product.regulatory_pathway.model import (
     AnalyzeRegulatoryPathwayProgress,
     RegulatoryPathway,
@@ -19,7 +22,6 @@ from src.modules.product.claim_builder.model import (
     ClaimBuilder,
 )
 from src.modules.product.product_profile.model import (
-    AnalyzeProductProfileProgress,
     ProductProfile,
     ProductProfileAudit,
 )
