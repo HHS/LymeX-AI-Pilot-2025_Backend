@@ -5,6 +5,7 @@ import httpx
 
 from src.modules.authentication.dependencies import get_current_user
 from src.modules.product.product_profile.analyze_product_profile_progress import (
+    AnalyzeProductProfileProgress,
     get_analyze_product_profile_progress,
 )
 from src.modules.product.product_profile.storage import (
@@ -34,7 +35,6 @@ from src.modules.product.dependencies import (
 )
 from src.modules.product.models import Product
 from src.modules.product.product_profile.model import (
-    AnalyzeProductProfileProgress,
     ProductProfile,
     ProductProfileAudit,
 )
