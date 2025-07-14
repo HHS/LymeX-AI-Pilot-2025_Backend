@@ -324,7 +324,9 @@ async def accept_competitive_analysis_handler(
 
     competitive_analysis.accepted = payload.accepted
     competitive_analysis.accept_reject_reason = payload.accept_reject_reason
-    competitive_analysis.accept_reject_by = f"{current_user.first_name} {current_user.last_name}"
+    competitive_analysis.accept_reject_by = (
+        f"{current_user.first_name} {current_user.last_name}"
+    )
     await competitive_analysis.save()
 
     await create_audit_record(

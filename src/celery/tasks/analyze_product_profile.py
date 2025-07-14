@@ -5,7 +5,9 @@ from fastapi import HTTPException
 import httpx
 from loguru import logger
 from src.environment import environment
-from src.modules.product.product_profile.analyze_product_profile_progress import AnalyzeProductProfileProgress
+from src.modules.product.product_profile.analyze_product_profile_progress import (
+    AnalyzeProductProfileProgress,
+)
 from src.modules.product.product_profile.schema import Feature, Performance
 from src.modules.product.product_profile.model import (
     ProductProfile,

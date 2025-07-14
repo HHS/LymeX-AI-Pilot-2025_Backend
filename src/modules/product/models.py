@@ -4,7 +4,9 @@ from beanie import Document, PydanticObjectId
 from pydantic import Field
 
 from src.modules.company.models import Company
-from src.modules.product.product_profile.analyze_product_profile_progress import get_analyze_product_profile_progress
+from src.modules.product.product_profile.analyze_product_profile_progress import (
+    get_analyze_product_profile_progress,
+)
 from src.modules.product.product_profile.schema import AnalyzingStatus
 from src.modules.product.storage import get_product_avatar_url
 from src.modules.user.service import get_user_by_id
@@ -84,8 +86,7 @@ class Product(Document):
 
             product_profile = await ProductProfile.find_one(
                 ProductProfile.product_id == str(self.id)
-            )\
-
+            )
             # Extract product profile fields
             description = product_profile.description if product_profile else None
             fda_approved = product_profile.fda_approved if product_profile else None

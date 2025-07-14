@@ -2,7 +2,9 @@ from datetime import datetime, timezone
 from typing import Any
 from beanie import PydanticObjectId
 from src.modules.product.models import Product
-from src.modules.product.product_profile.analyze_product_profile_progress import AnalyzeProductProfileProgress
+from src.modules.product.product_profile.analyze_product_profile_progress import (
+    AnalyzeProductProfileProgress,
+)
 from src.modules.product.product_profile.model import (
     ProductProfile,
     ProductProfileAudit,
