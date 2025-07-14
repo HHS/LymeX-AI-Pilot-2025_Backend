@@ -38,6 +38,24 @@ async def get_analyze_product_profile_progress(
     return analyze_product_profile_progress
 
 
+async def get_analyze_product_profile_progress_or_default(
+    product_id: str | PydanticObjectId,
+) -> AnalyzeProductProfileProgress:
+    """Get analyze progress or return a default one if not found"""
+    analyze_product_profile_progress = await AnalyzeProductProfileProgress.find_one(
+        AnalyzeProductProfileProgress.product_id == str(product_id),
+    )
+    if not analyze_product_profile_progress:
+        # Return a default progress object
+        analyze_product_profile_progress = AnalyzeProductProfileProgress(
+            product_id=str(product_id),
+            total_files=0,
+            processed_files=0,
+            updated_at=datetime.now(timezone.utc),
+        )
+    return analyze_product_profile_progress
+
+
 async def delete_product_profile(
     product_id: str,
 ) -> None:

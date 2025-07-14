@@ -14,6 +14,7 @@ from src.celery.tasks.analyze_product_profile import analyze_product_profile_tas
 from src.modules.product.product_profile.service import (
     create_audit_record,
     get_analyze_product_profile_progress,
+    get_analyze_product_profile_progress_or_default,
     get_product_profile,
     get_product_documents,
 )
@@ -47,9 +48,11 @@ async def get_product_profile_handler(
 ) -> ProductProfileResponse:
     product_response = await product.to_product_response()
     product_profile = await get_product_profile(product.id)
-    analyze_product_profile_progress = await get_analyze_product_profile_progress(
+    
+    analyze_product_profile_progress = await get_analyze_product_profile_progress_or_default(
         product.id,
     )
+    progress_response = analyze_product_profile_progress.to_analyze_product_profile_progress_response()
 
     # Get all documents for the product
     documents = await get_product_documents(str(product.id))
@@ -76,7 +79,7 @@ async def get_product_profile_handler(
         )
     profile_response = product_profile.to_product_profile_response(
         product_response,
-        analyze_product_profile_progress.to_analyze_product_profile_progress_response(),
+        progress_response,
     )
     # Add documents and latest audits to the response
     profile_response.documents = documents
@@ -116,12 +119,13 @@ async def update_product_profile_handler(
                 setattr(product, field, value)
         if have_update:
             await product_profile.save()
-    analyze_product_profile_progress = await get_analyze_product_profile_progress(
+    analyze_product_profile_progress = await get_analyze_product_profile_progress_or_default(
         product.id,
     )
+    progress_response = analyze_product_profile_progress.to_analyze_product_profile_progress_response()
     product_profile_response = product_profile.to_product_profile_response(
         product_response,
-        analyze_product_profile_progress.to_analyze_product_profile_progress_response(),
+        progress_response,
     )
     await create_audit_record(
         product,
@@ -253,12 +257,13 @@ async def get_product_profile_analysis_handler(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Product profile not found. Please run analysis first.",
         )
-    analyze_product_profile_progress = await get_analyze_product_profile_progress(
+    analyze_product_profile_progress = await get_analyze_product_profile_progress_or_default(
         product.id,
     )
+    progress_response = analyze_product_profile_progress.to_analyze_product_profile_progress_response()
     analysis = product_profile.to_product_profile_analysis_response(
         product,
-        analyze_product_profile_progress.to_analyze_product_profile_progress_response(),
+        progress_response,
     )
     return analysis
 
