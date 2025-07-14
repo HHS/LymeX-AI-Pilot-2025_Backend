@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
-from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException, status
+from typing import Annotated, List
+from fastapi import APIRouter, Depends, HTTPException, status, Form, File, UploadFile
 import httpx
 
 from src.modules.authentication.dependencies import get_current_user
@@ -18,6 +18,7 @@ from src.modules.product.product_profile.service import (
     get_product_profile,
     get_product_documents,
 )
+from src.modules.product.service import upload_product_files
 from src.modules.product.product_profile.schema import (
     AnalyzeProductProfileProgressResponse,
     ProductProfileAnalysisResponse,
@@ -25,7 +26,6 @@ from src.modules.product.product_profile.schema import (
     ProductProfileDocumentResponse,
     ProductProfileResponse,
     UpdateProductProfileRequest,
-    UploadTextInputDocumentRequest,
 )
 from src.modules.product.dependencies import (
     check_product_edit_allowed,
@@ -202,29 +202,37 @@ async def get_upload_product_profile_document_url_handler(
 
 @router.put("/document/text-input")
 async def upload_product_profile_text_input_handler(
-    payload: UploadTextInputDocumentRequest,
     product: Annotated[Product, Depends(get_current_product)],
     current_user: Annotated[User, Depends(get_current_user)],
     _: Annotated[bool, Depends(check_product_edit_allowed)],
+    text: str | None = Form(None, description="Text input for the document"),
+    files: List[UploadFile] = File([], description="Files to upload"),
 ) -> None:
-    upload_url = await get_upload_product_profile_document_url(
-        str(product.id),
-        {
-            "file_name": "TextInput.txt",
-            "author": current_user.email,
-        },
-    )
-    async with httpx.AsyncClient() as client:
-        await client.put(
-            upload_url,
-            data=payload.text,
-            headers={"Content-Type": "text/plain"},
+    # Upload text if provided
+    if text:
+        upload_url = await get_upload_product_profile_document_url(
+            str(product.id),
+            {
+                "file_name": "TextInput.txt",
+                "author": current_user.email,
+            },
         )
+        async with httpx.AsyncClient() as client:
+            await client.put(
+                upload_url,
+                data=text,
+                headers={"Content-Type": "text/plain"},
+            )
+    
+    # Upload files if provided
+    if files:
+        await upload_product_files(str(product.id), files, current_user)
+    
     await create_audit_record(
         product,
         current_user,
-        "Upload product profile text input",
-        payload.model_dump(),
+        "Upload product profile text input and files",
+        {"text_provided": text is not None, "files_count": len(files)},
     )
 
 

@@ -134,15 +134,19 @@ async def clone_product_profile(
 
 async def get_product_documents(product_id: str) -> list[dict]:
     """Get all documents uploaded for a product"""
-    # Get all files from the product files folder
-    product_folder = get_product_folder(product_id)
-    files_folder = f"{product_folder}/files/"
+    from src.modules.product.product_profile.storage import (
+        get_product_profile_folder,
+        analyze_profile_document_info,
+    )
+    
+    # Get all files from the product profile folder
+    folder = get_product_profile_folder(product_id)
 
-    # List all objects in the product files folder
+    # List all objects in the product profile folder
     objects = await asyncio.to_thread(
         minio_client.list_objects,
         bucket_name=environment.minio_bucket,
-        prefix=files_folder,
+        prefix=folder,
         recursive=True,
     )
 
@@ -156,17 +160,18 @@ async def get_product_documents(product_id: str) -> list[dict]:
         url = await generate_get_object_presigned_url(obj.object_name)
 
         # Extract filename from object name
-        filename = obj.object_name.split("/")[-1]
-
-        # Remove UUID prefix if present (from our upload logic)
-        if "_" in filename:
-            parts = filename.split("_", 1)
-            if len(parts) == 2:
-                original_filename = parts[1]
-            else:
-                original_filename = filename
-        else:
-            original_filename = filename
+        document_name = obj.object_name.split("/")[-1]
+        
+        try:
+            # Decode the Avro-encoded filename to get original filename and author
+            encoded_name = document_name.split(".")[0]  # Remove file extension
+            profile_document_info = analyze_profile_document_info(encoded_name)
+            original_filename = profile_document_info["file_name"]
+            author = profile_document_info["author"]
+        except Exception as e:
+            # Fallback for any decoding errors
+            original_filename = document_name
+            author = "Unknown"
 
         documents.append(
             {
@@ -176,7 +181,7 @@ async def get_product_documents(product_id: str) -> list[dict]:
                 "uploaded_at": (
                     obj.last_modified.isoformat() if obj.last_modified else ""
                 ),
-                "author": "System",  # We don't track author in MinIO metadata
+                "author": author,
                 "size": obj.size,
             }
         )
