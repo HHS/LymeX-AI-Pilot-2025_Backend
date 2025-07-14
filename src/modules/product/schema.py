@@ -108,6 +108,43 @@ class ProductResponse(BaseModel):
     analyzing_status: Literal["Pending", "In_Progress", "Completed"] | None = Field(
         None, description="Current status of the product analysis"
     )
+    # Additional Product Profile fields
+    reference_number: str | None = Field(
+        None, description="Reference number of the product"
+    )
+    regulatory_pathway: str | None = Field(
+        None, description="Regulatory pathway of the product"
+    )
+    regulatory_classifications: list[dict] | None = Field(
+        None, description="Regulatory classifications of the product"
+    )
+    device_description: str | None = Field(
+        None, description="Description of the device associated with the product"
+    )
+    features: list[dict] | None = Field(
+        None, description="List of features associated with the product"
+    )
+    claims: list[str] | None = Field(
+        None, description="List of claims associated with the product"
+    )
+    conflict_alerts: list[str] | None = Field(
+        None, description="List of conflict alerts associated with the product"
+    )
+    device_ifu_description: str | None = Field(
+        None, description="Device IFU description"
+    )
+    confidence_score: float | None = Field(
+        None, description="Confidence score of the analysis"
+    )
+    sources: list[str] | None = Field(None, description="Sources used for the analysis")
+    performance: dict | None = Field(
+        None, description="Performance metrics of the product"
+    )
+    price: int | None = Field(None, description="Price of the product")
+    instructions: list[str] | None = Field(
+        None, description="Instructions for the product"
+    )
+    type_of_use: str | None = Field(None, description="Type of use for the product")
 
 
 class UploadDocumentUrlResponse(BaseModel):

@@ -54,7 +54,8 @@ class UpdateProductProfileRequest(BaseModel):
 
 
 class UploadTextInputDocumentRequest(BaseModel):
-    text: str = Field(..., description="Text input for the document")
+    text: str | None = Field(None, description="Text input for the document")
+    files: list[str] | None = Field(None, description="List of file names to upload")
 
 
 # ============================

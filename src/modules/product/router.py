@@ -133,22 +133,27 @@ async def create_product_handler(
     files: List[UploadFile] = File([], description="Files to upload with the product"),
 ) -> ProductResponse:
     # Create payload from form data
-    payload = CreateProductRequest(
-        name=name,
-        code=code,
-        model=model,
-        revision=revision,
-        category=category,
-        intend_use=intend_use,
-        patient_contact=patient_contact,
-    )
+    payload_data = {
+        "name": name,
+        "model": model,
+        "revision": revision,
+        "category": category,
+        "intend_use": intend_use,
+        "patient_contact": patient_contact,
+    }
+
+    # Only include code if it's not None to allow default factory to work
+    if code is not None:
+        payload_data["code"] = code
+
+    payload = CreateProductRequest(**payload_data)
 
     # Create the product
     created_product = await create_product(payload, current_user, current_company)
 
     # Upload files if provided
     if files:
-        await upload_product_files(str(created_product.id), files)
+        await upload_product_files(str(created_product.id), files, current_user)
 
     created_product_response = await created_product.to_product_response()
     await create_audit_record(

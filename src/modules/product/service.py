@@ -13,6 +13,8 @@ from src.celery.tasks.analyze_regulatory_pathway import analyze_regulatory_pathw
 from src.celery.tasks.analyze_test_comparison import analyze_test_comparison_task
 import io
 import uuid
+import base64
+import fastavro
 from fastapi import UploadFile
 from src.infrastructure.minio import list_objects, remove_object, minio_client
 from src.environment import environment
@@ -21,6 +23,39 @@ from src.modules.product.models import Product
 from src.modules.product.schema import CreateProductRequest
 from src.modules.product.storage import get_product_folder
 from src.modules.user.models import User
+
+
+# ================ PRODUCT PROFILE STORAGE FUNCTIONS ====================
+
+
+def get_product_profile_folder(product_id: str) -> str:
+    """Get the product profile folder path"""
+    product_folder = get_product_folder(product_id)
+    return f"{product_folder}/product_profile"
+
+
+PROFILE_DOCUMENT_INFO_SCHEMA = {
+    "type": "record",
+    "name": "Document",
+    "fields": [
+        {"name": "file_name", "type": "string"},
+        {"name": "author", "type": "string"},
+    ],
+}
+
+
+def encode_profile_document_info(profile_document_info: dict) -> str:
+    """Encode profile document info using Avro and base64"""
+    buffer = io.BytesIO()
+    fastavro.schemaless_writer(
+        buffer,
+        PROFILE_DOCUMENT_INFO_SCHEMA,
+        profile_document_info,
+    )
+    raw_bytes = buffer.getvalue()
+    encoded = base64.urlsafe_b64encode(raw_bytes).decode("utf-8")
+    document_name = encoded.rstrip("=")
+    return document_name
 
 
 async def get_products(
@@ -104,14 +139,27 @@ def analyze_all(
     analyze_test_comparison_task.delay(product_id)
 
 
-async def upload_product_files(product_id: str, files: list[UploadFile]) -> list[dict]:
-    """Upload files for a product to MinIO storage"""
+async def upload_product_files(
+    product_id: str, files: list[UploadFile], current_user: User
+) -> list[dict]:
     uploaded_files = []
 
     for file in files:
-        # Generate a unique filename to prevent overwriting
-        unique_filename = f"{uuid.uuid4()}_{file.filename}"
-        object_name = f"{get_product_folder(product_id)}/files/{unique_filename}"
+        # Create profile document info with author
+        profile_document_info = {
+            "file_name": file.filename,
+            "author": current_user.email,
+        }
+
+        # Encode the document info using the same mechanism
+        extension = file.filename.split(".")[-1]
+        document_name = encode_profile_document_info(profile_document_info)
+        document_name = f"{document_name}.{extension}"
+
+        # Use product profile folder path
+        folder = get_product_profile_folder(product_id)
+        object_name = f"{folder}/{document_name}"
+
         file_content = await file.read()
 
         minio_client.put_object(

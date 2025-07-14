@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 from typing import Any
 from beanie import PydanticObjectId
+from fastapi import HTTPException, status
 from src.modules.product.models import Product
 from src.modules.product.product_profile.analyze_product_profile_progress import (
     AnalyzeProductProfileProgress,
@@ -23,6 +24,38 @@ def get_profile_folder(
 ) -> str:
     product_folder = get_product_folder(company_id, product_id)
     return f"{product_folder}/profile"
+
+
+async def get_analyze_product_profile_progress(
+    product_id: str | PydanticObjectId,
+) -> AnalyzeProductProfileProgress:
+    analyze_product_profile_progress = await AnalyzeProductProfileProgress.find_one(
+        AnalyzeProductProfileProgress.product_id == str(product_id),
+    )
+    if not analyze_product_profile_progress:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Analyze product profile progress not found",
+        )
+    return analyze_product_profile_progress
+
+
+async def get_analyze_product_profile_progress_or_default(
+    product_id: str | PydanticObjectId,
+) -> AnalyzeProductProfileProgress:
+    """Get analyze progress or return a default one if not found"""
+    analyze_product_profile_progress = await AnalyzeProductProfileProgress.find_one(
+        AnalyzeProductProfileProgress.product_id == str(product_id),
+    )
+    if not analyze_product_profile_progress:
+        # Return a default progress object
+        analyze_product_profile_progress = AnalyzeProductProfileProgress(
+            product_id=str(product_id),
+            total_files=0,
+            processed_files=0,
+            updated_at=datetime.now(timezone.utc),
+        )
+    return analyze_product_profile_progress
 
 
 async def delete_product_profile(
@@ -103,15 +136,19 @@ async def clone_product_profile(
 
 async def get_product_documents(product_id: str) -> list[dict]:
     """Get all documents uploaded for a product"""
-    # Get all files from the product files folder
-    product_folder = get_product_folder(product_id)
-    files_folder = f"{product_folder}/files/"
+    from src.modules.product.product_profile.storage import (
+        get_product_profile_folder,
+        analyze_profile_document_info,
+    )
 
-    # List all objects in the product files folder
+    # Get all files from the product profile folder
+    folder = get_product_profile_folder(product_id)
+
+    # List all objects in the product profile folder
     objects = await asyncio.to_thread(
         minio_client.list_objects,
         bucket_name=environment.minio_bucket,
-        prefix=files_folder,
+        prefix=folder,
         recursive=True,
     )
 
@@ -125,17 +162,18 @@ async def get_product_documents(product_id: str) -> list[dict]:
         url = await generate_get_object_presigned_url(obj.object_name)
 
         # Extract filename from object name
-        filename = obj.object_name.split("/")[-1]
+        document_name = obj.object_name.split("/")[-1]
 
-        # Remove UUID prefix if present (from our upload logic)
-        if "_" in filename:
-            parts = filename.split("_", 1)
-            if len(parts) == 2:
-                original_filename = parts[1]
-            else:
-                original_filename = filename
-        else:
-            original_filename = filename
+        try:
+            # Decode the Avro-encoded filename to get original filename and author
+            encoded_name = document_name.split(".")[0]  # Remove file extension
+            profile_document_info = analyze_profile_document_info(encoded_name)
+            original_filename = profile_document_info["file_name"]
+            author = profile_document_info["author"]
+        except Exception as e:
+            # Fallback for any decoding errors
+            original_filename = document_name
+            author = "Unknown"
 
         documents.append(
             {
@@ -145,7 +183,7 @@ async def get_product_documents(product_id: str) -> list[dict]:
                 "uploaded_at": (
                     obj.last_modified.isoformat() if obj.last_modified else ""
                 ),
-                "author": "System",  # We don't track author in MinIO metadata
+                "author": author,
                 "size": obj.size,
             }
         )
