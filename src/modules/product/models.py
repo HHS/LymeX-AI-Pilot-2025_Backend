@@ -92,19 +92,43 @@ class Product(Document):
             description = product_profile.description if product_profile else None
             fda_approved = product_profile.fda_approved if product_profile else None
             ce_marked = product_profile.ce_marked if product_profile else None
-            
+
             # Extract additional product profile fields
-            reference_number = product_profile.reference_number if product_profile else None
-            regulatory_pathway = product_profile.regulatory_pathway if product_profile else None
-            regulatory_classifications = [rc.model_dump() for rc in product_profile.regulatory_classifications] if product_profile and product_profile.regulatory_classifications else None
-            device_description = product_profile.device_description if product_profile else None
-            features = [feature.model_dump() for feature in product_profile.features] if product_profile and product_profile.features else None
+            reference_number = (
+                product_profile.reference_number if product_profile else None
+            )
+            regulatory_pathway = (
+                product_profile.regulatory_pathway if product_profile else None
+            )
+            regulatory_classifications = (
+                [rc.model_dump() for rc in product_profile.regulatory_classifications]
+                if product_profile and product_profile.regulatory_classifications
+                else None
+            )
+            device_description = (
+                product_profile.device_description if product_profile else None
+            )
+            features = (
+                [feature.model_dump() for feature in product_profile.features]
+                if product_profile and product_profile.features
+                else None
+            )
             claims = product_profile.claims if product_profile else None
-            conflict_alerts = product_profile.conflict_alerts if product_profile else None
-            device_ifu_description = product_profile.device_ifu_description if product_profile else None
-            confidence_score = product_profile.confidence_score if product_profile else None
+            conflict_alerts = (
+                product_profile.conflict_alerts if product_profile else None
+            )
+            device_ifu_description = (
+                product_profile.device_ifu_description if product_profile else None
+            )
+            confidence_score = (
+                product_profile.confidence_score if product_profile else None
+            )
             sources = product_profile.sources if product_profile else None
-            performance = product_profile.performance.model_dump() if product_profile and product_profile.performance else None
+            performance = (
+                product_profile.performance.model_dump()
+                if product_profile and product_profile.performance
+                else None
+            )
             price = product_profile.price if product_profile else None
             instructions = product_profile.instructions if product_profile else None
             type_of_use = product_profile.type_of_use if product_profile else None

@@ -48,11 +48,15 @@ async def get_product_profile_handler(
 ) -> ProductProfileResponse:
     product_response = await product.to_product_response()
     product_profile = await get_product_profile(product.id)
-    
-    analyze_product_profile_progress = await get_analyze_product_profile_progress_or_default(
-        product.id,
+
+    analyze_product_profile_progress = (
+        await get_analyze_product_profile_progress_or_default(
+            product.id,
+        )
     )
-    progress_response = analyze_product_profile_progress.to_analyze_product_profile_progress_response()
+    progress_response = (
+        analyze_product_profile_progress.to_analyze_product_profile_progress_response()
+    )
 
     # Get all documents for the product
     documents = await get_product_documents(str(product.id))
@@ -119,10 +123,14 @@ async def update_product_profile_handler(
                 setattr(product, field, value)
         if have_update:
             await product_profile.save()
-    analyze_product_profile_progress = await get_analyze_product_profile_progress_or_default(
-        product.id,
+    analyze_product_profile_progress = (
+        await get_analyze_product_profile_progress_or_default(
+            product.id,
+        )
     )
-    progress_response = analyze_product_profile_progress.to_analyze_product_profile_progress_response()
+    progress_response = (
+        analyze_product_profile_progress.to_analyze_product_profile_progress_response()
+    )
     product_profile_response = product_profile.to_product_profile_response(
         product_response,
         progress_response,
@@ -223,11 +231,11 @@ async def upload_product_profile_text_input_handler(
                 data=text,
                 headers={"Content-Type": "text/plain"},
             )
-    
+
     # Upload files if provided
     if files:
         await upload_product_files(str(product.id), files, current_user)
-    
+
     await create_audit_record(
         product,
         current_user,
@@ -265,10 +273,14 @@ async def get_product_profile_analysis_handler(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Product profile not found. Please run analysis first.",
         )
-    analyze_product_profile_progress = await get_analyze_product_profile_progress_or_default(
-        product.id,
+    analyze_product_profile_progress = (
+        await get_analyze_product_profile_progress_or_default(
+            product.id,
+        )
     )
-    progress_response = analyze_product_profile_progress.to_analyze_product_profile_progress_response()
+    progress_response = (
+        analyze_product_profile_progress.to_analyze_product_profile_progress_response()
+    )
     analysis = product_profile.to_product_profile_analysis_response(
         product,
         progress_response,

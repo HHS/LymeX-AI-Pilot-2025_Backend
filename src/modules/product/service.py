@@ -27,6 +27,7 @@ from src.modules.user.models import User
 
 # ================ PRODUCT PROFILE STORAGE FUNCTIONS ====================
 
+
 def get_product_profile_folder(product_id: str) -> str:
     """Get the product profile folder path"""
     product_folder = get_product_folder(product_id)
@@ -138,7 +139,9 @@ def analyze_all(
     analyze_test_comparison_task.delay(product_id)
 
 
-async def upload_product_files(product_id: str, files: list[UploadFile], current_user: User) -> list[dict]:
+async def upload_product_files(
+    product_id: str, files: list[UploadFile], current_user: User
+) -> list[dict]:
     uploaded_files = []
 
     for file in files:
@@ -147,16 +150,16 @@ async def upload_product_files(product_id: str, files: list[UploadFile], current
             "file_name": file.filename,
             "author": current_user.email,
         }
-        
+
         # Encode the document info using the same mechanism
         extension = file.filename.split(".")[-1]
         document_name = encode_profile_document_info(profile_document_info)
         document_name = f"{document_name}.{extension}"
-        
+
         # Use product profile folder path
         folder = get_product_profile_folder(product_id)
         object_name = f"{folder}/{document_name}"
-        
+
         file_content = await file.read()
 
         minio_client.put_object(

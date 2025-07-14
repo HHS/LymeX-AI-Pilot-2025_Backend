@@ -141,11 +141,11 @@ async def create_product_handler(
         "intend_use": intend_use,
         "patient_contact": patient_contact,
     }
-    
+
     # Only include code if it's not None to allow default factory to work
     if code is not None:
         payload_data["code"] = code
-    
+
     payload = CreateProductRequest(**payload_data)
 
     # Create the product

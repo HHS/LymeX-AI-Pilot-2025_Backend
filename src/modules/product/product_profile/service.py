@@ -138,7 +138,7 @@ async def get_product_documents(product_id: str) -> list[dict]:
         get_product_profile_folder,
         analyze_profile_document_info,
     )
-    
+
     # Get all files from the product profile folder
     folder = get_product_profile_folder(product_id)
 
@@ -161,7 +161,7 @@ async def get_product_documents(product_id: str) -> list[dict]:
 
         # Extract filename from object name
         document_name = obj.object_name.split("/")[-1]
-        
+
         try:
             # Decode the Avro-encoded filename to get original filename and author
             encoded_name = document_name.split(".")[0]  # Remove file extension
