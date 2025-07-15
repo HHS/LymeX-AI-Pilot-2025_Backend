@@ -336,7 +336,7 @@ async def clone_product_handler(
         new_name = payload.updated_fields.name
         if not new_name:
             new_name = f"{product.name} (Clone)"
-        
+
         # Check if product name already exists for this company
         if new_name and new_name != product.name:
             product_name_exists = await Product.find_one(
@@ -348,9 +348,9 @@ async def clone_product_handler(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail="Product name already exists for this company.",
                 )
-        
+
         new_product.name = new_name
-        
+
         possible_fields = [
             "code",
             "model",

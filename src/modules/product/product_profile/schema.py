@@ -141,7 +141,8 @@ class ProductProfileResponse(BaseModel):
         default=[], description="Last three audit records for this product"
     )
     is_active_profile: bool = Field(
-        ..., description="Indicates if this product is the active profile for the company"
+        ...,
+        description="Indicates if this product is the active profile for the company",
     )
 
 

@@ -102,12 +102,12 @@ async def get_product_profile_handler(
 
     # Calculate is_active_profile
     is_active_profile = await calculate_is_active_profile(product)
-    
+
     if not product_profile:
         # Exclude is_active_profile from product_response since we're passing it explicitly
         product_data = product_response.model_dump()
-        product_data.pop('is_active_profile', None)
-        
+        product_data.pop("is_active_profile", None)
+
         return ProductProfileResponse(
             **product_data,
             documents=documents,
