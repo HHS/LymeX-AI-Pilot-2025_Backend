@@ -140,6 +140,9 @@ class ProductProfileResponse(BaseModel):
     latest_audits: list[ProductProfileAuditResponse] = Field(
         default=[], description="Last three audit records for this product"
     )
+    is_active_profile: bool = Field(
+        ..., description="Indicates if this product is the active profile for the company"
+    )
 
 
 class AnalyzeProductProfileProgressResponse(BaseModel):

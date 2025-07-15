@@ -20,6 +20,7 @@ from src.modules.product.product_profile.service import (
     get_product_profile,
     get_product_documents,
 )
+from src.modules.company.models import Company
 from src.modules.product.service import upload_product_files
 from src.modules.product.product_profile.schema import (
     AnalyzeProductProfileProgressResponse,
@@ -41,6 +42,35 @@ from src.modules.product.product_profile.model import (
 
 
 router = APIRouter()
+
+
+async def calculate_is_active_profile(product: Product) -> bool:
+    """Calculate if the product is the active profile for the company"""
+    try:
+        # Get the company to check for active_product_id
+        company = await Company.get(product.company_id)
+        if company:
+            # 0. HIGHEST PRECEDENCE: Check if company has an active product set
+            if company.active_product_id:
+                return str(product.id) == company.active_product_id
+            else:
+                # If no active product set, check if this is the most recently updated product
+                # Get all products for this company
+                from src.modules.product.models import Product
+
+                products = await Product.find(
+                    Product.company_id == product.company_id,
+                ).to_list()
+
+                if products:
+                    # Find the most recently updated product
+                    most_recent_product = max(products, key=lambda p: p.updated_at)
+                    return product.id == most_recent_product.id
+        return False
+    except Exception as e:
+        # If there's any error, default to False
+        print(f"Error calculating is_active_profile for product {product.id}: {e}")
+        return False
 
 
 @router.get("/")
@@ -70,11 +100,19 @@ async def get_product_profile_handler(
         for i, audit in enumerate(audits)
     ]
 
+    # Calculate is_active_profile
+    is_active_profile = await calculate_is_active_profile(product)
+    
     if not product_profile:
+        # Exclude is_active_profile from product_response since we're passing it explicitly
+        product_data = product_response.model_dump()
+        product_data.pop('is_active_profile', None)
+        
         return ProductProfileResponse(
-            **product_response.model_dump(),
+            **product_data,
             documents=documents,
             latest_audits=latest_audits,
+            is_active_profile=is_active_profile,
         )
     profile_response = product_profile.to_product_profile_response(
         product_response,
@@ -87,6 +125,7 @@ async def get_product_profile_handler(
     # Add documents and latest audits to the response
     profile_response.documents = documents
     profile_response.latest_audits = latest_audits
+    profile_response.is_active_profile = is_active_profile
     return profile_response
 
 
