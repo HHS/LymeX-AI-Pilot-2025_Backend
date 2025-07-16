@@ -43,51 +43,6 @@ class UploadTextInputDocumentRequest(BaseModel):
     competitor_name: str = Field(..., description="Competitor name of the document")
 
 
-# ============================
-# Competitive Analysis Response
-# ============================
-
-
-class CompetitiveAnalysisResponse(BaseModel):
-    id: str = Field(..., description="ID of the competitive analysis")
-    product_name: str = Field(..., description="Name of the product")
-    reference_number: str = Field(
-        ..., description="Reference Number of the competitive analysis"
-    )
-    regulatory_pathway: str = Field(
-        ..., description="Regulatory pathway for the product"
-    )
-    fda_approved: bool = Field(
-        ..., description="Indicates if the product is FDA approved"
-    )
-    ce_marked: bool = Field(..., description="Indicates if the product is CE marked")
-    is_ai_generated: bool = Field(
-        ..., description="Indicates if the analysis is AI generated"
-    )
-    use_system_data: bool = Field(
-        ..., description="Indicates if system data is used in the analysis"
-    )
-    confidence_score: float = Field(
-        ..., description="Confidence score of the competitive analysis"
-    )
-    sources: list[str] = Field(
-        ..., description="List of sources for the competitive analysis"
-    )
-    accepted: bool | None = Field(
-        None, description="Indicates if the competitive analysis is accepted"
-    )
-    accept_reject_reason: str | None = Field(
-        None,
-        description="Reason for acceptance or rejection of the competitive analysis",
-    )
-    accept_reject_by: str | None = Field(
-        None, description="User who accepted or rejected the competitive analysis"
-    )
-
-
-class CompetitiveAnalysisDetailResponse(BaseModel): ...
-
-
 class CompetitiveAnalysisCompareSummary(BaseModel):
     title: str = Field(..., description="Title of the summary")
     summary: str = Field(..., description="Summary of the competitive analysis item")
@@ -411,4 +366,44 @@ class AcceptCompetitiveAnalysisRequest(BaseModel):
 class AnalyzingStatusResponse(BaseModel):
     analyzing_status: AnalyzingStatus = Field(
         ..., description="Current status of the product analysis"
+    )
+
+
+class CompetitiveAnalysisResponse(BaseModel):
+    id: str = Field(..., description="ID of the competitive analysis")
+    product_name: str = Field(..., description="Name of the product")
+    reference_number: str = Field(
+        ..., description="Reference Number of the competitive analysis"
+    )
+    regulatory_pathway: str = Field(
+        ..., description="Regulatory pathway for the product"
+    )
+    fda_approved: bool = Field(
+        ..., description="Indicates if the product is FDA approved"
+    )
+    ce_marked: bool = Field(..., description="Indicates if the product is CE marked")
+    is_ai_generated: bool = Field(
+        ..., description="Indicates if the analysis is AI generated"
+    )
+    use_system_data: bool = Field(
+        ..., description="Indicates if system data is used in the analysis"
+    )
+    confidence_score: float = Field(
+        ..., description="Confidence score of the competitive analysis"
+    )
+    sources: list[str] = Field(
+        ..., description="List of sources for the competitive analysis"
+    )
+    accepted: bool | None = Field(
+        None, description="Indicates if the competitive analysis is accepted"
+    )
+    accept_reject_reason: str | None = Field(
+        None,
+        description="Reason for acceptance or rejection of the competitive analysis",
+    )
+    accept_reject_by: str | None = Field(
+        None, description="User who accepted or rejected the competitive analysis"
+    )
+    comparison: CompetitiveAnalysisCompareResponse | None = Field(
+        None, description="Comparison details of the competitive analysis"
     )
