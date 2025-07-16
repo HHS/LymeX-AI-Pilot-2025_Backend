@@ -60,9 +60,7 @@ async def get_analyze_competitive_analysis_progress_handler(
             str(product.id),
         )
     )
-    return (
-        analyze_competitive_analysis_progress.to_analyze_competitive_analysis_progress_response()
-    )
+    return analyze_competitive_analysis_progress.to_analyze_competitive_analysis_progress_response()
 
 
 @router.post("/analyze")
@@ -192,7 +190,13 @@ async def get_all_competitive_analysis_handler(
     )
     return [
         this_product_competitive_analysis,
-        *[i.to_competitive_analysis_response() for i in competitive_analysis],
+        *[
+            i.to_competitive_analysis_response(
+                product,
+                product_profile,
+            )
+            for i in competitive_analysis
+        ],
     ]
 
 
@@ -289,8 +293,17 @@ async def update_competitive_analysis_handler(
         competitive_analysis_id,
         payload,
     )
+    product_profile = await get_product_profile(product.id)
+    if not product_profile:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Product profile is not analyzed yet, please analyze profile first then try again",
+        )
     competitive_analysis_response = (
-        competitive_analysis.to_competitive_analysis_response()
+        competitive_analysis.to_competitive_analysis_response(
+            product,
+            product_profile,
+        )
     )
     await create_audit_record(
         product,
@@ -338,5 +351,14 @@ async def accept_competitive_analysis_handler(
             "payload": payload.model_dump(),
         },
     )
+    product_profile = await get_product_profile(product.id)
+    if not product_profile:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Product profile is not analyzed yet, please analyze profile first then try again",
+        )
 
-    return competitive_analysis.to_competitive_analysis_response()
+    return competitive_analysis.to_competitive_analysis_response(
+        product,
+        product_profile,
+    )
