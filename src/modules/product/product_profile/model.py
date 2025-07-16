@@ -3,7 +3,6 @@ from typing import Any
 
 from beanie import Document, PydanticObjectId
 
-from src.modules.product.models import Product
 from src.modules.product.product_profile.schema import (
     AnalyzeProductProfileProgressResponse,
     AnalyzingStatus,
@@ -87,7 +86,7 @@ class ProductProfile(Document):
 
     def to_product_profile_analysis_response(
         self,
-        product: Product,
+        product,
         analyze_progress: AnalyzeProductProfileProgressResponse | None = None,
     ) -> ProductProfileAnalysisResponse:
         return ProductProfileAnalysisResponse(

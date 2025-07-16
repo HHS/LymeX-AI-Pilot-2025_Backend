@@ -2,7 +2,6 @@ from datetime import datetime
 from beanie import Document, PydanticObjectId
 from pydantic import BaseModel
 
-from src.modules.product.models import Product
 from src.modules.product.claim_builder.schema import (
     IFU,
     AnalyzeClaimBuilderProgressResponse,
@@ -47,7 +46,7 @@ class ClaimBuilder(Document):
             PydanticObjectId: str,
         }
 
-    def to_claim_builder_response(self, product: Product) -> ClaimBuilderResponse:
+    def to_claim_builder_response(self, product) -> ClaimBuilderResponse:
         return ClaimBuilderResponse(
             product_id=self.product_id,
             product_code=product.code,

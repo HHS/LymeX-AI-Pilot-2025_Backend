@@ -1,7 +1,6 @@
 from datetime import datetime
 from beanie import Document, PydanticObjectId
 
-from src.modules.product.models import Product
 from src.modules.product.product_profile.model import ProductProfile
 from src.modules.product.product_profile.schema import (
     AnalyzingStatus,
@@ -61,7 +60,7 @@ class CompetitiveAnalysis(Document):
 
     def to_competitive_analysis_response(
         self,
-        product: Product,
+        product,
         product_profile: ProductProfile,
     ) -> CompetitiveAnalysisResponse:
         return CompetitiveAnalysisResponse(
@@ -83,7 +82,7 @@ class CompetitiveAnalysis(Document):
 
     def to_competitive_compare_response(
         self,
-        product: Product,
+        product,
         product_profile: ProductProfile,
     ) -> CompetitiveAnalysisCompareResponse:
         your_product = CompetitiveAnalysisCompareItemResponse(
