@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Form, File, Uploa
 import httpx
 
 from src.modules.authentication.dependencies import get_current_user
+from src.modules.product.competitive_analysis.schema import AnalyzingStatusResponse
 from src.modules.product.product_profile.analyze_product_profile_progress import (
     AnalyzeProductProfileProgress,
     get_analyze_product_profile_progress,
@@ -24,6 +25,7 @@ from src.modules.company.models import Company
 from src.modules.product.service import upload_product_files
 from src.modules.product.product_profile.schema import (
     AnalyzeProductProfileProgressResponse,
+    AnalyzingStatus,
     ProductProfileAnalysisResponse,
     ProductProfileAuditResponse,
     ProductProfileDocumentResponse,
@@ -305,12 +307,11 @@ async def delete_product_profile_document_handler(
 @router.get("/analysis")
 async def get_product_profile_analysis_handler(
     product: Annotated[Product, Depends(get_current_product)],
-) -> ProductProfileAnalysisResponse:
+) -> ProductProfileAnalysisResponse | AnalyzingStatusResponse:
     product_profile = await get_product_profile(product.id)
     if not product_profile:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Product profile not found. Please run analysis first.",
+        return AnalyzingStatusResponse(
+            analyzing_status=AnalyzingStatus.IN_PROGRESS,
         )
     analyze_product_profile_progress = await get_analyze_product_profile_progress(
         product.id,

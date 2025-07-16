@@ -8,15 +8,12 @@ from src.modules.product.claim_builder.model import (
 
 async def get_analyze_claim_builder_progress(
     product_id: str,
-) -> AnalyzeClaimBuilderProgress:
+) -> AnalyzeClaimBuilderProgress | None:
     analyze_claim_builder_progress = await AnalyzeClaimBuilderProgress.find_one(
         AnalyzeClaimBuilderProgress.product_id == product_id,
     )
     if not analyze_claim_builder_progress:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Analyze product profile progress not found",
-        )
+        return None
     return analyze_claim_builder_progress
 
 

@@ -6,6 +6,7 @@ from src.modules.product.competitive_analysis.model import (
     AnalyzeCompetitiveAnalysisProgress,
     CompetitiveAnalysis,
 )
+from src.modules.product.product_profile.schema import AnalyzingStatus
 from src.modules.product.product_profile.service import (
     create_audit_record,
     get_product_profile,
@@ -29,6 +30,7 @@ from src.celery.tasks.analyze_competitive_analysis import (
 from src.modules.product.competitive_analysis.schema import (
     AcceptCompetitiveAnalysisRequest,
     AnalyzeCompetitiveAnalysisProgressResponse,
+    AnalyzingStatusResponse,
     CompetitiveAnalysisCompareResponse,
     CompetitiveAnalysisDocumentResponse,
     CompetitiveAnalysisResponse,
@@ -170,13 +172,12 @@ async def delete_competitive_analysis_document_handler(
 @router.get("/result")
 async def get_all_competitive_analysis_handler(
     product: Annotated[Product, Depends(get_current_product)],
-) -> list[CompetitiveAnalysisResponse]:
+) -> list[CompetitiveAnalysisResponse] | AnalyzingStatusResponse:
     competitive_analysis = await get_all_product_competitive_analysis(str(product.id))
     product_profile = await get_product_profile(product.id)
     if not product_profile:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Product profile is not analyzed yet, please analyze profile first then try again",
+        return AnalyzingStatusResponse(
+            analyzing_status=AnalyzingStatus.IN_PROGRESS,
         )
     this_product_competitive_analysis = CompetitiveAnalysisResponse(
         id=str(product.id),
@@ -205,12 +206,11 @@ async def get_all_competitive_analysis_handler(
 @router.get("/compare-device-analysis-result")
 async def get_competitive_analysis_compare_device_analysis_handler(
     product: Annotated[Product, Depends(get_current_product)],
-) -> list[CompetitiveDeviceAnalysisResponse]:
+) -> list[CompetitiveDeviceAnalysisResponse] | AnalyzingStatusResponse:
     product_profile = await get_product_profile(product.id)
     if not product_profile:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Product profile is not analyzed yet, please analyze profile first then try again",
+        return AnalyzingStatusResponse(
+            analyzing_status=AnalyzingStatus.IN_PROGRESS,
         )
     competitive_analysis_compare_device_analysis = await CompetitiveAnalysis.find(
         CompetitiveAnalysis.reference_product_id == str(product.id),
@@ -225,16 +225,15 @@ async def get_competitive_analysis_compare_device_analysis_handler(
 async def competitive_analysis_compare_handler(
     competitive_analysis_id: str,
     product: Annotated[Product, Depends(get_current_product)],
-) -> CompetitiveAnalysisCompareResponse:
+) -> CompetitiveAnalysisCompareResponse | AnalyzingStatusResponse:
     competitive_analysis = await get_product_competitive_analysis(
         str(product.id),
         competitive_analysis_id,
     )
     product_profile = await get_product_profile(product.id)
     if not product_profile:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Product profile is not analyzed yet, please analyze profile first then try again",
+        return AnalyzingStatusResponse(
+            analyzing_status=AnalyzingStatus.IN_PROGRESS,
         )
     return competitive_analysis.to_competitive_compare_response(
         product,
@@ -246,7 +245,7 @@ async def competitive_analysis_compare_handler(
 async def competitive_analysis_compare_device_analysis_handler(
     competitive_analysis_id: str,
     product: Annotated[Product, Depends(get_current_product)],
-) -> CompetitiveDeviceAnalysisResponse:
+) -> CompetitiveDeviceAnalysisResponse | AnalyzingStatusResponse:
     competitive_analysis_id = string_to_id(competitive_analysis_id)
     competitive_analysis = await get_product_competitive_analysis(
         str(product.id),
@@ -254,9 +253,8 @@ async def competitive_analysis_compare_device_analysis_handler(
     )
     product_profile = await get_product_profile(product.id)
     if not product_profile:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Product profile is not analyzed yet, please analyze profile first then try again",
+        return AnalyzingStatusResponse(
+            analyzing_status=AnalyzingStatus.IN_PROGRESS,
         )
     return competitive_analysis.to_competitive_device_analysis_response(
         product_profile,
@@ -289,7 +287,7 @@ async def update_competitive_analysis_handler(
     product: Annotated[Product, Depends(get_current_product)],
     current_user: Annotated[User, Depends(get_current_user)],
     _: Annotated[bool, Depends(check_product_edit_allowed)],
-) -> CompetitiveAnalysisResponse:
+) -> CompetitiveAnalysisResponse | AnalyzingStatusResponse:
     competitive_analysis = await update_competitive_analysis(
         str(product.id),
         competitive_analysis_id,
@@ -297,9 +295,8 @@ async def update_competitive_analysis_handler(
     )
     product_profile = await get_product_profile(product.id)
     if not product_profile:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Product profile is not analyzed yet, please analyze profile first then try again",
+        return AnalyzingStatusResponse(
+            analyzing_status=AnalyzingStatus.IN_PROGRESS,
         )
     competitive_analysis_response = (
         competitive_analysis.to_competitive_analysis_response(
@@ -326,7 +323,7 @@ async def accept_competitive_analysis_handler(
     product: Annotated[Product, Depends(get_current_product)],
     current_user: Annotated[User, Depends(get_current_user)],
     _: Annotated[bool, Depends(check_product_edit_allowed)],
-) -> CompetitiveAnalysisResponse:
+) -> CompetitiveAnalysisResponse | AnalyzingStatusResponse:
     competitive_analysis = await CompetitiveAnalysis.find_one(
         CompetitiveAnalysis.id == string_to_id(competitive_analysis_id),
         CompetitiveAnalysis.reference_product_id == str(product.id),
@@ -355,9 +352,8 @@ async def accept_competitive_analysis_handler(
     )
     product_profile = await get_product_profile(product.id)
     if not product_profile:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Product profile is not analyzed yet, please analyze profile first then try again",
+        return AnalyzingStatusResponse(
+            analyzing_status=AnalyzingStatus.IN_PROGRESS,
         )
 
     return competitive_analysis.to_competitive_analysis_response(
