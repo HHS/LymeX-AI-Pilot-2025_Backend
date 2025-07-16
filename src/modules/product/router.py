@@ -338,7 +338,7 @@ async def clone_product_handler(
             new_name = f"{product.name} (Clone)"
 
         # Check if product name already exists for this company
-        if new_name and new_name != product.name:
+        if new_name:
             product_name_exists = await Product.find_one(
                 Product.company_id == product.company_id,
                 Product.name == new_name,
