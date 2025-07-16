@@ -406,3 +406,9 @@ class AcceptCompetitiveAnalysisRequest(BaseModel):
         None,
         description="Reason for acceptance or rejection of the competitive analysis",
     )
+
+
+class AnalyzingStatusResponse(BaseModel):
+    analyzing_status: AnalyzingStatus = Field(
+        ..., description="Current status of the product analysis"
+    )

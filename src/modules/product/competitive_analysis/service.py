@@ -101,17 +101,14 @@ async def update_competitive_analysis(
 
 async def get_analyze_competitive_analysis_progress(
     product_id: str,
-) -> AnalyzeCompetitiveAnalysisProgress:
+) -> AnalyzeCompetitiveAnalysisProgress | None:
     analyze_competitive_analysis_progress = (
         await AnalyzeCompetitiveAnalysisProgress.find_one(
             AnalyzeCompetitiveAnalysisProgress.reference_product_id == product_id,
         )
     )
     if not analyze_competitive_analysis_progress:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Analyze competitive analysis progress not found",
-        )
+        return None
     return analyze_competitive_analysis_progress
 
 
