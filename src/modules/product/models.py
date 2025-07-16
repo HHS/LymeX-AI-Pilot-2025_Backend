@@ -1,17 +1,22 @@
 from datetime import datetime
-from typing import Literal
 from beanie import Document, PydanticObjectId
 from pydantic import Field
 
 from src.modules.company.models import Company
+from src.modules.product.claim_builder.service import get_analyze_claim_builder_progress
+from src.modules.product.competitive_analysis.service import (
+    get_analyze_competitive_analysis_progress,
+)
 from src.modules.product.product_profile.analyze_product_profile_progress import (
     get_analyze_product_profile_progress,
 )
 from src.modules.product.product_profile.schema import AnalyzingStatus
+from src.modules.product.regulatory_pathway.service import (
+    get_analyze_regulatory_pathway_progress,
+)
 from src.modules.product.storage import get_product_avatar_url
 from src.modules.user.service import get_user_by_id
 from src.modules.product.schema import ProductResponse
-from src.modules.product.feature_status.schema import FeatureStatus
 
 
 class Product(Document):
@@ -151,8 +156,55 @@ class Product(Document):
             instructions = None
             type_of_use = None
 
+        analyze_claim_builder_progress = await get_analyze_claim_builder_progress(
+            str(self.id),
+        )
+        analyze_claim_builder_progress_status = (
+            analyze_claim_builder_progress.to_analyze_claim_builder_progress_response().analyzing_status
+            if analyze_claim_builder_progress
+            else AnalyzingStatus.PENDING
+        )
+
+        analyze_competitive_analysis_progress = (
+            await get_analyze_competitive_analysis_progress(
+                str(self.id),
+            )
+        )
+        analyze_competitive_analysis_progress_status = (
+            analyze_competitive_analysis_progress.to_analyze_competitive_analysis_progress_response().analyzing_status
+            if analyze_competitive_analysis_progress
+            else AnalyzingStatus.PENDING
+        )
+
         analyze_product_profile_progress = await get_analyze_product_profile_progress(
-            self.id,
+            str(self.id),
+        )
+        analyze_product_profile_progress_status = (
+            analyze_product_profile_progress.to_analyze_product_profile_progress_response().analyzing_status
+            if analyze_product_profile_progress
+            else AnalyzingStatus.PENDING
+        )
+
+        analyze_regulatory_pathway_progress = (
+            await get_analyze_regulatory_pathway_progress(str(self.id))
+        )
+        analyze_regulatory_pathway_progress_status = (
+            analyze_regulatory_pathway_progress.to_analyze_regulatory_pathway_progress_response().analyzing_status
+            if analyze_regulatory_pathway_progress
+            else AnalyzingStatus.PENDING
+        )
+
+        is_analyzing_complete = (
+            analyze_claim_builder_progress_status == AnalyzingStatus.COMPLETED
+            and analyze_competitive_analysis_progress_status
+            == AnalyzingStatus.COMPLETED
+            and analyze_product_profile_progress_status == AnalyzingStatus.COMPLETED
+            and analyze_regulatory_pathway_progress_status == AnalyzingStatus.COMPLETED
+        )
+        analyzing_status = (
+            AnalyzingStatus.COMPLETED
+            if is_analyzing_complete
+            else AnalyzingStatus.IN_PROGRESS
         )
 
         return ProductResponse(
@@ -171,11 +223,7 @@ class Product(Document):
             updated_at=self.updated_at,
             edit_locked=self.edit_locked,
             is_active_profile=is_active_profile,
-            analyzing_status=(
-                analyze_product_profile_progress.to_analyze_product_profile_progress_response().analyzing_status
-                if analyze_product_profile_progress
-                else AnalyzingStatus.PENDING
-            ),
+            analyzing_status=analyzing_status,
             # Product Profile fields
             description=description,
             fda_approved=fda_approved,

@@ -59,7 +59,11 @@ class CompetitiveAnalysis(Document):
             PydanticObjectId: str,
         }
 
-    def to_competitive_analysis_response(self) -> CompetitiveAnalysisResponse:
+    def to_competitive_analysis_response(
+        self,
+        product: Product,
+        product_profile: ProductProfile,
+    ) -> CompetitiveAnalysisResponse:
         return CompetitiveAnalysisResponse(
             id=str(self.id),
             product_name=self.product_name,
@@ -74,6 +78,7 @@ class CompetitiveAnalysis(Document):
             accepted=self.accepted,
             accept_reject_reason=self.accept_reject_reason,
             accept_reject_by=self.accept_reject_by,
+            comparison=self.to_competitive_compare_response(product, product_profile),
         )
 
     def to_competitive_compare_response(
