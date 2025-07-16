@@ -259,7 +259,7 @@ async def delete_product_handler(
 async def lock_product_handler(
     product: Annotated[Product, Depends(get_current_product)],
     current_user: Annotated[User, Depends(get_current_user)],
-    _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.ADMINISTRATOR))],
+    _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.CONTRIBUTOR))],
 ) -> None:
     if product.edit_locked:
         return
@@ -277,7 +277,7 @@ async def lock_product_handler(
 async def unlock_product_handler(
     product: Annotated[Product, Depends(get_current_product)],
     current_user: Annotated[User, Depends(get_current_user)],
-    _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.ADMINISTRATOR))],
+    _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.CONTRIBUTOR))],
 ) -> None:
     if not product.edit_locked:
         return
@@ -295,7 +295,7 @@ async def unlock_product_handler(
 async def analyze_all_handler(
     product: Annotated[Product, Depends(get_current_product)],
     current_user: Annotated[User, Depends(get_current_user)],
-    _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.ADMINISTRATOR))],
+    _: Annotated[bool, Depends(RequireCompanyRole(CompanyRoles.CONTRIBUTOR))],
 ) -> None:
     product_id = str(product.id)
     analyze_all(product_id)
