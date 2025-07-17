@@ -6,7 +6,7 @@ from fastapi import UploadFile
 from typing import List
 from datetime import datetime
 from loguru import logger
-
+from src.environment import environment
 
 async def create_support_ticket(
     issue_description: str,
@@ -71,6 +71,7 @@ async def create_enhanced_support_ticket(
             "issue_type": issue_type,
             "description": description,
             "timestamp": datetime.now().strftime("%Y%m%d_%H%M%S"),
+            "environment": "Production" if environment.is_production else "Development",
         },
         support_email,
         attachments=attachment_paths,
