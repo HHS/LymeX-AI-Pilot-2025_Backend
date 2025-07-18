@@ -5,6 +5,7 @@ from loguru import logger
 from src.modules.support.service import (
     create_support_ticket,
     create_enhanced_support_ticket,
+    send_support_confirmation_email,
 )
 from src.modules.company.models import Company
 from src.modules.authorization.dependencies import (
@@ -29,6 +30,12 @@ async def create_support_ticket_handler(
 ) -> None:
     await create_support_ticket(
         payload.issue_description, current_company, current_user
+    )
+
+    # Send confirmation email to user
+    await send_support_confirmation_email(
+        user=current_user,
+        issue_type="General Support",
     )
 
 
@@ -63,4 +70,10 @@ async def report_issue_with_attachments_handler(
         attachments=attachments,
         company=current_company,
         user=current_user,
+    )
+
+    # Send confirmation email to user
+    await send_support_confirmation_email(
+        user=current_user,
+        issue_type=issue_type,
     )
