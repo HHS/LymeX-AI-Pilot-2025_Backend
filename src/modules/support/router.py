@@ -31,7 +31,7 @@ async def create_support_ticket_handler(
     await create_support_ticket(
         payload.issue_description, current_company, current_user
     )
-    
+
     # Send confirmation email to user
     await send_support_confirmation_email(
         user=current_user,
@@ -71,7 +71,7 @@ async def report_issue_with_attachments_handler(
         company=current_company,
         user=current_user,
     )
-    
+
     # Send confirmation email to user
     await send_support_confirmation_email(
         user=current_user,
