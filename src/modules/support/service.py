@@ -8,6 +8,22 @@ from datetime import datetime
 from loguru import logger
 from src.environment import environment
 
+async def send_support_confirmation_email(
+    user: User,
+    issue_type: str,
+) -> None:
+    logger.info(f"Sending support confirmation email to user: {user.email}")
+    
+    send_email_task.delay(
+        "support_confirmation",
+        {
+            "user_name": f"{user.first_name} {user.last_name}",
+            "issue_type": issue_type,
+        },
+        user.email,
+    )
+
+
 async def create_support_ticket(
     issue_description: str,
     company: Company,
