@@ -128,8 +128,13 @@ class Product(Document):
             )
             sources = product_profile.sources if product_profile else None
             performance = (
-                product_profile.performance.model_dump()
-                if product_profile and product_profile.performance
+                {
+                    "speed": product_profile.speed,
+                    "reliability": product_profile.reliability,
+                }
+                if product_profile
+                and product_profile.speed
+                and product_profile.reliability
                 else None
             )
             price = product_profile.price if product_profile else None
@@ -217,9 +222,6 @@ class Product(Document):
             avatar_url=avatar_url,
             intend_use=self.intend_use,
             patient_contact=self.patient_contact,
-            created_by=await created_by.to_user_response(populate_companies=False),
-            created_at=self.created_at,
-            updated_by=await updated_by.to_user_response(populate_companies=False),
             updated_at=self.updated_at,
             edit_locked=self.edit_locked,
             is_active_profile=is_active_profile,
@@ -243,4 +245,7 @@ class Product(Document):
             price=price,
             instructions=instructions,
             type_of_use=type_of_use,
+            created_by=await created_by.to_user_response(populate_companies=False),
+            created_at=self.created_at,
+            updated_by=await updated_by.to_user_response(populate_companies=False),
         )
