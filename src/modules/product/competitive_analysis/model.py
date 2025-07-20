@@ -1,54 +1,43 @@
 from datetime import datetime
 from beanie import Document, PydanticObjectId
-
-from src.modules.product.product_profile.model import ProductProfile
-from src.modules.product.product_profile.schema import (
-    AnalyzingStatus,
-    Feature,
-    Performance,
-)
+from fastapi import HTTPException
+from src.modules.product.product_profile.schema import AnalyzingStatus
 from src.modules.product.competitive_analysis.schema import (
     AnalyzeCompetitiveAnalysisProgressResponse,
     CompetitiveAnalysisCompareItemResponse,
     CompetitiveAnalysisCompareResponse,
-    CompetitiveAnalysisCompareSummary,
-    CompetitiveAnalysisDetail,
+    CompetitiveAnalysisDetailBase,
+    CompetitiveAnalysisDetailSchema,
     CompetitiveAnalysisResponse,
     CompetitiveDeviceAnalysisItemResponse,
-    CompetitiveDeviceAnalysisKeyDifferenceResponse,
     CompetitiveDeviceAnalysisResponse,
 )
 
 
-class CompetitiveAnalysis(Document):
-    reference_product_id: str
-    product_name: str
-    category: str
-    regulatory_pathway: str
-    clinical_study: str
-    fda_approved: bool
-    ce_marked: bool
-    device_ifu_description: str
-    key_differences: list[CompetitiveDeviceAnalysisKeyDifferenceResponse]
-    recommendations: list[str]
-    is_ai_generated: bool
-    use_system_data: bool
-    features: list[Feature]
-    claims: list[str]
-    reference_number: str
+class CompetitiveAnalysisDetail(Document, CompetitiveAnalysisDetailBase):
+    product_simple_name: str
     confidence_score: float
     sources: list[str]
-    performance: Performance
-    price: int
-    your_product_summary: CompetitiveAnalysisCompareSummary
-    competitor_summary: CompetitiveAnalysisCompareSummary
-    instructions: list[str]
-    type_of_use: str
-    your_product: CompetitiveAnalysisDetail
-    competitor: CompetitiveAnalysisDetail
+    is_ai_generated: bool
+    use_system_data: bool
+
     accepted: bool | None = None
     accept_reject_reason: str | None = None
     accept_reject_by: str | None = None
+
+    class Settings:
+        name = "competitive_analysis_detail"
+
+    class Config:
+        json_encoders = {
+            PydanticObjectId: str,
+        }
+
+
+class CompetitiveAnalysis(Document):
+    product_id: str
+    competitive_analysis_detail_id: str
+    is_self_analysis: bool
 
     class Settings:
         name = "competitive_analysis"
@@ -58,85 +47,110 @@ class CompetitiveAnalysis(Document):
             PydanticObjectId: str,
         }
 
-    def to_competitive_analysis_response(
+    async def to_competitive_analysis_response(
         self,
-        product,
-        product_profile: ProductProfile,
     ) -> CompetitiveAnalysisResponse:
+        self_product_competitive_analysis = await CompetitiveAnalysis.find_one(
+            CompetitiveAnalysis.product_id == self.product_id,
+            CompetitiveAnalysis.is_self_analysis == True,
+        )
+        if not self_product_competitive_analysis:
+            raise HTTPException(
+                status_code=404,
+                detail="Self competitive analysis not found",
+            )
+        self_product_detail = await CompetitiveAnalysisDetail.get(
+            self_product_competitive_analysis.competitive_analysis_detail_id
+        )
+        competitive_analysis_detail = await CompetitiveAnalysisDetail.get(
+            self.competitive_analysis_detail_id
+        )
+        if not competitive_analysis_detail:
+            raise HTTPException(
+                status_code=500,
+                detail="Competitive analysis detail not found",
+            )
+
         return CompetitiveAnalysisResponse(
             id=str(self.id),
-            product_name=self.product_name,
-            reference_number=self.reference_number,
-            regulatory_pathway=self.regulatory_pathway,
-            fda_approved=self.fda_approved,
-            ce_marked=self.ce_marked,
-            is_ai_generated=self.is_ai_generated,
-            use_system_data=self.use_system_data,
-            confidence_score=self.confidence_score,
-            sources=self.sources,
-            accepted=self.accepted,
-            accept_reject_reason=self.accept_reject_reason,
-            accept_reject_by=self.accept_reject_by,
-            comparison=self.to_competitive_compare_response(product, product_profile),
+            product_name=competitive_analysis_detail.product_name,
+            reference_number=competitive_analysis_detail.regulation_number,
+            regulatory_pathway=competitive_analysis_detail.regulatory_pathway,
+            fda_approved=competitive_analysis_detail.fda_approved,
+            ce_marked=competitive_analysis_detail.ce_marked,
+            is_ai_generated=competitive_analysis_detail.is_ai_generated,
+            use_system_data=competitive_analysis_detail.use_system_data,
+            confidence_score=competitive_analysis_detail.confidence_score,
+            sources=competitive_analysis_detail.sources,
+            accepted=competitive_analysis_detail.accepted,
+            accept_reject_reason=competitive_analysis_detail.accept_reject_reason,
+            accept_reject_by=competitive_analysis_detail.accept_reject_by,
+            comparison=self.to_competitive_compare_response(
+                self_product_detail, competitive_analysis_detail
+            ),
         )
 
     def to_competitive_compare_response(
         self,
-        product,
-        product_profile: ProductProfile,
+        self_product_detail: CompetitiveAnalysisDetail,
+        competitor_product_detail: CompetitiveAnalysisDetail,
     ) -> CompetitiveAnalysisCompareResponse:
         your_product = CompetitiveAnalysisCompareItemResponse(
-            product_name=product.name,
-            price=product_profile.price,
-            features=product_profile.features,
-            performance=product_profile.performance,
-            summary=self.your_product_summary,
-            detail=self.your_product,
+            product_name=self_product_detail.product_name,
+            detail=CompetitiveAnalysisDetailSchema(**self_product_detail.model_dump()),
         )
         competitor = CompetitiveAnalysisCompareItemResponse(
-            product_name=self.product_name,
-            price=self.price,
-            features=self.features,
-            performance=self.performance,
-            summary=self.competitor_summary,
-            detail=self.competitor,
+            product_name=competitor_product_detail.product_name,
+            detail=CompetitiveAnalysisDetailSchema(
+                **competitor_product_detail.model_dump()
+            ),
         )
         return CompetitiveAnalysisCompareResponse(
             your_product=your_product,
             competitor=competitor,
-            accepted=self.accepted,
-            accept_reject_reason=self.accept_reject_reason,
-            accept_reject_by=self.accept_reject_by,
+            accepted=competitor_product_detail.accepted,
+            accept_reject_reason=competitor_product_detail.accept_reject_reason,
+            accept_reject_by=competitor_product_detail.accept_reject_by,
         )
 
-    def to_competitive_device_analysis_response(
+    async def to_competitive_device_analysis_response(
         self,
-        product_profile: ProductProfile,
     ) -> CompetitiveDeviceAnalysisResponse:
+        self_product_competitive_analysis = await CompetitiveAnalysis.find_one(
+            CompetitiveAnalysis.product_id == self.product_id,
+            CompetitiveAnalysis.is_self_analysis,
+        )
+        if not self_product_competitive_analysis:
+            raise HTTPException(
+                status_code=404,
+                detail="Self competitive analysis not found",
+            )
+        self_product_detail = await CompetitiveAnalysisDetail.get(
+            self_product_competitive_analysis.competitive_analysis_detail_id
+        )
+        competitive_analysis_detail = await CompetitiveAnalysisDetail.get(
+            self.competitive_analysis_detail_id
+        )
         return CompetitiveDeviceAnalysisResponse(
             your_device=CompetitiveDeviceAnalysisItemResponse(
-                id=str(product_profile.id),
-                content=product_profile.device_ifu_description,
-                instructions=product_profile.instructions,
-                type_of_use=product_profile.type_of_use,
-                fda_approved=product_profile.fda_approved,
-                ce_marked=product_profile.ce_marked,
+                content=self_product_detail.indications_for_use_statement,
+                instructions=self_product_detail.instructions,
+                type_of_use=self_product_detail.type_of_use,
+                fda_approved=self_product_detail.fda_approved,
+                ce_marked=self_product_detail.ce_marked,
             ),
             competitor_device=CompetitiveDeviceAnalysisItemResponse(
-                id=str(self.id),
-                content=self.device_ifu_description,
-                instructions=self.instructions,
-                type_of_use=self.type_of_use,
-                fda_approved=self.fda_approved,
-                ce_marked=self.ce_marked,
+                content=competitive_analysis_detail.indications_for_use_statement,
+                instructions=competitive_analysis_detail.instructions,
+                type_of_use=competitive_analysis_detail.type_of_use,
+                fda_approved=competitive_analysis_detail.fda_approved,
+                ce_marked=competitive_analysis_detail.ce_marked,
             ),
-            key_differences=self.key_differences,
-            recommendations=self.recommendations,
         )
 
 
 class AnalyzeCompetitiveAnalysisProgress(Document):
-    reference_product_id: str
+    product_id: str
     total_files: int
     processed_files: int
     updated_at: datetime
@@ -153,7 +167,7 @@ class AnalyzeCompetitiveAnalysisProgress(Document):
         self,
     ) -> AnalyzeCompetitiveAnalysisProgressResponse:
         return AnalyzeCompetitiveAnalysisProgressResponse(
-            reference_product_id=self.reference_product_id,
+            product_id=self.product_id,
             total_files=self.total_files,
             processed_files=self.processed_files,
             updated_at=self.updated_at,

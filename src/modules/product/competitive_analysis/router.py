@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime, timezone
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -5,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from src.modules.product.competitive_analysis.model import (
     AnalyzeCompetitiveAnalysisProgress,
     CompetitiveAnalysis,
+    CompetitiveAnalysisDetail,
 )
 from src.modules.product.product_profile.schema import AnalyzingStatus
 from src.modules.product.product_profile.service import (
@@ -35,7 +37,6 @@ from src.modules.product.competitive_analysis.schema import (
     CompetitiveAnalysisDocumentResponse,
     CompetitiveAnalysisResponse,
     CompetitiveDeviceAnalysisResponse,
-    UpdateCompetitiveAnalysisRequest,
     UploadTextInputDocumentRequest,
 )
 from src.modules.product.competitive_analysis.service import (
@@ -43,7 +44,6 @@ from src.modules.product.competitive_analysis.service import (
     get_all_product_competitive_analysis,
     get_analyze_competitive_analysis_progress,
     get_product_competitive_analysis,
-    update_competitive_analysis,
 )
 import httpx
 
@@ -62,9 +62,7 @@ async def get_analyze_competitive_analysis_progress_handler(
             str(product.id),
         )
     )
-    return (
-        analyze_competitive_analysis_progress.to_analyze_competitive_analysis_progress_response()
-    )
+    return analyze_competitive_analysis_progress.to_analyze_competitive_analysis_progress_response()
 
 
 @router.post("/analyze")
@@ -74,10 +72,10 @@ async def analyze_competitive_analysis_handler(
     _: Annotated[bool, Depends(check_product_edit_allowed)],
 ) -> None:
     await AnalyzeCompetitiveAnalysisProgress.find(
-        AnalyzeCompetitiveAnalysisProgress.reference_product_id == str(product.id),
+        AnalyzeCompetitiveAnalysisProgress.product_id == str(product.id),
     ).delete_many()
     analyze_competitive_analysis_progress = AnalyzeCompetitiveAnalysisProgress(
-        reference_product_id=str(product.id),
+        product_id=str(product.id),
         total_files=0,
         processed_files=0,
         updated_at=datetime.now(timezone.utc),
@@ -179,46 +177,11 @@ async def get_all_competitive_analysis_handler(
         return AnalyzingStatusResponse(
             analyzing_status=AnalyzingStatus.IN_PROGRESS,
         )
-    this_product_competitive_analysis = CompetitiveAnalysisResponse(
-        id=str(product.id),
-        product_name=product.name,
-        reference_number=product_profile.reference_number,
-        regulatory_pathway=product_profile.regulatory_pathway,
-        fda_approved=not not product_profile.fda_approved,
-        ce_marked=not not product_profile.ce_marked,
-        is_ai_generated=False,
-        use_system_data=False,
-        confidence_score=product_profile.confidence_score,
-        sources=product_profile.sources,
-    )
-    return [
-        this_product_competitive_analysis,
-        *[
-            i.to_competitive_analysis_response(
-                product,
-                product_profile,
-            )
-            for i in competitive_analysis
-        ],
+    competitive_analysis_tasks = [
+        i.to_competitive_analysis_response() for i in competitive_analysis
     ]
-
-
-@router.get("/compare-device-analysis-result")
-async def get_competitive_analysis_compare_device_analysis_handler(
-    product: Annotated[Product, Depends(get_current_product)],
-) -> list[CompetitiveDeviceAnalysisResponse] | AnalyzingStatusResponse:
-    product_profile = await get_product_profile(product.id)
-    if not product_profile:
-        return AnalyzingStatusResponse(
-            analyzing_status=AnalyzingStatus.IN_PROGRESS,
-        )
-    competitive_analysis_compare_device_analysis = await CompetitiveAnalysis.find(
-        CompetitiveAnalysis.reference_product_id == str(product.id),
-    ).to_list()
-    return [
-        i.to_competitive_device_analysis_response(product_profile)
-        for i in competitive_analysis_compare_device_analysis
-    ]
+    competitive_analysis_responses = await asyncio.gather(*competitive_analysis_tasks)
+    return competitive_analysis_responses
 
 
 @router.get("/result/{competitive_analysis_id}/compare")
@@ -230,15 +193,27 @@ async def competitive_analysis_compare_handler(
         str(product.id),
         competitive_analysis_id,
     )
-    product_profile = await get_product_profile(product.id)
-    if not product_profile:
-        return AnalyzingStatusResponse(
-            analyzing_status=AnalyzingStatus.IN_PROGRESS,
-        )
-    return competitive_analysis.to_competitive_compare_response(
-        product,
-        product_profile,
+    competitive_analysis_response = (
+        await competitive_analysis.to_competitive_analysis_response()
     )
+    return competitive_analysis_response.comparison
+
+
+@router.get("/compare-device-analysis-result")
+async def get_competitive_analysis_compare_device_analysis_handler(
+    product: Annotated[Product, Depends(get_current_product)],
+) -> list[CompetitiveDeviceAnalysisResponse] | AnalyzingStatusResponse:
+    competitive_analysis_compare_device_analysis = await CompetitiveAnalysis.find(
+        CompetitiveAnalysis.product_id == str(product.id),
+    ).to_list()
+    competitive_device_analysis_response_task = [
+        i.to_competitive_device_analysis_response()
+        for i in competitive_analysis_compare_device_analysis
+    ]
+    competitive_device_analysis_responses = await asyncio.gather(
+        *competitive_device_analysis_response_task
+    )
+    return competitive_device_analysis_responses
 
 
 @router.get("/result/{competitive_analysis_id}/compare-device-analysis")
@@ -251,14 +226,7 @@ async def competitive_analysis_compare_device_analysis_handler(
         str(product.id),
         competitive_analysis_id,
     )
-    product_profile = await get_product_profile(product.id)
-    if not product_profile:
-        return AnalyzingStatusResponse(
-            analyzing_status=AnalyzingStatus.IN_PROGRESS,
-        )
-    return competitive_analysis.to_competitive_device_analysis_response(
-        product_profile,
-    )
+    return await competitive_analysis.to_competitive_device_analysis_response()
 
 
 @router.delete("/result/{competitive_analysis_id}")
@@ -280,40 +248,40 @@ async def delete_competitive_analysis_handler(
     )
 
 
-@router.patch("/result/{competitive_analysis_id}")
-async def update_competitive_analysis_handler(
-    competitive_analysis_id: str,
-    payload: UpdateCompetitiveAnalysisRequest,
-    product: Annotated[Product, Depends(get_current_product)],
-    current_user: Annotated[User, Depends(get_current_user)],
-    _: Annotated[bool, Depends(check_product_edit_allowed)],
-) -> CompetitiveAnalysisResponse | AnalyzingStatusResponse:
-    competitive_analysis = await update_competitive_analysis(
-        str(product.id),
-        competitive_analysis_id,
-        payload,
-    )
-    product_profile = await get_product_profile(product.id)
-    if not product_profile:
-        return AnalyzingStatusResponse(
-            analyzing_status=AnalyzingStatus.IN_PROGRESS,
-        )
-    competitive_analysis_response = (
-        competitive_analysis.to_competitive_analysis_response(
-            product,
-            product_profile,
-        )
-    )
-    await create_audit_record(
-        product,
-        current_user,
-        "Update competitive analysis",
-        {
-            "competitive_analysis_id": competitive_analysis_id,
-            "payload": payload.model_dump(),
-        },
-    )
-    return competitive_analysis_response
+# @router.patch("/result/{competitive_analysis_id}")
+# async def update_competitive_analysis_handler(
+#     competitive_analysis_id: str,
+#     payload: UpdateCompetitiveAnalysisRequest,
+#     product: Annotated[Product, Depends(get_current_product)],
+#     current_user: Annotated[User, Depends(get_current_user)],
+#     _: Annotated[bool, Depends(check_product_edit_allowed)],
+# ) -> CompetitiveAnalysisResponse | AnalyzingStatusResponse:
+#     competitive_analysis = await update_competitive_analysis(
+#         str(product.id),
+#         competitive_analysis_id,
+#         payload,
+#     )
+#     product_profile = await get_product_profile(product.id)
+#     if not product_profile:
+#         return AnalyzingStatusResponse(
+#             analyzing_status=AnalyzingStatus.IN_PROGRESS,
+#         )
+#     competitive_analysis_response = (
+#         competitive_analysis.to_competitive_analysis_response(
+#             product,
+#             product_profile,
+#         )
+#     )
+#     await create_audit_record(
+#         product,
+#         current_user,
+#         "Update competitive analysis",
+#         {
+#             "competitive_analysis_id": competitive_analysis_id,
+#             "payload": payload.model_dump(),
+#         },
+#     )
+#     return competitive_analysis_response
 
 
 @router.post("/accept/{competitive_analysis_id}")
@@ -326,20 +294,22 @@ async def accept_competitive_analysis_handler(
 ) -> CompetitiveAnalysisResponse | AnalyzingStatusResponse:
     competitive_analysis = await CompetitiveAnalysis.find_one(
         CompetitiveAnalysis.id == string_to_id(competitive_analysis_id),
-        CompetitiveAnalysis.reference_product_id == str(product.id),
+        CompetitiveAnalysis.product_id == str(product.id),
     )
     if not competitive_analysis:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Competitive analysis not found",
         )
-
-    competitive_analysis.accepted = payload.accepted
-    competitive_analysis.accept_reject_reason = payload.accept_reject_reason
-    competitive_analysis.accept_reject_by = (
+    competitive_analysis_detail = await CompetitiveAnalysisDetail.get(
+        competitive_analysis.competitive_analysis_detail_id
+    )
+    competitive_analysis_detail.accepted = payload.accepted
+    competitive_analysis_detail.accept_reject_reason = payload.accept_reject_reason
+    competitive_analysis_detail.accept_reject_by = (
         f"{current_user.first_name} {current_user.last_name}"
     )
-    await competitive_analysis.save()
+    await competitive_analysis_detail.save()
 
     await create_audit_record(
         product,
@@ -356,7 +326,4 @@ async def accept_competitive_analysis_handler(
             analyzing_status=AnalyzingStatus.IN_PROGRESS,
         )
 
-    return competitive_analysis.to_competitive_analysis_response(
-        product,
-        product_profile,
-    )
+    return competitive_analysis.to_competitive_analysis_response()
