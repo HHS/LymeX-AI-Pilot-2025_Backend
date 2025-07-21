@@ -1,7 +1,7 @@
 import asyncio
 from datetime import datetime, timezone
 from typing import Annotated, List
-from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Form
+from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Form, status
 from loguru import logger
 
 from src.modules.product.product_profile.service import (
@@ -336,17 +336,21 @@ async def clone_product_handler(
         new_name = payload.updated_fields.name
         if not new_name:
             new_name = f"{product.name} (Clone)"
-        if new_name and new_name != product.name:
-            existing_product = await Product.find_one(
-                Product.name == new_name,
+
+        # Check if product name already exists for this company
+        if new_name:
+            product_name_exists = await Product.find_one(
                 Product.company_id == product.company_id,
+                Product.name == new_name,
             )
-            if existing_product:
+            if product_name_exists:
                 raise HTTPException(
-                    status_code=400,
-                    detail=f"Product with name '{new_name}' already exists in the company.",
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Product name already exists for this company.",
                 )
+
         new_product.name = new_name
+
         possible_fields = [
             "code",
             "model",
