@@ -4,7 +4,7 @@ from typing import Literal
 from uuid import uuid4
 from pydantic import BaseModel, Field
 
-from src.modules.product.product_profile.schema import AnalyzingStatus
+from src.modules.product.analyzing_status import AnalyzingStatus
 from src.modules.user.schemas import UserResponse
 
 

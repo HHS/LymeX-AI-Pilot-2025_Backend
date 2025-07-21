@@ -6,6 +6,9 @@ from src.modules.product.competitive_analysis.model import (
     CompetitiveAnalysis,
     CompetitiveAnalysisDetail,
 )
+from src.modules.product.competitive_analysis.schema import (
+    CompetitiveAnalysisDetailSchema,
+)
 from src.modules.product.product_profile.schema import (
     AnalyzeProductProfileProgressResponse,
     AnalyzingStatus,
@@ -75,7 +78,7 @@ class ProductProfile(Document, ProductProfileSchemaBase):
                 if analyze_progress
                 else AnalyzingStatus.PENDING
             ),
-            detail=detail,
+            detail=CompetitiveAnalysisDetailSchema(**detail.model_dump()),
             **product_response,
         )
 
