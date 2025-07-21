@@ -2,6 +2,13 @@ from datetime import datetime
 from typing import Any
 from beanie import Document, PydanticObjectId
 
+from src.modules.product.competitive_analysis.model import (
+    CompetitiveAnalysis,
+    CompetitiveAnalysisDetail,
+)
+from src.modules.product.competitive_analysis.schema import (
+    CompetitiveAnalysisDetailSchema,
+)
 from src.modules.product.product_profile.schema import (
     AnalyzeProductProfileProgressResponse,
     AnalyzingStatus,
@@ -24,7 +31,7 @@ class ProductProfile(Document, ProductProfileSchemaBase):
             PydanticObjectId: str,
         }
 
-    def to_product_profile_response(
+    async def to_product_profile_response(
         self,
         product_response: ProductResponse | None,
         analyze_progress: AnalyzeProductProfileProgressResponse | None,
@@ -47,6 +54,16 @@ class ProductProfile(Document, ProductProfileSchemaBase):
             if product_response
             else {}
         )
+        competitive_analysis = await CompetitiveAnalysis.find_one(
+            CompetitiveAnalysis.product_id == self.product_id,
+            CompetitiveAnalysis.is_self_analysis == True,
+        )
+        if not competitive_analysis:
+            detail = None
+        else:
+            detail = await CompetitiveAnalysisDetail.get(
+                competitive_analysis.competitive_analysis_detail_id
+            )
         return ProductProfileResponse(
             id=str(self.id),
             product_id=self.product_id,
@@ -61,6 +78,7 @@ class ProductProfile(Document, ProductProfileSchemaBase):
                 if analyze_progress
                 else AnalyzingStatus.PENDING
             ),
+            detail=CompetitiveAnalysisDetailSchema(**detail.model_dump()),
             **product_response,
         )
 

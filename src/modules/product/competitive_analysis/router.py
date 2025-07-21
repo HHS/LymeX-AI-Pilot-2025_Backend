@@ -8,7 +8,7 @@ from src.modules.product.competitive_analysis.model import (
     CompetitiveAnalysis,
     CompetitiveAnalysisDetail,
 )
-from src.modules.product.product_profile.schema import AnalyzingStatus
+from src.modules.product.analyzing_status import AnalyzingStatus
 from src.modules.product.product_profile.service import (
     create_audit_record,
     get_product_profile,

@@ -4,6 +4,10 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
+from src.modules.product.analyzing_status import AnalyzingStatus
+from src.modules.product.competitive_analysis.schema import (
+    CompetitiveAnalysisDetailSchema,
+)
 from src.modules.user.schemas import UserResponse
 
 
@@ -21,12 +25,6 @@ class Feature(BaseModel):
 class Performance(BaseModel):
     speed: int
     reliability: int
-
-
-class AnalyzingStatus(str, Enum):
-    PENDING = "Pending"
-    IN_PROGRESS = "In_Progress"
-    COMPLETED = "Completed"
 
 
 # ============================
@@ -268,9 +266,8 @@ class ProductProfileResponse(BaseModel, ProductProfileSchemaBase):
     latest_audits: list[ProductProfileAuditResponse] = Field(
         default=[], description="Last three audit records for this product"
     )
-    is_active_profile: bool = Field(
-        ...,
-        description="Indicates if this product is the active profile for the company",
+    detail: CompetitiveAnalysisDetailSchema | None = Field(
+        None, description="Details of the competitive analysis"
     )
 
 

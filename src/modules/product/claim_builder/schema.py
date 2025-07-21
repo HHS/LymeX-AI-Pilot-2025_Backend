@@ -2,7 +2,7 @@ from datetime import datetime
 from enum import Enum
 from pydantic import BaseModel, Field
 
-from src.modules.product.product_profile.schema import AnalyzingStatus
+from src.modules.product.analyzing_status import AnalyzingStatus
 
 
 class IFUSource(BaseModel):

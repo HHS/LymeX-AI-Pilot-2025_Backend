@@ -1,7 +1,7 @@
 from datetime import datetime
 from beanie import Document, PydanticObjectId
 
-from src.modules.product.product_profile.schema import AnalyzingStatus
+from src.modules.product.analyzing_status import AnalyzingStatus
 from src.modules.product.regulatory_pathway.schema import (
     AlternativePathway,
     AnalyzeRegulatoryPathwayProgressResponse,
