@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from typing import Annotated, List
-from fastapi import APIRouter, Depends, HTTPException, status, Form, File, UploadFile
+from fastapi import APIRouter, Depends, Form, File, UploadFile
 import httpx
 
 from src.modules.authentication.dependencies import get_current_user
@@ -78,7 +78,7 @@ async def get_product_profile_handler(
             documents=documents,
             latest_audits=latest_audits,
         )
-    profile_response = product_profile.to_product_profile_response(
+    profile_response = await product_profile.to_product_profile_response(
         product_response,
         (
             analyze_product_profile_progress.to_analyze_product_profile_progress_response()
@@ -127,7 +127,7 @@ async def update_product_profile_handler(
     analyze_product_profile_progress = await get_analyze_product_profile_progress(
         product.id,
     )
-    product_profile_response = product_profile.to_product_profile_response(
+    product_profile_response = await product_profile.to_product_profile_response(
         product_response,
         (
             analyze_product_profile_progress.to_analyze_product_profile_progress_response()
