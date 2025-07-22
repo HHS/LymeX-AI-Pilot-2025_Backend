@@ -28,6 +28,7 @@ celery_queues = [
     "src.celery.tasks.analyze_test_comparison",
     "src.celery.tasks.analyze_clinical_trial",
     "src.celery.tasks.analyze_regulatory_pathway",
+    "src.celery.tasks.analyze_regulatory_background",
     "src.celery.tasks.analyze_milestone_planning",
     "src.celery.tasks.index_system_data",
 ]
@@ -59,6 +60,9 @@ celery.conf.task_routes = {
     },
     "src.celery.tasks.analyze_regulatory_pathway": {
         "queue": "celery.analyze_regulatory_pathway"
+    },
+    "src.celery.tasks.analyze_regulatory_background": {
+        "queue": "celery.analyze_regulatory_background"
     },
     "src.celery.tasks.analyze_milestone_planning": {
         "queue": "celery.analyze_milestone_planning"

@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, Form, File, UploadFile
 import httpx
 
 from src.modules.authentication.dependencies import get_current_user
-from src.modules.product.competitive_analysis.schema import AnalyzingStatusResponse
+from src.modules.product.analyzing_status import AnalyzingStatusResponse
 from src.modules.product.product_profile.analyze_product_profile_progress import (
     AnalyzeProductProfileProgress,
     get_analyze_product_profile_progress,
@@ -183,45 +183,6 @@ async def update_product_profile_handler(
     return product_profile_response
 
 
-@router.get("/analyze-progress")
-async def get_analyze_product_profile_progress_handler(
-    product: Annotated[Product, Depends(get_current_product)],
-) -> AnalyzeProductProfileProgressResponse:
-    analyze_product_profile_progress = await get_analyze_product_profile_progress(
-        product.id,
-    )
-    return (
-        analyze_product_profile_progress.to_analyze_product_profile_progress_response()
-        if analyze_product_profile_progress
-        else None
-    )
-
-
-@router.post("/analyze")
-async def analyze_product_profile_handler(
-    product: Annotated[Product, Depends(get_current_product)],
-    current_user: Annotated[User, Depends(get_current_user)],
-    _: Annotated[bool, Depends(check_product_edit_allowed)],
-) -> None:
-    await AnalyzeProductProfileProgress.find(
-        AnalyzeProductProfileProgress.product_id == str(product.id),
-    ).delete_many()
-    analyze_product_profile_progress = AnalyzeProductProfileProgress(
-        product_id=str(product.id),
-        total_files=0,
-        processed_files=0,
-        updated_at=datetime.now(timezone.utc),
-    )
-    await analyze_product_profile_progress.save()
-    await create_audit_record(
-        product,
-        current_user,
-        "Analyze product profile",
-        {},
-    )
-    analyze_product_profile_task.delay(str(product.id))
-
-
 @router.get("/document")
 async def get_product_profile_document_handler(
     product: Annotated[Product, Depends(get_current_product)],
@@ -301,6 +262,45 @@ async def delete_product_profile_document_handler(
         current_user,
         "Delete product profile document",
         {"document_name": document_name},
+    )
+
+
+@router.post("/analyze")
+async def analyze_product_profile_handler(
+    product: Annotated[Product, Depends(get_current_product)],
+    current_user: Annotated[User, Depends(get_current_user)],
+    _: Annotated[bool, Depends(check_product_edit_allowed)],
+) -> None:
+    await AnalyzeProductProfileProgress.find(
+        AnalyzeProductProfileProgress.product_id == str(product.id),
+    ).delete_many()
+    analyze_product_profile_progress = AnalyzeProductProfileProgress(
+        product_id=str(product.id),
+        total_files=0,
+        processed_files=0,
+        updated_at=datetime.now(timezone.utc),
+    )
+    await analyze_product_profile_progress.save()
+    await create_audit_record(
+        product,
+        current_user,
+        "Analyze product profile",
+        {},
+    )
+    analyze_product_profile_task.delay(str(product.id))
+
+
+@router.get("/analyze-progress")
+async def get_analyze_product_profile_progress_handler(
+    product: Annotated[Product, Depends(get_current_product)],
+) -> AnalyzeProductProfileProgressResponse:
+    analyze_product_profile_progress = await get_analyze_product_profile_progress(
+        product.id,
+    )
+    return (
+        analyze_product_profile_progress.to_analyze_product_profile_progress_response()
+        if analyze_product_profile_progress
+        else None
     )
 
 

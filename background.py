@@ -16,6 +16,7 @@ def start_celery_worker() -> None:
         "celery.performance_testing",
         "celery.analyze_test_comparison",
         "celery.analyze_clinical_trial",
+        "celery.analyze_regulatory_background",
         "celery.analyze_regulatory_pathway",
         "celery.analyze_milestone_planning",
     ]

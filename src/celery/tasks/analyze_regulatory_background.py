@@ -8,18 +8,18 @@ from src.celery.tasks.base import BaseTask
 
 @celery.task(
     base=BaseTask,
-    name="src.celery.tasks.analyze_performance_testing",
+    name="src.celery.tasks.analyze_regulatory_background",
 )
-def analyze_performance_testing_task(
-    performance_testing_id: str,
+def analyze_regulatory_background_task(
+    product_id: str,
 ) -> None:
-    logger.info(f"Analyzing test for test id: {performance_testing_id}")
+    logger.info(f"Analyzing for product_id: {product_id}")
     try:
         httpx.post(
-            f"{environment.ai_service_url}/analyze-performance-testing?performance_testing_id={performance_testing_id}"
+            f"{environment.ai_service_url}/analyze-regulatory-background?product_id={product_id}"
         )
     except HTTPException as e:
-        logger.error(f"Failed to test: {e.detail}")
+        logger.error(f"Failed analyze: {e.detail}")
         raise e
     except Exception as e:
         logger.error(f"An unexpected error occurred: {str(e)}")
