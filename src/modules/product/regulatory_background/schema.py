@@ -1,110 +1,60 @@
-from typing import List, Literal, Optional
-from pydantic import BaseModel, Field
 from datetime import datetime
+from pydantic import BaseModel, Field
+
+from src.modules.product.analyzing_status import AnalyzingStatus
 
 
-class SummaryHighlight(BaseModel):
-    """Individual highlight in the regulatory summary"""
-
-    title: str = Field(..., description="Title of the highlight")
-    detail: str = Field(..., description="Detailed description of the highlight")
-
-
-class RegulatorySummary(BaseModel):
-    """Summary section of regulatory background"""
-
-    title: str = Field(..., description="Title of the regulatory overview")
-    description: str = Field(
-        ..., description="Detailed description of regulatory overview"
-    )
-    highlights: List[SummaryHighlight] = Field(
-        ..., description="List of key highlights"
-    )
+class RegulatoryBackgroundContent:
+    title: str = Field(..., description="Title of the regulatory background content")
+    content: str = Field(..., description="Content of the regulatory background")
+    suggestion: str = Field(..., description="Suggestion for the regulatory background")
 
 
-class RegulatoryFinding(BaseModel):
-    """Individual finding in regulatory analysis"""
+class RegulatoryBackgroundBase:
+    predicate_device_reference: RegulatoryBackgroundContent
+    clinical_trial_requirements: RegulatoryBackgroundContent
+    risk_classification: RegulatoryBackgroundContent
+    regulatory_submission_history: RegulatoryBackgroundContent
+    intended_use_statement: RegulatoryBackgroundContent
 
-    status: Literal["found", "missing"] = Field(
-        ..., description="Status of the finding"
-    )
-    field: str = Field(..., description="Field identifier")
-    label: str = Field(..., description="Human-readable label")
-    value: str = Field(..., description="Value or description of the finding")
-    source_file: Optional[str] = Field(None, description="Source file name")
-    source_page: Optional[int] = Field(None, description="Page number in source file")
-    tooltip: Optional[str] = Field(None, description="Tooltip text for the finding")
-    suggestion: Optional[str] = Field(None, description="Suggestion for improvement")
-    confidence_score: Optional[float] = Field(
-        None, ge=0, le=100, description="Confidence score (0-100)"
-    )
-    user_action: Optional[bool] = Field(
-        None, description="User action taken on this finding"
+
+class RegulatoryBackground(BaseModel, RegulatoryBackgroundBase): ...
+
+
+class RegulatoryBackgroundResponse(BaseModel, RegulatoryBackgroundBase):
+    id: str = Field(..., description="Unique identifier for the regulatory background")
+    product_id: str = Field(
+        ..., description="ID of the product this regulatory background belongs to"
     )
 
 
-class RegulatoryConflict(BaseModel):
-    """Individual conflict identified in regulatory analysis"""
+class UploadTextInputDocumentRequest(BaseModel):
+    text: str | None = Field(None, description="Text input for the document")
+    files: list[str] | None = Field(None, description="List of file names to upload")
 
-    field: str = Field(..., description="Field where conflict was found")
-    phrase: str = Field(..., description="Conflicting phrase or statement")
-    conflict: str = Field(..., description="Description of the conflict")
-    source: str = Field(..., description="Source file where conflict was found")
-    suggestion: str = Field(..., description="Suggestion to resolve the conflict")
-    user_action: Optional[bool] = Field(
-        None, description="User action taken on this conflict"
+
+class RegulatoryBackgroundDocumentResponse(BaseModel):
+    document_name: str = Field(
+        ..., description="Name of the regulatory background document"
     )
-
-
-class RegulatoryBackgroundData(BaseModel):
-    """Complete regulatory background data structure"""
-
-    summary: RegulatorySummary = Field(
-        ..., description="Regulatory summary information"
+    file_name: str = Field(..., description="Name of the document")
+    url: str = Field(..., description="URL to access the document")
+    uploaded_at: str = Field(
+        ..., description="Date and time when the document was uploaded"
     )
-    findings: List[RegulatoryFinding] = Field(
-        ..., description="List of regulatory findings"
+    author: str = Field(..., description="Author of the document")
+    size: int = Field(..., description="Size of the document in bytes")
+
+
+class AnalyzeRegulatoryBackgroundProgressResponse(BaseModel):
+    product_id: str = Field(..., description="ID of the product")
+    total_files: int = Field(..., description="Total number of files")
+    processed_files: int = Field(
+        ..., description="Number of files that have been processed"
     )
-    conflicts: List[RegulatoryConflict] = Field(
-        ..., description="List of regulatory conflicts"
+    updated_at: datetime = Field(
+        ..., description="Date and time when the progress was last updated"
     )
-
-
-# Request/Response schemas
-class CreateRegulatoryBackgroundRequest(BaseModel):
-    """Request schema for creating regulatory background"""
-
-    summary: RegulatorySummary
-    findings: List[RegulatoryFinding]
-    conflicts: List[RegulatoryConflict]
-
-
-class UpdateRegulatoryBackgroundRequest(BaseModel):
-    """Request schema for updating regulatory background"""
-
-    summary: Optional[RegulatorySummary] = None
-    findings: Optional[List[RegulatoryFinding]] = None
-    conflicts: Optional[List[RegulatoryConflict]] = None
-
-
-class RegulatoryBackgroundResponse(BaseModel):
-    """Response schema for regulatory background"""
-
-    id: str = Field(..., description="Regulatory background ID")
-    product_id: str = Field(..., description="Product ID")
-    product_name: str = Field(..., description="Product name")
-    product_code: Optional[str] = Field(None, description="Product code")
-    summary: RegulatorySummary
-    findings: List[RegulatoryFinding]
-    conflicts: List[RegulatoryConflict]
-    created_at: datetime = Field(..., description="Creation timestamp")
-    updated_at: datetime = Field(..., description="Last update timestamp")
-
-
-class RegulatoryBackgroundListResponse(BaseModel):
-    """Response schema for list of regulatory backgrounds"""
-
-    regulatory_backgrounds: List[RegulatoryBackgroundResponse] = Field(
-        ..., description="List of regulatory backgrounds"
+    analyzing_status: AnalyzingStatus = Field(
+        ..., description="Current status of the product analysis"
     )
-    total: int = Field(..., description="Total number of regulatory backgrounds")

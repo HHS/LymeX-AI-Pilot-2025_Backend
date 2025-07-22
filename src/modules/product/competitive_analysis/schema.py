@@ -336,12 +336,6 @@ class AcceptCompetitiveAnalysisRequest(BaseModel):
     )
 
 
-class AnalyzingStatusResponse(BaseModel):
-    analyzing_status: AnalyzingStatus = Field(
-        ..., description="Current status of the product analysis"
-    )
-
-
 class CompetitiveAnalysisResponse(BaseModel):
     id: str = Field(..., description="ID of the competitive analysis")
     product_name: str = Field(..., description="Name of the product")

@@ -16,17 +16,16 @@ def start_celery_worker() -> None:
         "celery.performance_testing",
         "celery.analyze_test_comparison",
         "celery.analyze_clinical_trial",
+        "celery.analyze_regulatory_background",
         "celery.analyze_regulatory_pathway",
         "celery.analyze_milestone_planning",
     ]
     queues = ",".join(queues)
-    celery.worker_main(
-        [
-            "worker",
-            f"-Q {queues}",
-            f"-c {number_of_workers}",
-        ]
-    )
+    celery.worker_main([
+        "worker",
+        f"-Q {queues}",
+        f"-c {number_of_workers}",
+    ])
 
 
 if __name__ == "__main__":

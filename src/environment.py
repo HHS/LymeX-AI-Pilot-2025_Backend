@@ -70,8 +70,6 @@ class Environment(BaseSettings):
     redis_port: str = Field(6379)
     redis_db: str = Field(0)
 
-    use_separated_ai_service: bool = Field(False)
-
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 

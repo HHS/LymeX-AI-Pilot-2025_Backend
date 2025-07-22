@@ -5,18 +5,17 @@ from src.environment import environment
 from src.celery.worker import celery
 from src.celery.tasks.base import BaseTask
 
-
 @celery.task(
     base=BaseTask,
-    name="src.celery.tasks.analyze_clinical_trial",
+    name="src.celery.tasks.analyze_regulatory_background",
 )
-def analyze_clinical_trial_task(
+def analyze_regulatory_background_task(
     product_id: str,
 ) -> None:
     logger.info(f"Analyzing for product_id: {product_id}")
     try:
         httpx.post(
-            f"{environment.ai_service_url}/analyze-clinical-trial?product_id={product_id}"
+            f"{environment.ai_service_url}/analyze-regulatory-background?product_id={product_id}"
         )
     except HTTPException as e:
         logger.error(f"Failed analyze: {e.detail}")
@@ -24,4 +23,3 @@ def analyze_clinical_trial_task(
     except Exception as e:
         logger.error(f"An unexpected error occurred: {str(e)}")
         raise HTTPException(500, "Internal Server Error") from e
-

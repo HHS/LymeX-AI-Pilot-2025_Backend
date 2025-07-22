@@ -84,9 +84,9 @@ from src.modules.product.final_regulatory_report.router import (
 from src.modules.product.custom_test_plan.router import (
     router as custom_test_plan_router,
 )
-from src.modules.product.regulatory_background.router import (
-    router as regulatory_background_router,
-)
+# from src.modules.product.regulatory_background.router import (
+#     router as regulatory_background_router,
+# )
 from src.modules.checklist.router import (
     router as checklist_router,
 )
@@ -484,7 +484,7 @@ router.include_router(
     checklist_router,
     prefix="/{product_id}/checklist",
 )
-router.include_router(
-    regulatory_background_router,
-    prefix="/{product_id}/regulatory-background",
-)
+# router.include_router(
+#     regulatory_background_router,
+#     prefix="/{product_id}/regulatory-background",
+# )

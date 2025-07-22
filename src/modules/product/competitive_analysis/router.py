@@ -8,7 +8,7 @@ from src.modules.product.competitive_analysis.model import (
     CompetitiveAnalysis,
     CompetitiveAnalysisDetail,
 )
-from src.modules.product.analyzing_status import AnalyzingStatus
+from src.modules.product.analyzing_status import AnalyzingStatus, AnalyzingStatusResponse
 from src.modules.product.product_profile.service import (
     create_audit_record,
     get_product_profile,
@@ -32,7 +32,6 @@ from src.celery.tasks.analyze_competitive_analysis import (
 from src.modules.product.competitive_analysis.schema import (
     AcceptCompetitiveAnalysisRequest,
     AnalyzeCompetitiveAnalysisProgressResponse,
-    AnalyzingStatusResponse,
     CompetitiveAnalysisCompareResponse,
     CompetitiveAnalysisDocumentResponse,
     CompetitiveAnalysisResponse,
