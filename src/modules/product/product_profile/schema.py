@@ -1,5 +1,4 @@
 from datetime import datetime
-from enum import Enum
 from typing import Any
 
 from pydantic import BaseModel, Field
@@ -57,138 +56,152 @@ class UploadTextInputDocumentRequest(BaseModel):
 
 
 class ProductProfileSchemaBase:
-    product_trade_name: str = Field(
+    product_trade_name: str | None = Field(
         "Not Available", description="Trade name of the product"
     )
-    model_number: str = Field(
+    model_number: str | None = Field(
         "Not Available", description="Model number of the product"
     )
-    reference_number: str = Field(
+    reference_number: str | None = Field(
         "Not Available", description="Reference number for the product"
     )
-    description: str = Field("Not Available", description="Description of the product")
-    generic_name: str = Field(
+    description: str | None = Field(
+        "Not Available", description="Description of the product"
+    )
+    generic_name: str | None = Field(
         "Not Available", description="Generic name of the product"
     )
 
-    regulatory_pathway: str = Field(
+    regulatory_pathway: str | None = Field(
         "Not Available", description="Regulatory pathway for product approval"
     )
-    regulatory_classifications: list[RegulatoryClassification] = Field(
+    regulatory_classifications: list[RegulatoryClassification] | None = Field(
         default_factory=list,
         description="List of regulatory classifications",
     )
-    product_code: str = Field("Not Available", description="Product code")
-    regulation_number: str = Field("Not Available", description="Regulation Number")
-    analytical_sensitivity: str = Field(
+    product_code: str | None = Field("Not Available", description="Product code")
+    regulation_number: str | None = Field(
+        "Not Available", description="Regulation Number"
+    )
+    analytical_sensitivity: str | None = Field(
         "Not Available", description="Analytical Sensitivity"
     )
-    analytical_specificity: str = Field(
+    analytical_specificity: str | None = Field(
         "Not Available", description="Analytical Specificity"
     )
-    precision_reproducibility: str = Field(
+    precision_reproducibility: str | None = Field(
         "Not Available", description="APrecision Reproducibility"
     )
-    clinical_performance: str = Field(
+    clinical_performance: str | None = Field(
         "Not Available", description="Clinical Performance"
     )
-    performance_summary: str = Field(
+    performance_summary: str | None = Field(
         "Not Available", description="Overall Performance Summary"
     )
-    performance_references: list[str] = Field(
+    performance_references: list[str] | None = Field(
         default_factory=list, description="Performance References"
     )
-    device_description: str = Field(
+    device_description: str | None = Field(
         "Not Available", description="Description of the device"
     )
-    features: list[Feature] = Field(
+    features: list[Feature] | None = Field(
         default_factory=list, description="List of device features"
     )
-    claims: list[str] = Field(
+    claims: list[str] | None = Field(
         default_factory=list, description="Claims made about the product"
     )
-    conflict_alerts: list[str] = Field(
+    conflict_alerts: list[str] | None = Field(
         default_factory=list, description="Alerts for any conflicts"
     )
-    test_principle: str = Field(
+    test_principle: str | None = Field(
         "Not Available", description="Principle of the test performed by the device"
     )
-    comparative_claims: list[str] = Field(
+    comparative_claims: list[str] | None = Field(
         default_factory=list, description="Comparative claims with other products"
     )
-    fda_cleared: bool | None = Field(
+    fda_cleared: bool | None | None = Field(
         None, description="FDA clearance status (None if not applicable)"
     )
-    fda_approved: bool | None = Field(
+    fda_approved: bool | None | None = Field(
         None, description="FDA approval status (None if not applicable)"
     )
-    ce_marked: bool | None = Field(
+    ce_marked: bool | None | None = Field(
         None, description="CE marking status (None if not applicable)"
     )
-    device_ifu_description: str = Field(
+    device_ifu_description: str | None = Field(
         "Not available", description="Description of instructions for use"
     )
-    instructions_for_use: list[str] = Field(
+    instructions_for_use: list[str] | None = Field(
         default_factory=list, description="Step-by-step instructions for use"
     )
-    principle_of_operation: str = Field(
+    principle_of_operation: str | None = Field(
         "Not Available", description="Principle of Operation"
     )
-    interpretation_of_results: str = Field(
+    interpretation_of_results: str | None = Field(
         "Not Available", description="Interpretation of Results"
     )
-    generic_name: str = Field("Not Available", description="Generic Name")
-    storage_conditions: str = Field("Not Available", description="Storage Conditions")
-    shelf_life: str = Field("Not Available", description="Shelf Life")
-    sterility_status: str = Field("Not Available", description="Sterility Status")
-    software_present: str = Field("Not Available", description="Software Present")
-    single_use_or_reprocessed_single_use_device: str = Field(
+    generic_name: str | None = Field("Not Available", description="Generic Name")
+    storage_conditions: str | None = Field(
+        "Not Available", description="Storage Conditions"
+    )
+    shelf_life: str | None = Field("Not Available", description="Shelf Life")
+    sterility_status: str | None = Field(
+        "Not Available", description="Sterility Status"
+    )
+    software_present: str | None = Field(
+        "Not Available", description="Software Present"
+    )
+    single_use_or_reprocessed_single_use_device: str | None = Field(
         "Not Available", description="Single Use or Reprocessed Single Use Device"
     )
-    animal_derived_materials: str = Field(
+    animal_derived_materials: str | None = Field(
         "Not Available", description="Animal Derived Materials"
     )
-    warnings: list[str] = Field(
+    warnings: list[str] | None = Field(
         default_factory=list, description="Warnings associated with the product"
     )
-    limitations: list[str] = Field(
+    limitations: list[str] | None = Field(
         default_factory=list, description="Limitations of the product"
     )
-    contraindications: list[str] = Field(
+    contraindications: list[str] | None = Field(
         default_factory=list, description="Contraindications for product use"
     )
-    confidence_score: float = Field(
+    confidence_score: float | None = Field(
         0.0, description="Confidence score for the product profile"
     )
-    sources: list[str] = Field(
+    sources: list[str] | None = Field(
         default_factory=list,
         description="Sources of information for the product profile",
     )
-    speed: int = Field(-1, description="Speed")
-    reliability: int = Field(-1, description="Reliability")
-    price: int = Field(0, description="Price of the product")
-    instructions: list[str] = Field(
+    speed: int | None = Field(-1, description="Speed")
+    reliability: int | None = Field(-1, description="Reliability")
+    price: int | None = Field(0, description="Price of the product")
+    instructions: list[str] | None = Field(
         default_factory=list, description="General instructions for the product"
     )
-    type_of_use: str = Field("Not Available", description="Type of use for the product")
-    device_type: str = Field("Not Available", description="Type of device")
-    disease_condition: str = Field(
+    type_of_use: str | None = Field(
+        "Not Available", description="Type of use for the product"
+    )
+    device_type: str | None = Field("Not Available", description="Type of device")
+    disease_condition: str | None = Field(
         "Not Available", description="Disease or condition addressed by the product"
     )
-    patient_population: str = Field(
+    patient_population: str | None = Field(
         "Not Available", description="Patient population for the product"
     )
-    use_environment: str = Field(
+    use_environment: str | None = Field(
         "Not Available", description="Environment where the product is used"
     )
-    combination_use: str = Field(
+    combination_use: str | None = Field(
         "Not Available", description="Combination use with other products"
     )
-    life_supporting: str = Field(
+    life_supporting: str | None = Field(
         "Not Available", description="Whether the product is life supporting"
     )
-    specimen_type: str = Field("Not Available", description="Type of specimen used")
-    special_attributes: str = Field(
+    specimen_type: str | None = Field(
+        "Not Available", description="Type of specimen used"
+    )
+    special_attributes: str | None = Field(
         "Not Available", description="Special attributes of the product"
     )
 
@@ -265,6 +278,10 @@ class ProductProfileResponse(BaseModel, ProductProfileSchemaBase):
     )
     latest_audits: list[ProductProfileAuditResponse] = Field(
         default=[], description="Last three audit records for this product"
+    )
+    is_active_profile: bool = Field(
+        False,
+        description="Indicates if this product is the active profile for the company",
     )
     detail: CompetitiveAnalysisDetailSchema | None = Field(
         None, description="Details of the competitive analysis"

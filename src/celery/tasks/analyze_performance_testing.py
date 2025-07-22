@@ -16,7 +16,8 @@ def analyze_performance_testing_task(
     logger.info(f"Analyzing test for test id: {performance_testing_id}")
     try:
         httpx.post(
-            f"{environment.ai_service_url}/analyze-performance-testing?performance_testing_id={performance_testing_id}"
+            f"{environment.ai_service_url}/analyze-performance-testing?performance_testing_id={performance_testing_id}",
+            timeout=100,
         )
     except HTTPException as e:
         logger.error(f"Failed to test: {e.detail}")

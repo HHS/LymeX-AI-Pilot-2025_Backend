@@ -16,7 +16,8 @@ def analyze_competitive_analysis_task(
     logger.info(f"Parsing competitive analysis for product: {product_id}")
     try:
         httpx.post(
-            f"{environment.ai_service_url}/analyze-competitive-analysis?product_id={product_id}"
+            f"{environment.ai_service_url}/analyze-competitive-analysis?product_id={product_id}",
+            timeout=100,
         )
     except HTTPException as e:
         logger.error(f"Failed to analyze competitive analysis: {e.detail}")

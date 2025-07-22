@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 from src.modules.product.analyzing_status import AnalyzingStatus
 
 
-class RegulatoryBackgroundContent:
+class RegulatoryBackgroundContent(BaseModel):
     title: str = Field(..., description="Title of the regulatory background content")
     content: str = Field(..., description="Content of the regulatory background")
     suggestion: str = Field(..., description="Suggestion for the regulatory background")
