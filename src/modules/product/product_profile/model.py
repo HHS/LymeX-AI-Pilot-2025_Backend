@@ -78,9 +78,11 @@ class ProductProfile(Document, ProductProfileSchemaBase):
                 if analyze_progress
                 else AnalyzingStatus.PENDING
             ),
-            detail=CompetitiveAnalysisDetailSchema(**detail.model_dump())
-            if detail
-            else None,
+            detail=(
+                CompetitiveAnalysisDetailSchema(**detail.model_dump())
+                if detail
+                else None
+            ),
             **product_response,
         )
 
