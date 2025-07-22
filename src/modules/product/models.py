@@ -200,11 +200,11 @@ class Product(Document):
         )
 
         is_analyzing_complete = (
-            analyze_claim_builder_progress_status == AnalyzingStatus.COMPLETED
-            and analyze_competitive_analysis_progress_status
+            # analyze_claim_builder_progress_status == AnalyzingStatus.COMPLETED
+            analyze_competitive_analysis_progress_status
             == AnalyzingStatus.COMPLETED
             and analyze_product_profile_progress_status == AnalyzingStatus.COMPLETED
-            and analyze_regulatory_pathway_progress_status == AnalyzingStatus.COMPLETED
+            # and analyze_regulatory_pathway_progress_status == AnalyzingStatus.COMPLETED
         )
         analyzing_status = (
             AnalyzingStatus.COMPLETED

@@ -16,7 +16,8 @@ def analyze_regulatory_pathway_task(
     logger.info(f"Analyzing for product_id: {product_id}")
     try:
         httpx.post(
-            f"{environment.ai_service_url}/analyze-regulatory-pathway?product_id={product_id}"
+            f"{environment.ai_service_url}/analyze-regulatory-pathway?product_id={product_id}",
+            timeout=100,
         )
     except HTTPException as e:
         logger.error(f"Failed analyze: {e.detail}")

@@ -16,7 +16,8 @@ def analyze_product_profile_task(
     logger.info(f"Parsing product profile for product: {product_id}")
     try:
         httpx.post(
-            f"{environment.ai_service_url}/analyze-product-profile?product_id={product_id}"
+            f"{environment.ai_service_url}/analyze-product-profile?product_id={product_id}",
+            timeout=100,
         )
     except HTTPException as e:
         logger.error(f"Failed to analyze product profile: {e.detail}")
