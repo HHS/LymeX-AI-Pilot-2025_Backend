@@ -144,7 +144,9 @@ async def get_analyze_regulatory_background_progress_handler(
             str(product.id),
         )
     )
-    return analyze_regulatory_background_progress.to_analyze_regulatory_background_progress_response()
+    return (
+        analyze_regulatory_background_progress.to_analyze_regulatory_background_progress_response()
+    )
 
 
 @router.get("/analysis")
