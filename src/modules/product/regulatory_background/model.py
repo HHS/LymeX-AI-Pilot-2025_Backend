@@ -34,7 +34,6 @@ class RegulatoryBackground(Document, RegulatoryBackgroundBase):
         )
 
 
-
 class AnalyzeRegulatoryBackgroundProgress(Document):
     product_id: str
     total_files: int

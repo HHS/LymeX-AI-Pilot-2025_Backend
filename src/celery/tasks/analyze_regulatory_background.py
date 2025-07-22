@@ -5,6 +5,7 @@ from src.environment import environment
 from src.celery.worker import celery
 from src.celery.tasks.base import BaseTask
 
+
 @celery.task(
     base=BaseTask,
     name="src.celery.tasks.analyze_regulatory_background",

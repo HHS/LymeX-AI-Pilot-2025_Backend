@@ -25,4 +25,3 @@ def analyze_clinical_trial_task(
     except Exception as e:
         logger.error(f"An unexpected error occurred: {str(e)}")
         raise HTTPException(500, "Internal Server Error") from e
-

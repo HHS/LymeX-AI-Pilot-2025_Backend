@@ -9,7 +9,6 @@ class AnalyzingStatus(str, Enum):
     COMPLETED = "Completed"
 
 
-
 class AnalyzingStatusResponse(BaseModel):
     analyzing_status: AnalyzingStatus = Field(
         ..., description="Current status of the product analysis"
