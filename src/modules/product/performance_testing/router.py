@@ -59,7 +59,9 @@ async def get_analyze_performance_testing_progress_handler(
             str(product.id),
         )
     )
-    return analyze_performance_testing_progress.to_analyze_performance_testing_progress_response()
+    return (
+        analyze_performance_testing_progress.to_analyze_performance_testing_progress_response()
+    )
 
 
 @router.get("/")
