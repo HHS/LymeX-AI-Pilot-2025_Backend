@@ -31,7 +31,7 @@ class AnalyzeProductProfileProgress(Document):
             updated_at=self.updated_at,
             analyzing_status=(
                 AnalyzingStatus.IN_PROGRESS
-                if self.processed_files < self.total_files
+                if self.processed_files == 0
                 else AnalyzingStatus.COMPLETED
             ),
         )

@@ -5,7 +5,10 @@ from src.infrastructure.init.init_email_template_data import init_email_template
 from src.infrastructure.init.init_system_admin_user import init_system_admin_user
 from src.modules.product.clinical_trial.model import ClinicalTrial
 from src.modules.product.feature_status.model import FeaturesStatus
-from src.modules.product.performance_testing.model import PerformanceTesting
+from src.modules.product.performance_testing.model import (
+    PerformanceTesting,
+    AnalyzePerformanceTestingProgress,
+)
 from src.modules.product.product_profile.analyze_product_profile_progress import (
     AnalyzeProductProfileProgress,
 )
@@ -71,6 +74,7 @@ async def init_db() -> None:
             AnalyzeClaimBuilderProgress,
             ProductVersionControl,
             PerformanceTesting,
+            AnalyzePerformanceTestingProgress,
             TestComparison,
             ClinicalTrial,
             RegulatoryPathway,

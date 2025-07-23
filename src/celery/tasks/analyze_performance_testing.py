@@ -11,12 +11,12 @@ from src.celery.tasks.base import BaseTask
     name="src.celery.tasks.analyze_performance_testing",
 )
 def analyze_performance_testing_task(
-    performance_testing_id: str,
+    product_id: str,
 ) -> None:
-    logger.info(f"Analyzing test for test id: {performance_testing_id}")
+    logger.info(f"Analyzing test for product id: {product_id}")
     try:
         httpx.post(
-            f"{environment.ai_service_url}/analyze-performance-testing?performance_testing_id={performance_testing_id}",
+            f"{environment.ai_service_url}/analyze-performance-testing?product_id={product_id}",
             timeout=100,
         )
     except HTTPException as e:
