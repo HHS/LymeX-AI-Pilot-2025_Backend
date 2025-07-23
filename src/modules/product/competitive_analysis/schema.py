@@ -336,6 +336,16 @@ class AcceptCompetitiveAnalysisRequest(BaseModel):
     )
 
 
+class CompetitiveAnalysisSource(BaseModel):
+    name: str = Field(..., description="Name of the source")
+    key: str = Field(..., description="S3 key for the source document")
+
+
+class SourceWithUrl(BaseModel):
+    name: str = Field(..., description="Name of the source")
+    url: str = Field(..., description="URL of the source document")
+
+
 class CompetitiveAnalysisResponse(BaseModel):
     id: str = Field(..., description="ID of the competitive analysis")
     product_name: str = Field(..., description="Name of the product")
@@ -362,6 +372,9 @@ class CompetitiveAnalysisResponse(BaseModel):
     )
     sources: list[str] | None = Field(
         ..., description="List of sources for the competitive analysis"
+    )
+    sources_with_urls: list[SourceWithUrl] | None = Field(
+        None, description="List of sources with URLs for the competitive analysis"
     )
     accepted: bool | None = Field(
         None, description="Indicates if the competitive analysis is accepted"

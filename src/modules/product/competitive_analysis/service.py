@@ -4,9 +4,6 @@ from src.modules.product.competitive_analysis.model import (
     AnalyzeCompetitiveAnalysisProgress,
     CompetitiveAnalysis,
 )
-from src.modules.product.competitive_analysis.schema import (
-    UpdateCompetitiveAnalysisRequest,
-)
 from src.modules.product.competitive_analysis.storage import (
     clone_competitive_analysis_documents,
 )

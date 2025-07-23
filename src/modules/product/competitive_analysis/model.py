@@ -1,6 +1,7 @@
 from datetime import datetime
 from beanie import Document, PydanticObjectId
 from fastapi import HTTPException
+from src.infrastructure.minio import generate_get_object_presigned_url
 from src.modules.product.analyzing_status import AnalyzingStatus
 from src.modules.product.competitive_analysis.schema import (
     AnalyzeCompetitiveAnalysisProgressResponse,
@@ -9,15 +10,17 @@ from src.modules.product.competitive_analysis.schema import (
     CompetitiveAnalysisDetailBase,
     CompetitiveAnalysisDetailSchema,
     CompetitiveAnalysisResponse,
+    CompetitiveAnalysisSource,
     CompetitiveDeviceAnalysisItemResponse,
     CompetitiveDeviceAnalysisResponse,
+    SourceWithUrl,
 )
 
 
 class CompetitiveAnalysisDetail(Document, CompetitiveAnalysisDetailBase):
     product_simple_name: str
     confidence_score: float
-    sources: list[str]
+    sources: list[CompetitiveAnalysisSource]
     is_ai_generated: bool
     use_system_data: bool
 
@@ -71,6 +74,14 @@ class CompetitiveAnalysis(Document):
                 detail="Competitive analysis detail not found",
             )
 
+        sources_with_urls = [
+            SourceWithUrl(
+                name=source.name,
+                url=await generate_get_object_presigned_url(source.key),
+            )
+            for source in competitive_analysis_detail.sources
+        ]
+
         return CompetitiveAnalysisResponse(
             id=str(self.id),
             product_name=competitive_analysis_detail.product_name,
@@ -81,7 +92,8 @@ class CompetitiveAnalysis(Document):
             is_ai_generated=competitive_analysis_detail.is_ai_generated,
             use_system_data=competitive_analysis_detail.use_system_data,
             confidence_score=competitive_analysis_detail.confidence_score,
-            sources=competitive_analysis_detail.sources,
+            sources=[source.name for source in competitive_analysis_detail.sources],
+            sources_with_urls=sources_with_urls,
             accepted=competitive_analysis_detail.accepted,
             accept_reject_reason=competitive_analysis_detail.accept_reject_reason,
             accept_reject_by=competitive_analysis_detail.accept_reject_by,
@@ -173,7 +185,7 @@ class AnalyzeCompetitiveAnalysisProgress(Document):
             updated_at=self.updated_at,
             analyzing_status=(
                 AnalyzingStatus.IN_PROGRESS
-                if self.processed_files < self.total_files
+                if self.processed_files == 0
                 else AnalyzingStatus.COMPLETED
             ),
         )

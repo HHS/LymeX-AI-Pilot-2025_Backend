@@ -7,6 +7,7 @@ from src.modules.product.claim_builder.service import get_analyze_claim_builder_
 from src.modules.product.competitive_analysis.service import (
     get_analyze_competitive_analysis_progress,
 )
+from src.modules.product.performance_testing.service import get_analyze_performance_testing_progress
 from src.modules.product.product_profile.analyze_product_profile_progress import (
     get_analyze_product_profile_progress,
 )
@@ -199,11 +200,21 @@ class Product(Document):
             else AnalyzingStatus.PENDING
         )
 
+        analyze_performance_testing_progress = (
+            await get_analyze_performance_testing_progress(str(self.id))
+        )
+        analyze_performance_testing_progress_status = (
+            analyze_performance_testing_progress.to_analyze_performance_testing_progress_response().analyzing_status
+            if analyze_performance_testing_progress
+            else AnalyzingStatus.PENDING
+        )
+
         is_analyzing_complete = (
-            # analyze_claim_builder_progress_status == AnalyzingStatus.COMPLETED
             analyze_competitive_analysis_progress_status == AnalyzingStatus.COMPLETED
+            and analyze_claim_builder_progress_status == AnalyzingStatus.COMPLETED
             and analyze_product_profile_progress_status == AnalyzingStatus.COMPLETED
-            # and analyze_regulatory_pathway_progress_status == AnalyzingStatus.COMPLETED
+            and analyze_regulatory_pathway_progress_status == AnalyzingStatus.COMPLETED
+            and analyze_performance_testing_progress_status == AnalyzingStatus.COMPLETED
         )
         analyzing_status = (
             AnalyzingStatus.COMPLETED

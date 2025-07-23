@@ -8,11 +8,11 @@ from src.celery.tasks.analyze_competitive_analysis import (
     analyze_competitive_analysis_task,
 )
 from src.celery.tasks.analyze_milestone_planning import analyze_milestone_planning_task
+from src.celery.tasks.analyze_performance_testing import analyze_performance_testing_task
 from src.celery.tasks.analyze_product_profile import analyze_product_profile_task
 from src.celery.tasks.analyze_regulatory_pathway import analyze_regulatory_pathway_task
 from src.celery.tasks.analyze_test_comparison import analyze_test_comparison_task
 import io
-import uuid
 import base64
 import fastavro
 from fastapi import UploadFile
@@ -135,6 +135,7 @@ def analyze_all(
     analyze_competitive_analysis_task.delay(product_id)
     analyze_milestone_planning_task.delay(product_id)
     analyze_product_profile_task.delay(product_id)
+    analyze_performance_testing_task.delay(product_id)
     analyze_regulatory_pathway_task.delay(product_id)
     analyze_test_comparison_task.delay(product_id)
 
