@@ -20,7 +20,7 @@ class RegulatoryBackground(Document, RegulatoryBackgroundBase):
             PydanticObjectId: str,
         }
 
-    async def to_regulatory_background_response(
+    def to_regulatory_background_response(
         self,
     ) -> RegulatoryBackgroundResponse:
         return RegulatoryBackgroundResponse(
@@ -48,7 +48,7 @@ class AnalyzeRegulatoryBackgroundProgress(Document):
             PydanticObjectId: str,
         }
 
-    def to_regulatory_background_analysis_response(
+    def to_analyze_regulatory_background_progress_response(
         self,
     ) -> AnalyzeRegulatoryBackgroundProgressResponse:
         return AnalyzeRegulatoryBackgroundProgressResponse(

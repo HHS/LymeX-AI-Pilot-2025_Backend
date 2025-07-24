@@ -1,57 +1,122 @@
-from __future__ import annotations
-
+from datetime import datetime
 import enum
-from datetime import date, datetime
-from typing import List, Literal
-
+from beanie import PydanticObjectId
 from pydantic import BaseModel, Field
 
 from src.modules.product.analyzing_status import AnalyzingStatus
 
 
 class RiskLevel(str, enum.Enum):
-    """Overall risk assessment for a test or group of tests."""
-
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
 
 
 class ModuleStatus(str, enum.Enum):
-    """Lifecycle state for the entire performance‑testing module."""
-
     PENDING = "pending"
     IN_PROGRESS = "in_progress"
     COMPLETED = "completed"
     NEEDS_REVIEW = "needs_review"
+    SUGGESTED = "suggested"
+    ACCEPTED = "accepted"
+    REJECTED = "rejected"
 
 
-class PerformanceTestingSection(str, enum.Enum):
-    """
-    Canonical keys for each sub-section.  Keeping the names **exactly**
-    in sync with the attribute names in PerformanceTestingDocument.
-    """
-
-    ANALYTICAL = "analytical"
-    COMPARISON = "comparison"
-    CLINICAL = "clinical"
-    ANIMAL_TESTING = "animal_testing"
-    EMC_SAFETY = "emc_safety"
-    WIRELESS = "wireless"
-    SOFTWARE = "software"
-    INTEROPERABILITY = "interoperability"
-    BIOCOMPATIBILITY = "biocompatibility"
-    STERILITY = "sterility"
-    SHELF_LIFE = "shelf_life"
-    CYBERSECURITY = "cybersecurity"
+class PerformanceTestingConfidentLevel(str, enum.Enum):
+    LOW = "Low"
+    MEDIUM = "Medium"
+    HIGH = "High"
 
 
-class PerfTestingDocumentResponse(BaseModel):
-    """
-    Tiny DTO used by storage.py to return a single presigned URL.
-    """
+class PerformanceTestingReference(BaseModel):
+    title: str
+    url: str | None = None
+    description: str | None = None
 
-    url: str
+
+class PerformanceTestingAssociatedStandard(BaseModel):
+    name: str
+    standard_name: str | None = None
+    version: str | None = None
+    url: str | None = None
+    description: str | None = None
+
+
+class PerformanceTestCard(BaseModel):
+    id: PydanticObjectId = Field(default_factory=PydanticObjectId, alias="_id")
+    product_id: str
+    section_key: str
+    test_code: str
+    test_description: str = "not available"
+    status: ModuleStatus = ModuleStatus.PENDING
+    risk_level: RiskLevel = RiskLevel.MEDIUM
+    ai_confident: int | None = None
+    confident_level: PerformanceTestingConfidentLevel | None = None
+    ai_rationale: str | None = None
+    references: list[PerformanceTestingReference] | None = None
+    associated_standards: list[PerformanceTestingAssociatedStandard] | None = None
+    rejected_justification: str | None = None
+    id: PydanticObjectId = Field(default_factory=PydanticObjectId, alias="_id")
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_by: str = "ai@crowdplat.com"
+
+
+class PerformanceTestingResponse(BaseModel):
+    id: str = Field(..., description="Unique identifier for the performance test")
+    product_id: str = Field(..., description="Associated product identifier")
+    test_name: str = Field(..., description="Name of the performance test")
+    test_description: str = Field(
+        ..., description="Description of the performance test"
+    )
+    status: ModuleStatus = Field(
+        ..., description="Current status of the performance test"
+    )
+    risk_level: RiskLevel | None = Field(
+        None, description="Risk level of the performance test"
+    )
+    ai_confident: int | None = Field(
+        None, description="AI confidence score for the performance test"
+    )
+    confident_level: PerformanceTestingConfidentLevel | None = Field(
+        None, description="Confidence level of the performance test results"
+    )
+    ai_rationale: str | None = Field(
+        None, description="AI rationale for the performance test results"
+    )
+    references: list[PerformanceTestingReference] | None = Field(
+        None, description="List of references for the performance test"
+    )
+    associated_standards: list[PerformanceTestingAssociatedStandard] | None = Field(
+        None, description="List of associated standards for the performance test"
+    )
+    rejected_justification: str | None = Field(
+        None, description="Justification for rejection, if applicable"
+    )
+    created_at: datetime = Field(
+        ..., description="Timestamp when the performance test was created"
+    )
+    created_by: str = Field(
+        ..., description="Email of the user who created the performance test"
+    )
+
+
+class CreatePerformanceTestingRequest(BaseModel):
+    test_name: str = Field(
+        ...,
+        description="Name of the performance test",
+    )
+    risk_level: str = Field(
+        ...,
+        description="Risk level of the performance test",
+    )
+    status: str = Field(
+        ...,
+        description="Current status of the performance test",
+    )
+    test_description: str = Field(
+        ...,
+        description="Description of the performance test",
+    )
 
 
 class PerformanceTestingDocumentResponse(BaseModel):
@@ -64,273 +129,45 @@ class PerformanceTestingDocumentResponse(BaseModel):
         ..., description="Date and time when the document was uploaded"
     )
     author: str = Field(..., description="Author of the document")
+    performance_testing_id: str = Field(
+        ..., description="ID of the associated performance testing"
+    )
     content_type: str = Field(
         ..., description="Content type of the document (e.g., PDF, DOCX)"
     )
     size: int = Field(..., description="Size of the document in bytes")
 
 
-# ------------------------------ Primitive nested objects – reused by multiple sub‑schemas ------------------------------
-
-
-class AttachmentRef(BaseModel):
-    """Reference to a file stored in the vector DB / S3 bucket etc."""
-
-    id: str
-    description: str | None = None
-
-
-class PageRef(BaseModel):
-    """Explicit page references for traceability."""
-
-    page: int
-    comment: str | None = None
-
-
-# Wireless‑specific helper
-class WirelessFunction(BaseModel):
-    name: str
-    risk_tier: Literal["a", "b", "c"]
-
-
-# Interoperability‑specific helper
-class ElectronicInterface(BaseModel):
-    name: str
-    purpose: str
-    status: Literal["active", "service", "inactive"]
-
-
-# Biocompatibility‑specific helper
-class BioMaterial(BaseModel):
-    name: str
-    tissue_type: Literal[
-        "circulating_blood",
-        "blood_path",
-        "bone",
-        "breast_milk",
-        "dentin",
-        "gas_mucosa",
-        "communicating_mucosa",
-        "contacting_skin",
-    ]
-    exposure_duration: Literal["≤24h", ">24h ≤30d", ">30d"]
-
-
-# Sterility‑specific helper
-class SterilizationMethod(BaseModel):
-    method_name: str
-    parameters_summary: str | None = None
-
-
-# ------------------------------ 1. Analytical studies ------------------------------
-
-
-class AnalyticalStudy(BaseModel):
-    study_type: Literal[
-        "precision",
-        "linearity",
-        "sensitivity",
-        "measuring_range",
-        "cut_off",
-        "traceability",
-        "stability",
-        "usability",
-        "other",
-    ]
-    performed: bool = False
-    attachments: List[AttachmentRef] = Field([])
-    pages: List[PageRef] = Field([])
-    confidence: float | None = None
-
-    product_name: str | None = None
-    product_identifier: str | None = None
-    protocol_id: str | None = None
-    objective: str | None = None
-    specimen_description: str | None = None
-    specimen_collection: str | None = None
-    samples_replicates_sites: str | None = None
-    positive_controls: str | None = None
-    negative_controls: str | None = None
-    calibration_requirements: str | None = None
-    assay_steps: str | None = None
-    data_analysis_plan: str | None = None
-    statistical_analysis_plan: str | None = None
-    acceptance_criteria: str | None = None
-    consensus_standards: str | None = None
-
-    deviations: str | None = None
-    discussion: str | None = None
-    conclusion: str | None = None
-
-    key_results: str | None = None
-
-
-# ------------------------------ 2. Comparison studies ------------------------------
-
-
-class ComparisonStudy(BaseModel):
-    study_type: Literal["method", "matrix"]
-    performed: bool = False
-    attachments: List[AttachmentRef] = Field([])
-    comparator_device_k_number: str | None = None
-    summary: str | None = None
-    confidence: float | None = None
-
-
-# ------------------------------ 3. Clinical studies ------------------------------
-
-
-class ClinicalStudy(BaseModel):
-    sensitivity: float | None = None
-    specificity: float | None = None
-    clinical_cut_off: str | None = None
-    pro_included: bool | None = None
-    ppi_included: bool | None = None
-    attachments: List[AttachmentRef] = Field([])
-    summary: str | None = None
-    confidence: float | None = None
-
-
-# ------------------------------ 4. Animal testing (GLP) ------------------------------
-
-
-class AnimalTesting(BaseModel):
-    glp_compliant: bool | None = None
-    justification_if_not_glp: str | None = None
-    attachments: List[AttachmentRef] = Field([])
-    confidence: float | None = None
-
-
-# ------------------------------ 5. EMC / Electrical / Mechanical / Thermal safety ------------------------------
-
-
-class EMCSafety(BaseModel):
-    num_dut: int | None = None
-    worst_harm: Literal["death_serious", "non_serious", "no_harm"] | None = None
-    iec_edition: str | None = None
-    asca: bool | None = None
-    essential_performance: List[str] = Field([])
-    pass_fail_pages: List[PageRef] = Field([])
-    degradations_observed: str | None = None
-    allowances: str | None = None
-    deviations: str | None = None
-    final_version_tested: bool | None = None
-    attachments: List[AttachmentRef] = Field([])
-    confidence: float | None = None
-
-
-# ------------------------------ 6. Wireless coexistence ------------------------------
-
-
-class WirelessCoexistence(BaseModel):
-    functions: List[WirelessFunction] = Field([])
-    coexistence_tier_met: bool | None = None
-    fwp_summary: str | None = None
-    eut_exposed: bool | None = None
-    fwp_maintained: bool | None = None
-    risk_mitigations_pages: List[PageRef] = Field([])
-    attachments: List[AttachmentRef] = Field([])
-    confidence: float | None = None
-
-
-# 7. ------------------------------ Software & cyber‑security performance ------------------------------
-
-
-class SoftwarePerformance(BaseModel):
-    contains_software: bool | None = None
-    digital_health: bool | None = None
-    documentation_level: str | None = None
-    architecture_views_present: bool | None = None
-    unresolved_anomalies_attachment: AttachmentRef | None = None
-    sbom_attachment: AttachmentRef | None = None
-    risk_assessment_attachment: AttachmentRef | None = None
-    patch_plan_pages: List[PageRef] = Field([])
-    confidence: float | None = None
-
-
-# ------------------------------ 8. Interoperability ------------------------------
-
-
-class Interoperability(BaseModel):
-    interfaces: List[ElectronicInterface] | None = None
-    risk_assessment_attachment: AttachmentRef | None = None
-    labeling_pages: List[PageRef] | None = None
-    confidence: float | None = None
-
-
-# ------------------------------ 9. Biocompatibility ------------------------------
-
-
-class Biocompatibility(BaseModel):
-    tissue_contacting: bool | None = None
-    components: List[BioMaterial] | None = None
-    repeat_exposure: bool | None = None
-    test_reports: List[AttachmentRef] | None = None
-    rationale_if_no_test: str | None = None
-    confidence: float | None = None
-
-
-# ------------------------------ 10. Sterility validation ------------------------------
-
-
-class SterilityValidation(BaseModel):
-    packaged_as_sterile: bool | None = None
-    methods: List[SterilizationMethod] | None = None
-    sal: str | None = None
-    validation_method: str | None = None
-    pyrogenicity_test: bool | None = None
-    packaging_description: str | None = None
-    modifications_warning_confirmed: bool | None = None
-    attachments: List[AttachmentRef] = Field([])
-    confidence: float | None = None
-
-
-# ------------------------------ 11. Shelf‑life / accelerated aging ------------------------------
-
-
-class ShelfLife(BaseModel):
-    assessed_before: bool | None = None
-    proposed_shelf_life_months: int | None = None
-    attachments: List[AttachmentRef] = Field([])
-    rationale_if_no_test: str | None = None
-    confidence: float | None = None
-
-
-# ------------------------------ 12. Cyber‑security (separate from SW performance as per questionnaire) ------------------------------
-
-
-class CyberSecurity(BaseModel):
-    threat_model_attachment: AttachmentRef | None = None
-    sbom_attachment: AttachmentRef | None = None
-    architecture_views_present: bool | None = None
-    risk_assessment_attachment: AttachmentRef | None = None
-    patch_plan_pages: List[PageRef] = Field([])
-    eol_support_doc_attachment: AttachmentRef | None = None
-    security_controls_pages: List[PageRef] = Field([])
-    confidence: float | None = None
-
-
-# ------------------------------ Aggregate document – what gets persisted in the DB ------------------------------
-
-
-class PerformanceTestingResponse(BaseModel):
-    id: str
-    product_id: str
-    analytical: List[AnalyticalStudy] = Field([])
-    comparison: List[ComparisonStudy] = Field([])
-    clinical: List[ClinicalStudy] = Field([])
-    animal_testing: AnimalTesting | None = None
-    emc_safety: EMCSafety | None = None
-    wireless: WirelessCoexistence | None = None
-    software: SoftwarePerformance | None = None
-    interoperability: Interoperability | None = None
-    biocompatibility: Biocompatibility | None = None
-    sterility: SterilityValidation | None = None
-    shelf_life: ShelfLife | None = None
-    cybersecurity: CyberSecurity | None = None
-    overall_risk_level: RiskLevel | None = None
-    status: ModuleStatus = ModuleStatus.PENDING
-    missing_items: List[str] = Field([])
+class UploadTextInputDocumentRequest(BaseModel):
+    text: str = Field(..., description="Text input for the document")
+    performance_testing_id: str = Field(
+        ..., description="ID of the associated performance testing"
+    )
+
+
+def map_to_performance_testing_response(
+    performance_test_card: PerformanceTestCard,
+) -> PerformanceTestingResponse:
+    return PerformanceTestingResponse(
+        id=str(performance_test_card.id),
+        product_id=performance_test_card.product_id,
+        test_name=performance_test_card.section_key,
+        test_description=performance_test_card.test_description,
+        status=performance_test_card.status,
+        risk_level=performance_test_card.risk_level,
+        ai_confident=performance_test_card.ai_confident,
+        confident_level=performance_test_card.confident_level,
+        ai_rationale=performance_test_card.ai_rationale,
+        references=performance_test_card.references,
+        associated_standards=performance_test_card.associated_standards,
+        rejected_justification=performance_test_card.rejected_justification,
+        created_at=performance_test_card.created_at,
+        created_by=performance_test_card.created_by,
+    )
+
+
+class RejectedPerformanceTestingRequest(BaseModel):
+    rejected_justification: str
 
 
 class AnalyzePerformanceTestingProgressResponse(BaseModel):
@@ -345,7 +182,3 @@ class AnalyzePerformanceTestingProgressResponse(BaseModel):
     analyzing_status: AnalyzingStatus = Field(
         ..., description="Current status of the product analysis"
     )
-
-
-class UploadTextInputDocumentRequest(BaseModel):
-    text: str = Field(..., description="Text input for the document")

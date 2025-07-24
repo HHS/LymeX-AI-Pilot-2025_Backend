@@ -348,6 +348,7 @@ class SourceWithUrl(BaseModel):
 
 class CompetitiveAnalysisResponse(BaseModel):
     id: str = Field(..., description="ID of the competitive analysis")
+    product_id: str | None = Field(..., description="ID of the product")
     product_name: str = Field(..., description="Name of the product")
     reference_number: str | None = Field(
         ..., description="Reference Number of the competitive analysis"

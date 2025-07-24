@@ -6,11 +6,15 @@ from src.infrastructure.init.init_system_admin_user import init_system_admin_use
 from src.modules.product.clinical_trial.model import ClinicalTrial
 from src.modules.product.feature_status.model import FeaturesStatus
 from src.modules.product.performance_testing.model import (
-    PerformanceTesting,
+    PerformanceTestPlan,
     AnalyzePerformanceTestingProgress,
 )
 from src.modules.product.product_profile.analyze_product_profile_progress import (
     AnalyzeProductProfileProgress,
+)
+from src.modules.product.regulatory_background.model import (
+    AnalyzeRegulatoryBackgroundProgress,
+    RegulatoryBackground,
 )
 from src.modules.product.regulatory_pathway.model import (
     AnalyzeRegulatoryPathwayProgress,
@@ -73,7 +77,7 @@ async def init_db() -> None:
             ClaimBuilder,
             AnalyzeClaimBuilderProgress,
             ProductVersionControl,
-            PerformanceTesting,
+            PerformanceTestPlan,
             AnalyzePerformanceTestingProgress,
             TestComparison,
             ClinicalTrial,
@@ -87,7 +91,8 @@ async def init_db() -> None:
             Notification,
             MasterChecklist,
             Checklist,
-            # RegulatoryBackground,
+            RegulatoryBackground,
+            AnalyzeRegulatoryBackgroundProgress,
         ],
     )
     logger.info(

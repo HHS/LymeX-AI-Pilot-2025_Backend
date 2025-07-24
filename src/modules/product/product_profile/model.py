@@ -108,21 +108,6 @@ class ProductProfile(Document, ProductProfileSchemaBase):
         )
 
 
-class AnalyzeProductProfileProgress(Document):
-    product_id: str
-    total_files: int
-    processed_files: int
-    updated_at: datetime
-
-    class Settings:
-        name = "analyze_product_profile_progress"
-
-    class Config:
-        json_encoders = {
-            PydanticObjectId: str,
-        }
-
-
 class ProductProfileAudit(Document):
     product_id: str
     product_name: str | None = None

@@ -182,7 +182,8 @@ async def get_all_competitive_analysis_handler(
             analyzing_status=AnalyzingStatus.IN_PROGRESS,
         )
     competitive_analysis_tasks = [
-        i.to_competitive_analysis_response() for i in competitive_analysis
+        i.to_competitive_analysis_response(product=product)
+        for i in competitive_analysis
     ]
     competitive_analysis_responses = await asyncio.gather(*competitive_analysis_tasks)
     return competitive_analysis_responses
@@ -198,7 +199,7 @@ async def competitive_analysis_compare_handler(
         competitive_analysis_id,
     )
     competitive_analysis_response = (
-        await competitive_analysis.to_competitive_analysis_response()
+        await competitive_analysis.to_competitive_analysis_response(product=product)
     )
     return competitive_analysis_response.comparison
 
@@ -330,4 +331,4 @@ async def accept_competitive_analysis_handler(
             analyzing_status=AnalyzingStatus.IN_PROGRESS,
         )
 
-    return competitive_analysis.to_competitive_analysis_response()
+    return competitive_analysis.to_competitive_analysis_response(product=product)

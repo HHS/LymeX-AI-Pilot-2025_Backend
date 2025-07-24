@@ -37,7 +37,7 @@ from src.modules.product.models import Product
 router = APIRouter()
 
 
-@router.get("/document")
+@router.get("/documents")
 async def get_regulatory_background_document_handler(
     product: Annotated[Product, Depends(get_current_product)],
 ) -> list[RegulatoryBackgroundDocumentResponse]:
@@ -47,7 +47,7 @@ async def get_regulatory_background_document_handler(
     return regulatory_background_documents
 
 
-@router.get("/document/upload-url")
+@router.get("/documents/upload-url")
 async def get_upload_regulatory_background_document_url_handler(
     file_name: str,
     product: Annotated[Product, Depends(get_current_product)],
@@ -64,12 +64,12 @@ async def get_upload_regulatory_background_document_url_handler(
     return upload_url
 
 
-@router.put("/document/text-input")
+@router.put("/documents/text-input")
 async def upload_regulatory_background_text_input_handler(
     product: Annotated[Product, Depends(get_current_product)],
     current_user: Annotated[User, Depends(get_current_user)],
     _: Annotated[bool, Depends(check_product_edit_allowed)],
-    text: str | None = Form(None, description="Text input for the document"),
+    text: str | None = Form(None, description="Text input for the documents"),
     files: List[UploadFile] = File([], description="Files to upload"),
 ) -> None:
     # Upload text if provided
@@ -100,7 +100,7 @@ async def upload_regulatory_background_text_input_handler(
     )
 
 
-@router.delete("/document/{document_name}")
+@router.delete("/documents/{document_name}")
 async def delete_regulatory_background_document_handler(
     document_name: str,
     product: Annotated[Product, Depends(get_current_product)],
@@ -114,7 +114,7 @@ async def delete_regulatory_background_document_handler(
     await create_audit_record(
         product,
         current_user,
-        "Delete product profile document",
+        "Delete product profile documents",
         {"document_name": document_name},
     )
 
@@ -149,7 +149,7 @@ async def get_analyze_regulatory_background_progress_handler(
     )
 
 
-@router.get("/analysis")
+@router.get("/")
 async def get_regulatory_background_handler(
     product: Annotated[Product, Depends(get_current_product)],
 ) -> RegulatoryBackgroundResponse | AnalyzingStatusResponse:
@@ -160,17 +160,4 @@ async def get_regulatory_background_handler(
         return AnalyzingStatusResponse(
             analyzing_status=AnalyzingStatus.IN_PROGRESS,
         )
-    analyze_regulatory_background_progress = (
-        await get_analyze_regulatory_background_progress(
-            product.id,
-        )
-    )
-    analysis = regulatory_background.to_regulatory_background_analysis_response(
-        product,
-        (
-            analyze_regulatory_background_progress.to_analyze_regulatory_background_progress_response()
-            if analyze_regulatory_background_progress
-            else None
-        ),
-    )
-    return analysis
+    return regulatory_background.to_regulatory_background_response()
