@@ -219,11 +219,21 @@ class Product(Document):
             and analyze_performance_testing_progress_status == AnalyzingStatus.COMPLETED
         )
 
-        print(f"analyze_claim_builder_progress_status: {analyze_claim_builder_progress_status}")
-        print(f"analyze_competitive_analysis_progress_status: {analyze_competitive_analysis_progress_status}")
-        print(f"analyze_product_profile_progress_status: {analyze_product_profile_progress_status}")
-        print(f"analyze_regulatory_pathway_progress_status: {analyze_regulatory_pathway_progress_status}")
-        print(f"analyze_performance_testing_progress_status: {analyze_performance_testing_progress_status}")
+        print(
+            f"analyze_claim_builder_progress_status: {analyze_claim_builder_progress_status}"
+        )
+        print(
+            f"analyze_competitive_analysis_progress_status: {analyze_competitive_analysis_progress_status}"
+        )
+        print(
+            f"analyze_product_profile_progress_status: {analyze_product_profile_progress_status}"
+        )
+        print(
+            f"analyze_regulatory_pathway_progress_status: {analyze_regulatory_pathway_progress_status}"
+        )
+        print(
+            f"analyze_performance_testing_progress_status: {analyze_performance_testing_progress_status}"
+        )
 
         analyzing_status = (
             AnalyzingStatus.COMPLETED
