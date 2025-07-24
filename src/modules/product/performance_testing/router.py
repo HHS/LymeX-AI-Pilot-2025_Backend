@@ -60,7 +60,6 @@ async def create_performance_testing_handler(
     performance_testing = await create_performance_testing(
         product_id=product.id,
         payload=payload,
-        user_email=current_user.email,
     )
     await create_audit_record(
         product,

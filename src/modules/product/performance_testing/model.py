@@ -1,6 +1,7 @@
 from datetime import datetime
 from beanie import Document, PydanticObjectId
 
+from src.modules.product.analyzing_status import AnalyzingStatus
 from src.modules.product.performance_testing.schema import (
     PerformanceTestingConfidentLevel,
     PerformanceTestingResponse,
@@ -8,8 +9,8 @@ from src.modules.product.performance_testing.schema import (
     PerformanceTestingRiskLevel,
     PerformanceTestingReference,
     PerformanceTestingAssociatedStandard,
+    AnalyzePerformanceTestingProgressResponse,
 )
-
 
 class PerformanceTesting(Document):
     product_id: str
@@ -23,8 +24,6 @@ class PerformanceTesting(Document):
     references: list[PerformanceTestingReference] | None = None
     associated_standards: list[PerformanceTestingAssociatedStandard] | None = None
     rejected_justification: str | None = None
-    created_at: datetime
-    created_by: str
 
     class Settings:
         name = "performance_testing"
@@ -48,6 +47,34 @@ class PerformanceTesting(Document):
             references=self.references,
             associated_standards=self.associated_standards,
             rejected_justification=self.rejected_justification,
-            created_at=self.created_at,
-            created_by=self.created_by,
+        )
+
+
+class AnalyzePerformanceTestingProgress(Document):
+    product_id: str
+    total_files: int
+    processed_files: int
+    updated_at: datetime
+
+    class Settings:
+        name = "analyze_performance_testing_progress"
+
+    class Config:
+        json_encoders = {
+            PydanticObjectId: str,
+        }
+
+    def to_analyze_performance_testing_progress_response(
+        self,
+    ) -> AnalyzePerformanceTestingProgressResponse:
+        return AnalyzePerformanceTestingProgressResponse(
+            product_id=self.product_id,
+            total_files=self.total_files,
+            processed_files=self.processed_files,
+            updated_at=self.updated_at,
+            analyzing_status=(
+                AnalyzingStatus.IN_PROGRESS
+                if self.processed_files == 0
+                else AnalyzingStatus.COMPLETED
+            ),
         )

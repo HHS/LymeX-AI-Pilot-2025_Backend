@@ -1,8 +1,9 @@
-from datetime import datetime, timezone
-
 from beanie import PydanticObjectId
 from fastapi import HTTPException, status
-from src.modules.product.performance_testing.model import PerformanceTesting
+from src.modules.product.performance_testing.model import (
+    AnalyzePerformanceTestingProgress,
+    PerformanceTesting,
+)
 from src.modules.product.performance_testing.schema import (
     CreatePerformanceTestingRequest,
     PerformanceTestingStatus,
@@ -23,7 +24,6 @@ async def get_performance_testing_by_name(
 async def create_performance_testing(
     product_id: str | PydanticObjectId,
     payload: CreatePerformanceTestingRequest,
-    user_email: str,
 ) -> PerformanceTesting:
     existing_test = await get_performance_testing_by_name(
         product_id=product_id,
@@ -40,8 +40,6 @@ async def create_performance_testing(
         test_description=payload.test_description,
         status=payload.status or PerformanceTestingStatus.PENDING,
         risk_level=payload.risk_level,
-        created_at=datetime.now(timezone.utc),
-        created_by=user_email,
     )
     await performance_testing.save()
     return performance_testing
@@ -71,12 +69,23 @@ async def clone_performance_testing(
         PerformanceTesting.product_id == str(product_id),
     ).to_list()
     if existing_testings:
-        await PerformanceTesting.insert_many(
-            [
-                PerformanceTesting(
-                    **testing.model_dump(exclude={"id", "product_id"}),
-                    product_id=str(new_product_id),
-                )
-                for testing in existing_testings
-            ]
+        await PerformanceTesting.insert_many([
+            PerformanceTesting(
+                **testing.model_dump(exclude={"id", "product_id"}),
+                product_id=str(new_product_id),
+            )
+            for testing in existing_testings
+        ])
+
+
+async def get_analyze_performance_testing_progress(
+    product_id: str,
+) -> AnalyzePerformanceTestingProgress | None:
+    analyze_performance_testing_progress = (
+        await AnalyzePerformanceTestingProgress.find_one(
+            AnalyzePerformanceTestingProgress.product_id == product_id,
         )
+    )
+    if not analyze_performance_testing_progress:
+        return None
+    return analyze_performance_testing_progress

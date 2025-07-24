@@ -3,6 +3,8 @@ from enum import Enum
 
 from pydantic import BaseModel, Field
 
+from src.modules.product.analyzing_status import AnalyzingStatus
+
 
 class PerformanceTestingStatus(str, Enum):
     PENDING = "Pending"
@@ -101,12 +103,6 @@ class PerformanceTestingResponse(BaseModel):
     rejected_justification: str | None = Field(
         None, description="Justification for rejection, if applicable"
     )
-    created_at: datetime = Field(
-        ..., description="Timestamp when the performance test was created"
-    )
-    created_by: str = Field(
-        ..., description="Email of the user who created the performance test"
-    )
 
 
 class UploadTextInputDocumentRequest(BaseModel):
@@ -127,3 +123,17 @@ class PerformanceTestingDocumentResponse(BaseModel):
         ..., description="Content type of the document (e.g., PDF, DOCX)"
     )
     size: int = Field(..., description="Size of the document in bytes")
+
+
+class AnalyzePerformanceTestingProgressResponse(BaseModel):
+    product_id: str = Field(..., description="ID of the reference product")
+    total_files: int = Field(..., description="Total number of files")
+    processed_files: int = Field(
+        ..., description="Number of files that have been processed"
+    )
+    updated_at: datetime = Field(
+        ..., description="Date and time when the progress was last updated"
+    )
+    analyzing_status: AnalyzingStatus = Field(
+        ..., description="Current status of the product analysis"
+    )
