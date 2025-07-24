@@ -86,9 +86,11 @@ class CompetitiveAnalysis(Document):
         return CompetitiveAnalysisResponse(
             id=str(self.id),
             product_id=self.product_id if self.is_self_analysis else None,
-            product_name=product.name
-            if self.is_self_analysis
-            else competitive_analysis_detail.product_name,
+            product_name=(
+                product.name
+                if self.is_self_analysis
+                else competitive_analysis_detail.product_name
+            ),
             reference_number=competitive_analysis_detail.regulation_number,
             regulatory_pathway=competitive_analysis_detail.regulatory_pathway,
             fda_approved=competitive_analysis_detail.fda_approved,
