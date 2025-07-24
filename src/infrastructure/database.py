@@ -12,6 +12,10 @@ from src.modules.product.performance_testing.model import (
 from src.modules.product.product_profile.analyze_product_profile_progress import (
     AnalyzeProductProfileProgress,
 )
+from src.modules.product.regulatory_background.model import (
+    AnalyzeRegulatoryBackgroundProgress,
+    RegulatoryBackground,
+)
 from src.modules.product.regulatory_pathway.model import (
     AnalyzeRegulatoryPathwayProgress,
     RegulatoryPathway,
@@ -87,7 +91,8 @@ async def init_db() -> None:
             Notification,
             MasterChecklist,
             Checklist,
-            # RegulatoryBackground,
+            RegulatoryBackground,
+            AnalyzeRegulatoryBackgroundProgress,
         ],
     )
     logger.info(

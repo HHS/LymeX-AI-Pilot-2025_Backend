@@ -18,7 +18,7 @@ class RegulatoryBackgroundBase:
     intended_use_statement: RegulatoryBackgroundContent
 
 
-class RegulatoryBackground(BaseModel, RegulatoryBackgroundBase): ...
+class RegulatoryBackgroundSchema(BaseModel, RegulatoryBackgroundBase): ...
 
 
 class RegulatoryBackgroundResponse(BaseModel, RegulatoryBackgroundBase):
