@@ -1,5 +1,4 @@
 from src.modules.product.models import Product
-from src.modules.product.performance_testing.model import PerformanceTesting
 from src.modules.product.clinical_trial.model import ClinicalTrial
 from src.modules.product.regulatory_pathway.model import RegulatoryPathway
 from src.modules.search_bar.schema import UnifiedSearchResult
@@ -29,7 +28,8 @@ async def unified_search(company: Company, query: str) -> List[UnifiedSearchResu
                 )
 
     # --- PerformanceTesting Model Search ---
-    performance_testings = await PerformanceTesting.find({}).to_list()
+    # performance_testings = await PerformanceTesting.find({}).to_list()
+    performance_testings = []
     for pt in performance_testings:
         # Optionally, filter by company or by product_id in products
         if pt.product_id not in [str(p.id) for p in products]:

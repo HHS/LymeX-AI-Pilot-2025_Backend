@@ -1,75 +1,64 @@
 from datetime import datetime
-from enum import Enum
-
+import enum
+from beanie import PydanticObjectId
 from pydantic import BaseModel, Field
 
 from src.modules.product.analyzing_status import AnalyzingStatus
 
 
-class PerformanceTestingStatus(str, Enum):
-    PENDING = "Pending"
-    IN_PROGRESS = "In_Progress"
-    SUGGESTED = "Suggested"
-    ACCEPTED = "Accepted"
-    REJECTED = "Rejected"
+class RiskLevel(str, enum.Enum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
 
 
-class PerformanceTestingRiskLevel(str, Enum):
-    LOW = "Low"
-    MEDIUM = "Medium"
-    HIGH = "High"
+class ModuleStatus(str, enum.Enum):
+    PENDING = "pending"
+    IN_PROGRESS = "in_progress"
+    COMPLETED = "completed"
+    NEEDS_REVIEW = "needs_review"
+    SUGGESTED = "suggested"
+    ACCEPTED = "accepted"
+    REJECTED = "rejected"
 
 
-class PerformanceTestingConfidentLevel(str, Enum):
+class PerformanceTestingConfidentLevel(str, enum.Enum):
     LOW = "Low"
     MEDIUM = "Medium"
     HIGH = "High"
 
 
 class PerformanceTestingReference(BaseModel):
-    title: str = Field(..., description="Title of the reference")
-    url: str = Field(..., description="URL of the reference")
-    description: str = Field("", description="Description of the reference")
+    title: str
+    url: str | None = None
+    description: str | None = None
 
 
 class PerformanceTestingAssociatedStandard(BaseModel):
-    name: str = Field(..., description="Name of the associated standard + version")
-    standard_name: str = Field(..., description="Name of the associated standard")
-    version: str = Field(..., description="Version of the associated standard")
-    url: str = Field(..., description="URL of the associated standard")
-    description: str = Field("", description="Description of the associated standard")
+    name: str
+    standard_name: str | None = None
+    version: str | None = None
+    url: str | None = None
+    description: str | None = None
 
 
-# ============ REQUEST SCHEMAS ============
-
-
-class CreatePerformanceTestingRequest(BaseModel):
-    test_name: str = Field(
-        ...,
-        description="Name of the performance test",
-    )
-    risk_level: PerformanceTestingRiskLevel = Field(
-        ...,
-        description="Risk level of the performance test",
-    )
-    status: PerformanceTestingStatus = Field(
-        ...,
-        description="Current status of the performance test",
-    )
-    test_description: str = Field(
-        ...,
-        description="Description of the performance test",
-    )
-
-
-# ============ REQUEST SCHEMAS ============
-
-
-class RejectedPerformanceTestingRequest(BaseModel):
-    rejected_justification: str
-
-
-# ============ RESPONSE SCHEMAS ============
+class PerformanceTestCard(BaseModel):
+    id: PydanticObjectId = Field(default_factory=PydanticObjectId, alias="_id")
+    product_id: str
+    section_key: str
+    test_code: str
+    test_description: str = "not available"
+    status: ModuleStatus = ModuleStatus.PENDING
+    risk_level: RiskLevel = RiskLevel.MEDIUM
+    ai_confident: int | None = None
+    confident_level: PerformanceTestingConfidentLevel | None = None
+    ai_rationale: str | None = None
+    references: list[PerformanceTestingReference] | None = None
+    associated_standards: list[PerformanceTestingAssociatedStandard] | None = None
+    rejected_justification: str | None = None
+    id: PydanticObjectId = Field(default_factory=PydanticObjectId, alias="_id")
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_by: str = "ai@crowdplat.com"
 
 
 class PerformanceTestingResponse(BaseModel):
@@ -79,11 +68,11 @@ class PerformanceTestingResponse(BaseModel):
     test_description: str = Field(
         ..., description="Description of the performance test"
     )
-    status: PerformanceTestingStatus = Field(
+    status: ModuleStatus = Field(
         ..., description="Current status of the performance test"
     )
-    risk_level: PerformanceTestingRiskLevel | None = (
-        Field(None, description="Risk level of the performance test"),
+    risk_level: RiskLevel | None = Field(
+        None, description="Risk level of the performance test"
     )
     ai_confident: int | None = Field(
         None, description="AI confidence score for the performance test"
@@ -103,10 +92,31 @@ class PerformanceTestingResponse(BaseModel):
     rejected_justification: str | None = Field(
         None, description="Justification for rejection, if applicable"
     )
+    created_at: datetime = Field(
+        ..., description="Timestamp when the performance test was created"
+    )
+    created_by: str = Field(
+        ..., description="Email of the user who created the performance test"
+    )
 
 
-class UploadTextInputDocumentRequest(BaseModel):
-    text: str = Field(..., description="Text input for the document")
+class CreatePerformanceTestingRequest(BaseModel):
+    test_name: str = Field(
+        ...,
+        description="Name of the performance test",
+    )
+    risk_level: str = Field(
+        ...,
+        description="Risk level of the performance test",
+    )
+    status: str = Field(
+        ...,
+        description="Current status of the performance test",
+    )
+    test_description: str = Field(
+        ...,
+        description="Description of the performance test",
+    )
 
 
 class PerformanceTestingDocumentResponse(BaseModel):
@@ -119,14 +129,49 @@ class PerformanceTestingDocumentResponse(BaseModel):
         ..., description="Date and time when the document was uploaded"
     )
     author: str = Field(..., description="Author of the document")
+    performance_testing_id: str = Field(
+        ..., description="ID of the associated performance testing"
+    )
     content_type: str = Field(
         ..., description="Content type of the document (e.g., PDF, DOCX)"
     )
     size: int = Field(..., description="Size of the document in bytes")
 
 
+class UploadTextInputDocumentRequest(BaseModel):
+    text: str = Field(..., description="Text input for the document")
+    performance_testing_id: str = Field(
+        ..., description="ID of the associated performance testing"
+    )
+
+
+def map_to_performance_testing_response(
+    performance_test_card: PerformanceTestCard,
+) -> PerformanceTestingResponse:
+    return PerformanceTestingResponse(
+        id=str(performance_test_card.id),
+        product_id=performance_test_card.product_id,
+        test_name=performance_test_card.section_key,
+        test_description=performance_test_card.test_description,
+        status=performance_test_card.status,
+        risk_level=performance_test_card.risk_level,
+        ai_confident=performance_test_card.ai_confident,
+        confident_level=performance_test_card.confident_level,
+        ai_rationale=performance_test_card.ai_rationale,
+        references=performance_test_card.references,
+        associated_standards=performance_test_card.associated_standards,
+        rejected_justification=performance_test_card.rejected_justification,
+        created_at=performance_test_card.created_at,
+        created_by=performance_test_card.created_by,
+    )
+
+
+class RejectedPerformanceTestingRequest(BaseModel):
+    rejected_justification: str
+
+
 class AnalyzePerformanceTestingProgressResponse(BaseModel):
-    product_id: str = Field(..., description="ID of the reference product")
+    product_id: str = Field(..., description="ID of the product")
     total_files: int = Field(..., description="Total number of files")
     processed_files: int = Field(
         ..., description="Number of files that have been processed"

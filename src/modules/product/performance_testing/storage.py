@@ -21,8 +21,8 @@ from minio.datatypes import Object
 
 class TestingDocumentInfo(TypedDict):
     file_name: str
+    performance_testing_id: str
     author: str
-    test_name: str
 
 
 async def analyze_performance_testing_document(
@@ -36,8 +36,8 @@ async def analyze_performance_testing_document(
         file_name=file_name,
         url=await generate_get_object_presigned_url(obj.object_name),
         uploaded_at=obj.last_modified.isoformat(),
+        performance_testing_id=testing_document_info.get("performance_testing_id"),
         author=testing_document_info["author"],
-        test_name=testing_document_info.get("test_name"),
         content_type=obj.content_type
         or mimetypes.guess_type(file_name)[0]
         or "application/octet-stream",
@@ -101,7 +101,7 @@ TESTING_DOCUMENT_INFO_SCHEMA = {
     "fields": [
         {"name": "file_name", "type": "string"},
         {"name": "author", "type": "string"},
-        {"name": "test_name", "type": "string"},
+        {"name": "performance_testing_id", "type": "string"},
     ],
 }
 

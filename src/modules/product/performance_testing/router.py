@@ -1,7 +1,9 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 import httpx
+from loguru import logger
 
+from src.modules.product.performance_testing.model import PerformanceTestPlan
 from src.modules.product.performance_testing.storage import (
     TestingDocumentInfo,
     delete_performance_testing_document,
@@ -12,18 +14,18 @@ from src.celery.tasks.analyze_performance_testing import (
     analyze_performance_testing_task,
 )
 from src.modules.product.performance_testing.service import (
-    create_performance_testing,
-    get_performance_testing,
-    get_product_performance_testings,
+    get_performance_test_plan,
 )
 from src.modules.authentication.dependencies import get_current_user
 from src.modules.product.performance_testing.schema import (
     CreatePerformanceTestingRequest,
+    ModuleStatus,
+    PerformanceTestCard,
     PerformanceTestingDocumentResponse,
     PerformanceTestingResponse,
-    PerformanceTestingStatus,
     RejectedPerformanceTestingRequest,
     UploadTextInputDocumentRequest,
+    map_to_performance_testing_response,
 )
 from src.modules.product.product_profile.service import create_audit_record
 from src.modules.user.models import User
@@ -41,13 +43,17 @@ router = APIRouter()
 async def get_product_performance_testings_handler(
     product: Annotated[Product, Depends(get_current_product)],
 ) -> list[PerformanceTestingResponse]:
-    performance_testings = await get_product_performance_testings(
+    performance_test_plan = await get_performance_test_plan(
         product_id=product.id,
     )
-    performance_testings = [
-        pt.to_performance_testing_response() for pt in performance_testings
-    ]
-    return performance_testings
+    return (
+        [
+            map_to_performance_testing_response(test)
+            for test in performance_test_plan.tests
+        ]
+        if performance_test_plan
+        else []
+    )
 
 
 @router.post("/")
@@ -57,20 +63,23 @@ async def create_performance_testing_handler(
     current_user: Annotated[User, Depends(get_current_user)],
     _: Annotated[bool, Depends(check_product_edit_allowed)],
 ) -> PerformanceTestingResponse:
-    performance_testing = await create_performance_testing(
+    performance_test_plan = await get_performance_test_plan(
         product_id=product.id,
-        payload=payload,
     )
-    await create_audit_record(
-        product,
-        current_user,
-        "Create performance testing",
-        {
-            "performance_testing_id": performance_testing.id,
-            "payload": payload.model_dump(),
-        },
+    if not performance_test_plan:
+        performance_test_plan = PerformanceTestPlan(product_id=str(product.id))
+    created_performance_test_card = PerformanceTestCard(
+        product_id=str(product.id),
+        section_key=payload.test_name,
+        test_code=payload.test_name,
+        test_description=payload.test_description,
+        status=payload.status.lower(),
+        risk_level=payload.risk_level.lower(),
+        created_by=current_user.email,
     )
-    return performance_testing.to_performance_testing_response()
+    performance_test_plan.tests.append(created_performance_test_card)
+    await performance_test_plan.save()
+    return map_to_performance_testing_response(created_performance_test_card)
 
 
 @router.get("/document")
@@ -86,6 +95,7 @@ async def get_performance_testing_document_handler(
 @router.get("/document/upload-url")
 async def get_upload_performance_testing_document_url_handler(
     file_name: str,
+    performance_testing_id: str,
     product: Annotated[Product, Depends(get_current_product)],
     current_user: Annotated[User, Depends(get_current_user)],
     _: Annotated[bool, Depends(check_product_edit_allowed)],
@@ -94,6 +104,7 @@ async def get_upload_performance_testing_document_url_handler(
         str(product.id),
         TestingDocumentInfo(
             file_name=file_name,
+            performance_testing_id=performance_testing_id,
             author=current_user.email,
         ),
     )
@@ -152,18 +163,28 @@ async def get_performance_testing_handler(
     performance_testing_id: str,
     product: Annotated[Product, Depends(get_current_product)],
 ) -> PerformanceTestingResponse:
-    performance_testing = await get_performance_testing(performance_testing_id)
-    if not performance_testing:
+    performance_test_plan = await get_performance_test_plan(
+        product_id=product.id,
+    )
+    if not performance_test_plan:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Performance testing not found.",
+            detail=f"Performance test plan not found for product {product.id}.",
         )
-    if performance_testing.product_id != str(product.id):
+    performance_test_card = next(
+        (
+            test
+            for test in performance_test_plan.tests
+            if str(test.id) == performance_testing_id
+        ),
+        None,
+    )
+    if not performance_test_card:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Performance testing does not belong to this product.",
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Performance test card not found for ID {performance_testing_id}.",
         )
-    return performance_testing.to_performance_testing_response()
+    return map_to_performance_testing_response(performance_test_card)
 
 
 @router.delete("/{performance_testing_id}")
@@ -173,27 +194,32 @@ async def delete_performance_testing_handler(
     current_user: Annotated[User, Depends(get_current_user)],
     _: Annotated[bool, Depends(check_product_edit_allowed)],
 ) -> None:
-    performance_testing = await get_performance_testing(performance_testing_id)
-    if not performance_testing:
+    performance_test_plan = await get_performance_test_plan(
+        product_id=product.id,
+    )
+    if not performance_test_plan:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Performance testing not found.",
+            detail=f"Performance test plan not found for product {product.id}.",
         )
-    if performance_testing.product_id != str(product.id):
+    removed_test_cards = [
+        test
+        for test in performance_test_plan.tests
+        if str(test.id) != performance_testing_id
+    ]
+    if len(removed_test_cards) == len(performance_test_plan.tests):
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Performance testing does not belong to this product.",
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Performance test card with ID {performance_testing_id} not found.",
         )
-    await performance_testing.delete()
+    performance_test_plan.tests = removed_test_cards
+    await performance_test_plan.save()
     await create_audit_record(
         product,
         current_user,
         "Delete performance testing",
-        {
-            "performance_testing_id": performance_testing.id,
-        },
+        {"performance_testing_id": performance_testing_id},
     )
-    return
 
 
 @router.post("/{performance_testing_id}/analyze")
@@ -203,24 +229,31 @@ async def analyze_performance_testing_handler(
     current_user: Annotated[User, Depends(get_current_user)],
     _: Annotated[bool, Depends(check_product_edit_allowed)],
 ) -> None:
-    performance_testing = await get_performance_testing(performance_testing_id)
-    if not performance_testing:
+    performance_test_plan = await get_performance_test_plan(
+        product_id=product.id,
+    )
+    if not performance_test_plan:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Performance testing not found.",
+            detail=f"Performance test plan not found for product {product.id}.",
         )
-    if performance_testing.product_id != str(product.id):
+    if not any(
+        str(test.id) == performance_testing_id for test in performance_test_plan.tests
+    ):
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Performance testing does not belong to this product.",
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Performance test card with ID {performance_testing_id} not found.",
         )
-    analyze_performance_testing_task.delay(performance_testing_id)
+    logger.info(
+        f"Scheduling analysis for performance testing ID: {performance_testing_id}"
+    )
+    analyze_performance_testing_task.delay(str(product.id), performance_testing_id)
     await create_audit_record(
         product,
         current_user,
         "Analyze performance testing",
         {
-            "performance_testing_id": performance_testing.id,
+            "performance_testing_id": performance_testing_id,
         },
     )
     return
@@ -233,33 +266,41 @@ async def accept_performance_testing_handler(
     current_user: Annotated[User, Depends(get_current_user)],
     _: Annotated[bool, Depends(check_product_edit_allowed)],
 ) -> PerformanceTestingResponse:
-    performance_testing = await get_performance_testing(performance_testing_id)
-    if not performance_testing:
+    performance_test_plan = await get_performance_test_plan(
+        product_id=product.id,
+    )
+    if not performance_test_plan:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Performance testing not found.",
+            detail=f"Performance test plan not found for product {product.id}.",
         )
-    if performance_testing.product_id != str(product.id):
+    performance_test_card = next(
+        (
+            test
+            for test in performance_test_plan.tests
+            if str(test.id) == performance_testing_id
+        ),
+        None,
+    )
+    if not performance_test_card:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Performance testing does not belong to this product.",
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Performance test card with ID {performance_testing_id} not found.",
         )
-    if performance_testing.status != PerformanceTestingStatus.SUGGESTED:
+    if performance_test_card.status != ModuleStatus.SUGGESTED:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Performance testing is not in a state that can be accepted.",
         )
-    performance_testing.status = PerformanceTestingStatus.ACCEPTED
-    await performance_testing.save()
+    performance_test_card.status = ModuleStatus.ACCEPTED
+    await performance_test_plan.save()
     await create_audit_record(
         product,
         current_user,
         "Accept performance testing",
-        {
-            "performance_testing_id": performance_testing.id,
-        },
+        {"performance_testing_id": performance_testing_id},
     )
-    return performance_testing.to_performance_testing_response()
+    return map_to_performance_testing_response(performance_test_card)
 
 
 @router.post("/{performance_testing_id}/reject")
@@ -270,32 +311,42 @@ async def reject_performance_testing_handler(
     current_user: Annotated[User, Depends(get_current_user)],
     _: Annotated[bool, Depends(check_product_edit_allowed)],
 ) -> PerformanceTestingResponse:
-    performance_testing = await get_performance_testing(performance_testing_id)
-    if not performance_testing:
+    performance_test_plan = await get_performance_test_plan(
+        product_id=product.id,
+    )
+    if not performance_test_plan:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Performance testing not found.",
+            detail=f"Performance test plan not found for product {product.id}.",
         )
-    if performance_testing.product_id != str(product.id):
+    performance_test_card = next(
+        (
+            test
+            for test in performance_test_plan.tests
+            if str(test.id) == performance_testing_id
+        ),
+        None,
+    )
+    if not performance_test_card:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Performance testing does not belong to this product.",
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Performance test card with ID {performance_testing_id} not found.",
         )
-    if performance_testing.status != PerformanceTestingStatus.SUGGESTED:
+    if performance_test_card.status != ModuleStatus.SUGGESTED:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Performance testing is not in a state that can be rejected.",
         )
-    performance_testing.status = PerformanceTestingStatus.REJECTED
-    performance_testing.rejected_justification = payload.rejected_justification
-    await performance_testing.save()
+    performance_test_card.status = ModuleStatus.REJECTED
+    performance_test_card.rejected_justification = payload.rejected_justification
+    await performance_test_plan.save()
     await create_audit_record(
         product,
         current_user,
         "Reject performance testing",
         {
-            "performance_testing_id": performance_testing.id,
+            "performance_testing_id": performance_testing_id,
             "rejected_justification": payload.rejected_justification,
         },
     )
-    return performance_testing.to_performance_testing_response()
+    return map_to_performance_testing_response(performance_test_card)
