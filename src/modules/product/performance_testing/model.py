@@ -12,6 +12,7 @@ from src.modules.product.performance_testing.schema import (
     AnalyzePerformanceTestingProgressResponse,
 )
 
+
 class PerformanceTesting(Document):
     product_id: str
     test_name: str
