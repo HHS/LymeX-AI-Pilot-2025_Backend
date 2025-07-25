@@ -86,11 +86,22 @@ class ProductProfile(Document, ProductProfileSchemaBase):
             **product_response,
         )
 
-    def to_product_profile_analysis_response(
+    async def to_product_profile_analysis_response(
         self,
         product,
+        company,
         analyze_progress: AnalyzeProductProfileProgressResponse | None = None,
     ) -> ProductProfileAnalysisResponse:
+        competitive_analysis = await CompetitiveAnalysis.find_one(
+            CompetitiveAnalysis.product_id == self.product_id,
+            CompetitiveAnalysis.is_self_analysis == True,
+        )
+        if not competitive_analysis:
+            detail = None
+        else:
+            detail = await CompetitiveAnalysisDetail.get(
+                competitive_analysis.competitive_analysis_detail_id
+            )
         return ProductProfileAnalysisResponse(
             product_id=str(product.id),
             product_code=product.code,
@@ -105,6 +116,12 @@ class ProductProfile(Document, ProductProfileSchemaBase):
                 if analyze_progress
                 else AnalyzingStatus.PENDING
             ),
+            detail=(
+                CompetitiveAnalysisDetailSchema(**detail.model_dump())
+                if detail
+                else None
+            ),
+            is_active=str(product.id) == company.active_product_id,
         )
 
 

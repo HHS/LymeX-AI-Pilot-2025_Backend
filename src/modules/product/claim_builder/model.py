@@ -46,7 +46,12 @@ class ClaimBuilder(Document):
             PydanticObjectId: str,
         }
 
-    def to_claim_builder_response(self, product) -> ClaimBuilderResponse:
+    def to_claim_builder_response(
+        self,
+        product,
+        company,
+        analyze_progress,
+    ) -> ClaimBuilderResponse:
         return ClaimBuilderResponse(
             product_id=self.product_id,
             product_code=product.code,
@@ -59,6 +64,12 @@ class ClaimBuilder(Document):
             risk_indicators=self.risk_indicators,
             phrase_conflicts=self.phrase_conflicts,
             user_acceptance=self.user_acceptance,
+            is_active=str(product.id) == company.active_product_id,
+            analyzing_status=(
+                analyze_progress.to_analyze_claim_builder_progress_response().analyzing_status
+                if analyze_progress
+                else AnalyzingStatus.PENDING
+            ),
         )
 
     def to_claim_builder_pydantic(self) -> ClaimBuilderPydantic:

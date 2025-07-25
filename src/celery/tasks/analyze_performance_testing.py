@@ -15,9 +15,12 @@ def analyze_performance_testing_task(
     performance_testing_id: str | None = None,
 ) -> None:
     logger.info(f"Analyzing test for product id: {product_id}")
+    url = f"{environment.ai_service_url}/analyze-performance-testing?product_id={product_id}"
+    if performance_testing_id:
+        url += f"&performance_testing_id={performance_testing_id}"
     try:
         httpx.post(
-            f"{environment.ai_service_url}/analyze-performance-testing?product_id={product_id}&performance_testing_id={performance_testing_id}",
+            url,
             timeout=100,
         )
     except HTTPException as e:

@@ -2,8 +2,13 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 from beanie.operators import Set
 
+from src.modules.authorization.dependencies import get_current_company
+from src.modules.company.models import Company
 from src.modules.product.claim_builder.model import ClaimBuilder
-from src.modules.product.claim_builder.service import get_claim_builder
+from src.modules.product.claim_builder.service import (
+    get_analyze_claim_builder_progress,
+    get_claim_builder,
+)
 from src.modules.product.claim_builder.schema import ClaimBuilderResponse
 from src.modules.authentication.dependencies import get_current_user
 from src.modules.product.product_profile.service import create_audit_record
@@ -75,6 +80,7 @@ async def reset_to_version_handler(
     payload: ResetToVersionRequest,
     product: Annotated[Product, Depends(get_current_product)],
     user: Annotated[User, Depends(get_current_user)],
+    company: Annotated[Company, Depends(get_current_company)],
     _: Annotated[bool, Depends(check_product_edit_allowed)],
 ) -> ClaimBuilderResponse:
     major_version, minor_version = (
@@ -110,4 +116,11 @@ async def reset_to_version_handler(
             "minor_version": minor_version,
         },
     )
-    return current_claim_builder.to_claim_builder_response(product=product)
+    analyze_claim_builder_progress = await get_analyze_claim_builder_progress(
+        product.id,
+    )
+    return current_claim_builder.to_claim_builder_response(
+        product,
+        company,
+        analyze_claim_builder_progress,
+    )

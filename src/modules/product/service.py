@@ -115,6 +115,8 @@ async def create_product(
         updated_at=now,
     )
     await product.insert()
+    current_company.active_product_id = str(product.id)
+    await current_company.save()
     return product
 
 
@@ -173,13 +175,11 @@ async def upload_product_files(
             content_type=file.content_type,
         )
 
-        uploaded_files.append(
-            {
-                "original_filename": file.filename,
-                "object_name": object_name,
-                "content_type": file.content_type,
-                "size": len(file_content),
-            }
-        )
+        uploaded_files.append({
+            "original_filename": file.filename,
+            "object_name": object_name,
+            "content_type": file.content_type,
+            "size": len(file_content),
+        })
 
     return uploaded_files
