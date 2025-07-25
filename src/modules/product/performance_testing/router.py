@@ -287,11 +287,6 @@ async def accept_performance_testing_handler(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Performance test card with ID {performance_testing_id} not found.",
         )
-    if performance_test_card.status != ModuleStatus.SUGGESTED:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Performance testing is not in a state that can be accepted.",
-        )
     performance_test_card.status = ModuleStatus.ACCEPTED
     await performance_test_plan.save()
     await create_audit_record(
@@ -331,11 +326,6 @@ async def reject_performance_testing_handler(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Performance test card with ID {performance_testing_id} not found.",
-        )
-    if performance_test_card.status != ModuleStatus.SUGGESTED:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Performance testing is not in a state that can be rejected.",
         )
     performance_test_card.status = ModuleStatus.REJECTED
     performance_test_card.rejected_justification = payload.rejected_justification

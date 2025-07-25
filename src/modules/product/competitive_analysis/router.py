@@ -331,4 +331,4 @@ async def accept_competitive_analysis_handler(
             analyzing_status=AnalyzingStatus.IN_PROGRESS,
         )
 
-    return competitive_analysis.to_competitive_analysis_response(product=product)
+    return await competitive_analysis.to_competitive_analysis_response(product=product)
