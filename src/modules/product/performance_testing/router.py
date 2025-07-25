@@ -172,9 +172,7 @@ async def analyze_all_performance_testings_handler(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Performance test plan not found for product {product.id}.",
         )
-    analyze_performance_testing_task.delay(
-        str(product.id), None
-    )
+    analyze_performance_testing_task.delay(str(product.id), None)
     await create_audit_record(
         product,
         current_user,
