@@ -2,6 +2,8 @@ from datetime import datetime, timezone
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 
+from src.modules.authorization.dependencies import get_current_company
+from src.modules.company.models import Company
 from src.modules.product.product_profile.service import create_audit_record
 from src.modules.product.version_control.service import snapshot_minor_version
 from src.modules.authentication.dependencies import get_current_user
@@ -36,10 +38,18 @@ router = APIRouter()
 
 @router.get("/result")
 async def get_claim_builder_handler(
+    company: Annotated[Company, Depends(get_current_company)],
     product: Annotated[Product, Depends(get_current_product)],
 ) -> ClaimBuilderResponse:
     claim_builder = await get_claim_builder(product.id)
-    profile_response = claim_builder.to_claim_builder_response(product)
+    analyze_claim_builder_progress = await get_analyze_claim_builder_progress(
+        product.id,
+    )
+    profile_response = claim_builder.to_claim_builder_response(
+        product,
+        company,
+        analyze_claim_builder_progress,
+    )
     return profile_response
 
 
@@ -92,6 +102,7 @@ async def update_claim_builder_draft_handler(
     payload: UpdateClaimBuilderDraftRequest,
     product: Annotated[Product, Depends(get_current_product)],
     user: Annotated[User, Depends(get_current_user)],
+    company: Annotated[Company, Depends(get_current_company)],
     _: Annotated[bool, Depends(check_product_edit_allowed)],
 ) -> ClaimBuilderResponse:
     claim_builder = await get_claim_builder(product.id)
@@ -132,7 +143,7 @@ async def update_claim_builder_draft_handler(
         "Update claim builder draft",
         payload.model_dump(),
     )
-    claim_builder_response = claim_builder.to_claim_builder_response(product)
+    claim_builder_response = claim_builder.to_claim_builder_response(product, company)
     return claim_builder_response
 
 
@@ -140,6 +151,7 @@ async def update_claim_builder_draft_handler(
 async def submit_claim_builder_draft_handler(
     product: Annotated[Product, Depends(get_current_product)],
     user: Annotated[User, Depends(get_current_user)],
+    company: Annotated[Company, Depends(get_current_company)],
     _: Annotated[bool, Depends(check_product_edit_allowed)],
 ) -> ClaimBuilderResponse:
     claim_builder = await get_claim_builder(product.id)
@@ -174,7 +186,7 @@ async def submit_claim_builder_draft_handler(
         "Submit claim builder draft",
         {},
     )
-    claim_builder_response = claim_builder.to_claim_builder_response(product)
+    claim_builder_response = claim_builder.to_claim_builder_response(product, company)
     return claim_builder_response
 
 
@@ -183,6 +195,7 @@ async def reject_claim_builder_draft_handler(
     payload: RejectClaimBuilderDraftRequest,
     product: Annotated[Product, Depends(get_current_product)],
     user: Annotated[User, Depends(get_current_user)],
+    company: Annotated[Company, Depends(get_current_company)],
     _: Annotated[bool, Depends(check_product_edit_allowed)],
 ) -> ClaimBuilderResponse:
     claim_builder = await get_claim_builder(product.id)
@@ -217,7 +230,7 @@ async def reject_claim_builder_draft_handler(
         "Reject claim builder draft",
         payload.model_dump(),
     )
-    claim_builder_response = claim_builder.to_claim_builder_response(product)
+    claim_builder_response = claim_builder.to_claim_builder_response(product, company)
     return claim_builder_response
 
 
@@ -225,6 +238,7 @@ async def reject_claim_builder_draft_handler(
 async def accept_claim_builder_draft_handler(
     product: Annotated[Product, Depends(get_current_product)],
     user: Annotated[User, Depends(get_current_user)],
+    company: Annotated[Company, Depends(get_current_company)],
     _: Annotated[bool, Depends(check_product_edit_allowed)],
 ) -> ClaimBuilderResponse:
     claim_builder = await get_claim_builder(product.id)
@@ -259,7 +273,14 @@ async def accept_claim_builder_draft_handler(
         "Accept claim builder draft",
         {},
     )
-    profile_response = claim_builder.to_claim_builder_response(product)
+    analyze_claim_builder_progress = await get_analyze_claim_builder_progress(
+        product.id,
+    )
+    profile_response = claim_builder.to_claim_builder_response(
+        product,
+        company,
+        analyze_claim_builder_progress,
+    )
     return profile_response
 
 
@@ -268,6 +289,7 @@ async def decide_missing_element_handler(
     payload: DecideMissingElementRequest,
     product: Annotated[Product, Depends(get_current_product)],
     user: Annotated[User, Depends(get_current_user)],
+    company: Annotated[Company, Depends(get_current_company)],
     _: Annotated[bool, Depends(check_product_edit_allowed)],
 ) -> ClaimBuilderResponse:
     claim_builder = await get_claim_builder(product.id)
@@ -277,7 +299,7 @@ async def decide_missing_element_handler(
             detail="Cannot update draft after user acceptance.",
         )
     # No need to find as id is the same as index
-    claim_builder.missing_elements[payload.id].accepted = payload.accepted
+    claim_builder.missing_elements[payload.id - 1].accepted = payload.accepted
     await claim_builder.save()
     await snapshot_minor_version(
         claim_builder,
@@ -294,7 +316,14 @@ async def decide_missing_element_handler(
         ("Accept missing element" if payload.accepted else "Reject missing element"),
         payload.model_dump(),
     )
-    profile_response = claim_builder.to_claim_builder_response(product)
+    analyze_claim_builder_progress = await get_analyze_claim_builder_progress(
+        product.id,
+    )
+    profile_response = claim_builder.to_claim_builder_response(
+        product,
+        company,
+        analyze_claim_builder_progress,
+    )
     return profile_response
 
 
@@ -303,6 +332,7 @@ async def accept_phrase_conflict_handler(
     payload: AcceptPhraseConflictRequest,
     product: Annotated[Product, Depends(get_current_product)],
     user: Annotated[User, Depends(get_current_user)],
+    company: Annotated[Company, Depends(get_current_company)],
     _: Annotated[bool, Depends(check_product_edit_allowed)],
 ) -> ClaimBuilderResponse:
     claim_builder = await get_claim_builder(product.id)
@@ -325,7 +355,14 @@ async def accept_phrase_conflict_handler(
         "Accept phrase conflict",
         payload.model_dump(),
     )
-    profile_response = claim_builder.to_claim_builder_response(product)
+    analyze_claim_builder_progress = await get_analyze_claim_builder_progress(
+        product.id,
+    )
+    profile_response = claim_builder.to_claim_builder_response(
+        product,
+        company,
+        analyze_claim_builder_progress,
+    )
     return profile_response
 
 
@@ -333,6 +370,7 @@ async def accept_phrase_conflict_handler(
 async def accept_all_phrase_conflict_handler(
     product: Annotated[Product, Depends(get_current_product)],
     user: Annotated[User, Depends(get_current_user)],
+    company: Annotated[Company, Depends(get_current_company)],
     _: Annotated[bool, Depends(check_product_edit_allowed)],
 ) -> ClaimBuilderResponse:
     claim_builder = await get_claim_builder(product.id)
@@ -356,7 +394,14 @@ async def accept_all_phrase_conflict_handler(
         "Accept all phrase conflicts",
         {},
     )
-    profile_response = claim_builder.to_claim_builder_response(product)
+    analyze_claim_builder_progress = await get_analyze_claim_builder_progress(
+        product.id,
+    )
+    profile_response = claim_builder.to_claim_builder_response(
+        product,
+        company,
+        analyze_claim_builder_progress,
+    )
     return profile_response
 
 
@@ -365,6 +410,7 @@ async def reject_phrase_conflict_handler(
     payload: RejectPhraseConflictRequest,
     product: Annotated[Product, Depends(get_current_product)],
     user: Annotated[User, Depends(get_current_user)],
+    company: Annotated[Company, Depends(get_current_company)],
     _: Annotated[bool, Depends(check_product_edit_allowed)],
 ) -> ClaimBuilderResponse:
     claim_builder = await get_claim_builder(product.id)
@@ -387,7 +433,14 @@ async def reject_phrase_conflict_handler(
         "Reject phrase conflict",
         payload.model_dump,
     )
-    profile_response = claim_builder.to_claim_builder_response(product)
+    analyze_claim_builder_progress = await get_analyze_claim_builder_progress(
+        product.id,
+    )
+    profile_response = claim_builder.to_claim_builder_response(
+        product,
+        company,
+        analyze_claim_builder_progress,
+    )
     return profile_response
 
 
@@ -395,6 +448,7 @@ async def reject_phrase_conflict_handler(
 async def accept_claim_builder_handler(
     product: Annotated[Product, Depends(get_current_product)],
     user: Annotated[User, Depends(get_current_user)],
+    company: Annotated[Company, Depends(get_current_company)],
     _: Annotated[bool, Depends(check_product_edit_allowed)],
 ) -> ClaimBuilderResponse:
     claim_builder = await get_claim_builder(product.id)
@@ -406,5 +460,12 @@ async def accept_claim_builder_handler(
         "Accept claim builder",
         {},
     )
-    profile_response = claim_builder.to_claim_builder_response(product)
+    analyze_claim_builder_progress = await get_analyze_claim_builder_progress(
+        product.id,
+    )
+    profile_response = claim_builder.to_claim_builder_response(
+        product,
+        company,
+        analyze_claim_builder_progress,
+    )
     return profile_response

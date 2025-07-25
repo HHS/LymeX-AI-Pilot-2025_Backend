@@ -322,3 +322,9 @@ class ProductProfileAnalysisResponse(BaseModel):
     analyzing_status: AnalyzingStatus = Field(
         ..., description="Current status of the product analysis"
     )
+    detail: CompetitiveAnalysisDetailSchema | None = Field(
+        None, description="Details of the competitive analysis"
+    )
+    is_active: bool = Field(
+        ..., description="Indicates if the product profile is active"
+    )

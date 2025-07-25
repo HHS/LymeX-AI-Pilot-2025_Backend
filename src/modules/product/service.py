@@ -115,6 +115,8 @@ async def create_product(
         updated_at=now,
     )
     await product.insert()
+    current_company.active_product_id = str(product.id)
+    await current_company.save()
     return product
 
 

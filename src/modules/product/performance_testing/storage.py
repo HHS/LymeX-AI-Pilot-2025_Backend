@@ -21,7 +21,7 @@ from minio.datatypes import Object
 
 class TestingDocumentInfo(TypedDict):
     file_name: str
-    performance_testing_id: str
+    performance_testing_id: str | None
     author: str
 
 
@@ -101,7 +101,7 @@ TESTING_DOCUMENT_INFO_SCHEMA = {
     "fields": [
         {"name": "file_name", "type": "string"},
         {"name": "author", "type": "string"},
-        {"name": "performance_testing_id", "type": "string"},
+        {"name": "performance_testing_id", "type": ["string", "null"], "default": None},
     ],
 }
 

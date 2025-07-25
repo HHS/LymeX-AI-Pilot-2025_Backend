@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, Form, File, UploadFile
 import httpx
 
 from src.modules.authentication.dependencies import get_current_user
+from src.modules.authorization.dependencies import get_current_company
 from src.modules.product.analyzing_status import AnalyzingStatusResponse
 from src.modules.product.product_profile.analyze_product_profile_progress import (
     AnalyzeProductProfileProgress,
@@ -307,6 +308,7 @@ async def get_analyze_product_profile_progress_handler(
 @router.get("/analysis")
 async def get_product_profile_analysis_handler(
     product: Annotated[Product, Depends(get_current_product)],
+    company: Annotated[Company, Depends(get_current_company)],
 ) -> ProductProfileAnalysisResponse | AnalyzingStatusResponse:
     product_profile = await get_product_profile(product.id)
     if not product_profile:
@@ -316,8 +318,9 @@ async def get_product_profile_analysis_handler(
     analyze_product_profile_progress = await get_analyze_product_profile_progress(
         product.id,
     )
-    analysis = product_profile.to_product_profile_analysis_response(
+    analysis = await product_profile.to_product_profile_analysis_response(
         product,
+        company,
         (
             analyze_product_profile_progress.to_analyze_product_profile_progress_response()
             if analyze_product_profile_progress

@@ -13,10 +13,10 @@ class RiskLevel(str, enum.Enum):
 
 
 class ModuleStatus(str, enum.Enum):
-    PENDING = "pending"
-    IN_PROGRESS = "in_progress"
-    COMPLETED = "completed"
-    NEEDS_REVIEW = "needs_review"
+    # PENDING = "pending"
+    # IN_PROGRESS = "in_progress"
+    # COMPLETED = "completed"
+    # NEEDS_REVIEW = "needs_review"
     SUGGESTED = "suggested"
     ACCEPTED = "accepted"
     REJECTED = "rejected"
@@ -48,7 +48,7 @@ class PerformanceTestCard(BaseModel):
     section_key: str
     test_code: str
     test_description: str = "not available"
-    status: ModuleStatus = ModuleStatus.PENDING
+    status: ModuleStatus = ModuleStatus.SUGGESTED
     risk_level: RiskLevel = RiskLevel.MEDIUM
     ai_confident: int | None = None
     confident_level: PerformanceTestingConfidentLevel | None = None
@@ -129,8 +129,8 @@ class PerformanceTestingDocumentResponse(BaseModel):
         ..., description="Date and time when the document was uploaded"
     )
     author: str = Field(..., description="Author of the document")
-    performance_testing_id: str = Field(
-        ..., description="ID of the associated performance testing"
+    performance_testing_id: str | None = Field(
+        None, description="ID of the associated performance testing"
     )
     content_type: str = Field(
         ..., description="Content type of the document (e.g., PDF, DOCX)"
@@ -140,8 +140,8 @@ class PerformanceTestingDocumentResponse(BaseModel):
 
 class UploadTextInputDocumentRequest(BaseModel):
     text: str = Field(..., description="Text input for the document")
-    performance_testing_id: str = Field(
-        ..., description="ID of the associated performance testing"
+    performance_testing_id: str | None = Field(
+        None, description="ID of the associated performance testing"
     )
 
 

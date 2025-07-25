@@ -95,10 +95,10 @@ async def get_performance_testing_document_handler(
 @router.get("/document/upload-url")
 async def get_upload_performance_testing_document_url_handler(
     file_name: str,
-    performance_testing_id: str,
     product: Annotated[Product, Depends(get_current_product)],
     current_user: Annotated[User, Depends(get_current_user)],
     _: Annotated[bool, Depends(check_product_edit_allowed)],
+    performance_testing_id: str | None = None,
 ) -> str:
     upload_url = await get_upload_performance_testing_document_url(
         str(product.id),
@@ -155,6 +155,29 @@ async def delete_performance_testing_document_handler(
         current_user,
         "Delete performance testing document",
         {"document_name": document_name},
+    )
+
+
+@router.get("/analyze-all")
+async def analyze_all_performance_testings_handler(
+    product: Annotated[Product, Depends(get_current_product)],
+    current_user: Annotated[User, Depends(get_current_user)],
+    _: Annotated[bool, Depends(check_product_edit_allowed)],
+) -> None:
+    performance_test_plan = await get_performance_test_plan(
+        product_id=product.id,
+    )
+    if not performance_test_plan:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Performance test plan not found for product {product.id}.",
+        )
+    analyze_performance_testing_task.delay(str(product.id), None)
+    await create_audit_record(
+        product,
+        current_user,
+        "Analyze all performance testing",
+        {},
     )
 
 
@@ -287,11 +310,6 @@ async def accept_performance_testing_handler(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Performance test card with ID {performance_testing_id} not found.",
         )
-    if performance_test_card.status != ModuleStatus.SUGGESTED:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Performance testing is not in a state that can be accepted.",
-        )
     performance_test_card.status = ModuleStatus.ACCEPTED
     await performance_test_plan.save()
     await create_audit_record(
@@ -331,11 +349,6 @@ async def reject_performance_testing_handler(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Performance test card with ID {performance_testing_id} not found.",
-        )
-    if performance_test_card.status != ModuleStatus.SUGGESTED:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Performance testing is not in a state that can be rejected.",
         )
     performance_test_card.status = ModuleStatus.REJECTED
     performance_test_card.rejected_justification = payload.rejected_justification

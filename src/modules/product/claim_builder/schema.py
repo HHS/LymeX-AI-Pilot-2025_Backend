@@ -161,6 +161,10 @@ class ClaimBuilderResponse(BaseModel):
     user_acceptance: bool = Field(
         ..., description="Indicates if the user has accepted the claim builder"
     )
+    is_active: bool = Field(..., description="Indicates if the claim builder is active")
+    analyzing_status: AnalyzingStatus = Field(
+        ..., description="Current status of the product analysis"
+    )
 
 
 class AnalyzeClaimBuilderProgressResponse(BaseModel):
