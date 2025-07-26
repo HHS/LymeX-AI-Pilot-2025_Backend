@@ -75,10 +75,16 @@ async def create_product(
     current_company: Company,
 ) -> Product:
     # Check if product name already exists for this company
-    product_name_exists = await Product.find_one(
+    query_conditions = [
         Product.company_id == str(current_company.id),
         Product.name == payload.name,
-    )
+    ]
+    
+    # Add model to query if provided
+    if payload.model:
+        query_conditions.append(Product.model == payload.model)
+    
+    product_name_exists = await Product.find_one(*query_conditions)
     if product_name_exists:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
