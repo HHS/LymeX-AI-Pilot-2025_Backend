@@ -1,9 +1,17 @@
 from src.modules.product.analyzing_status import AnalyzingStatus
 from src.modules.product.claim_builder.service import get_analyze_claim_builder_progress
-from src.modules.product.competitive_analysis.service import get_analyze_competitive_analysis_progress
-from src.modules.product.performance_testing.service import get_analyze_performance_testing_progress
-from src.modules.product.regulatory_background.service import get_analyze_regulatory_background_progress
-from src.modules.product.regulatory_pathway.service import get_analyze_regulatory_pathway_progress
+from src.modules.product.competitive_analysis.service import (
+    get_analyze_competitive_analysis_progress,
+)
+from src.modules.product.performance_testing.service import (
+    get_analyze_performance_testing_progress,
+)
+from src.modules.product.regulatory_background.service import (
+    get_analyze_regulatory_background_progress,
+)
+from src.modules.product.regulatory_pathway.service import (
+    get_analyze_regulatory_pathway_progress,
+)
 from src.modules.dashboard.schema import DashboardProductResponse, ProductListResponse
 from src.modules.company.models import Company
 from src.modules.product.models import Product

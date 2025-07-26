@@ -99,7 +99,9 @@ class CompetitiveAnalysis(Document):
             ce_marked=competitive_analysis_detail.ce_marked,
             is_ai_generated=competitive_analysis_detail.is_ai_generated,
             use_system_data=competitive_analysis_detail.use_system_data,
-            data_source="system" if competitive_analysis_detail.use_system_data else "user",
+            data_source=(
+                "system" if competitive_analysis_detail.use_system_data else "user"
+            ),
             confidence_score=competitive_analysis_detail.confidence_score,
             sources=[source.name for source in competitive_analysis_detail.sources],
             sources_with_urls=sources_with_urls,
