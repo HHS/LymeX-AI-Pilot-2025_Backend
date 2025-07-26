@@ -45,9 +45,9 @@ async def get_claim_builder_handler(
     analyze_claim_builder_progress = await get_analyze_claim_builder_progress(
         product.id,
     )
-    print('====================================')
-    print('====================================')
-    print('====================================')
+    print("====================================")
+    print("====================================")
+    print("====================================")
     print(analyze_claim_builder_progress)
     profile_response = claim_builder.to_claim_builder_response(
         product,
