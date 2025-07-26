@@ -101,7 +101,7 @@ async def get_analyze_competitive_analysis_progress(
 ) -> AnalyzeCompetitiveAnalysisProgress | None:
     analyze_competitive_analysis_progress = (
         await AnalyzeCompetitiveAnalysisProgress.find_one(
-            AnalyzeCompetitiveAnalysisProgress.product_id == product_id,
+            AnalyzeCompetitiveAnalysisProgress.product_id == str(product_id),
         )
     )
     if not analyze_competitive_analysis_progress:

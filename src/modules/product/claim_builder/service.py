@@ -10,7 +10,7 @@ async def get_analyze_claim_builder_progress(
     product_id: str,
 ) -> AnalyzeClaimBuilderProgress | None:
     analyze_claim_builder_progress = await AnalyzeClaimBuilderProgress.find_one(
-        AnalyzeClaimBuilderProgress.product_id == product_id,
+        AnalyzeClaimBuilderProgress.product_id == str(product_id),
     )
     if not analyze_claim_builder_progress:
         return None
