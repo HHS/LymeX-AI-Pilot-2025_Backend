@@ -196,11 +196,11 @@ async def update_product_handler(
             Product.name == payload.name,
             Product.company_id == product.company_id,
         ]
-        
+
         # Add model to query if provided
         if payload.model:
             query_conditions.append(Product.model == payload.model)
-        
+
         existing_product = await Product.find_one(*query_conditions)
         if existing_product:
             raise HTTPException(
@@ -349,11 +349,11 @@ async def clone_product_handler(
                 Product.company_id == product.company_id,
                 Product.name == new_name,
             ]
-            
+
             # Add model to query if provided
             if payload.updated_fields and payload.updated_fields.model:
                 query_conditions.append(Product.model == payload.updated_fields.model)
-            
+
             product_name_exists = await Product.find_one(*query_conditions)
             if product_name_exists:
                 raise HTTPException(
