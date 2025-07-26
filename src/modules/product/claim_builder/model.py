@@ -13,6 +13,7 @@ from src.modules.product.claim_builder.schema import (
     RiskIndicator,
 )
 from src.modules.product.analyzing_status import AnalyzingStatus
+import logging
 
 
 class ClaimBuilderPydantic(BaseModel):
@@ -52,6 +53,7 @@ class ClaimBuilder(Document):
         company,
         analyze_progress,
     ) -> ClaimBuilderResponse:
+        logging.debug(f"analyze_progress: {analyze_progress}")
         return ClaimBuilderResponse(
             product_id=self.product_id,
             product_code=product.code,

@@ -1,4 +1,9 @@
-from src.modules.product.service import get_products
+from src.modules.product.analyzing_status import AnalyzingStatus
+from src.modules.product.claim_builder.service import get_analyze_claim_builder_progress
+from src.modules.product.competitive_analysis.service import get_analyze_competitive_analysis_progress
+from src.modules.product.performance_testing.service import get_analyze_performance_testing_progress
+from src.modules.product.regulatory_background.service import get_analyze_regulatory_background_progress
+from src.modules.product.regulatory_pathway.service import get_analyze_regulatory_pathway_progress
 from src.modules.dashboard.schema import DashboardProductResponse, ProductListResponse
 from src.modules.company.models import Company
 from src.modules.product.models import Product
@@ -50,6 +55,53 @@ async def get_dashboard_products(
         # Calculate remaining tasks for this product
         remaining_tasks = await calculate_remaining_tasks(str(product.id))
 
+        analyze_claim_builder_progress = await get_analyze_claim_builder_progress(
+            str(product.id),
+        )
+        analyze_claim_builder_progress_status = (
+            analyze_claim_builder_progress.to_analyze_claim_builder_progress_response().analyzing_status
+            if analyze_claim_builder_progress
+            else AnalyzingStatus.PENDING
+        )
+
+        analyze_competitive_analysis_progress = (
+            await get_analyze_competitive_analysis_progress(
+                str(product.id),
+            )
+        )
+        analyze_competitive_analysis_progress_status = (
+            analyze_competitive_analysis_progress.to_analyze_competitive_analysis_progress_response().analyzing_status
+            if analyze_competitive_analysis_progress
+            else AnalyzingStatus.PENDING
+        )
+
+        analyze_regulatory_pathway_progress = (
+            await get_analyze_regulatory_pathway_progress(str(product.id))
+        )
+        analyze_regulatory_pathway_progress_status = (
+            analyze_regulatory_pathway_progress.to_analyze_regulatory_pathway_progress_response().analyzing_status
+            if analyze_regulatory_pathway_progress
+            else AnalyzingStatus.PENDING
+        )
+
+        analyze_performance_testing_progress = (
+            await get_analyze_performance_testing_progress(str(product.id))
+        )
+        analyze_performance_testing_progress_status = (
+            analyze_performance_testing_progress.to_analyze_performance_testing_progress_response().analyzing_status
+            if analyze_performance_testing_progress
+            else AnalyzingStatus.PENDING
+        )
+
+        analyze_regulatory_background_progress = (
+            await get_analyze_regulatory_background_progress(str(product.id))
+        )
+        analyze_regulatory_background_progress_status = (
+            analyze_regulatory_background_progress.to_analyze_regulatory_background_progress_response().analyzing_status
+            if analyze_regulatory_background_progress
+            else AnalyzingStatus.PENDING
+        )
+
         dashboard_products.append(
             DashboardProductResponse(
                 id=str(product.id),
@@ -62,6 +114,12 @@ async def get_dashboard_products(
                 standards_guidance_documents_percentage=product.standards_guidance_documents_percentage,
                 performance_testing_requirements_percentage=product.performance_testing_requirements_percentage,
                 regulatory_pathway_analysis_percentage=product.regulatory_pathway_analysis_percentage,
+                regulatory_background_status=analyze_regulatory_background_progress_status,
+                claims_builder_status=analyze_claim_builder_progress_status,
+                competitive_analysis_status=analyze_competitive_analysis_progress_status,
+                standards_guidance_documents_status=AnalyzingStatus.PENDING,
+                performance_testing_requirements_status=analyze_performance_testing_progress_status,
+                regulatory_pathway_analysis_status=analyze_regulatory_pathway_progress_status,
                 remaining_tasks=remaining_tasks,
             )
         )

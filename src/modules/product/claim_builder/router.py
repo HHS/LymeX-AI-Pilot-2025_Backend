@@ -45,6 +45,10 @@ async def get_claim_builder_handler(
     analyze_claim_builder_progress = await get_analyze_claim_builder_progress(
         product.id,
     )
+    print('====================================')
+    print('====================================')
+    print('====================================')
+    print(analyze_claim_builder_progress)
     profile_response = claim_builder.to_claim_builder_response(
         product,
         company,
@@ -143,7 +147,14 @@ async def update_claim_builder_draft_handler(
         "Update claim builder draft",
         payload.model_dump(),
     )
-    claim_builder_response = claim_builder.to_claim_builder_response(product, company)
+    analyze_claim_builder_progress = await get_analyze_claim_builder_progress(
+        product.id,
+    )
+    claim_builder_response = claim_builder.to_claim_builder_response(
+        product,
+        company,
+        analyze_claim_builder_progress,
+    )
     return claim_builder_response
 
 
@@ -186,7 +197,14 @@ async def submit_claim_builder_draft_handler(
         "Submit claim builder draft",
         {},
     )
-    claim_builder_response = claim_builder.to_claim_builder_response(product, company)
+    analyze_claim_builder_progress = await get_analyze_claim_builder_progress(
+        product.id,
+    )
+    claim_builder_response = claim_builder.to_claim_builder_response(
+        product,
+        company,
+        analyze_claim_builder_progress,
+    )
     return claim_builder_response
 
 
@@ -230,7 +248,14 @@ async def reject_claim_builder_draft_handler(
         "Reject claim builder draft",
         payload.model_dump(),
     )
-    claim_builder_response = claim_builder.to_claim_builder_response(product, company)
+    analyze_claim_builder_progress = await get_analyze_claim_builder_progress(
+        product.id,
+    )
+    claim_builder_response = claim_builder.to_claim_builder_response(
+        product,
+        company,
+        analyze_claim_builder_progress,
+    )
     return claim_builder_response
 
 

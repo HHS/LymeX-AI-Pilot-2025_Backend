@@ -296,7 +296,7 @@ async def get_analyze_product_profile_progress_handler(
     product: Annotated[Product, Depends(get_current_product)],
 ) -> AnalyzeProductProfileProgressResponse:
     analyze_product_profile_progress = await get_analyze_product_profile_progress(
-        product.id,
+        str(product.id),
     )
     return (
         analyze_product_profile_progress.to_analyze_product_profile_progress_response()
