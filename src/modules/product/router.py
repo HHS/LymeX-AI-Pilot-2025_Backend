@@ -207,7 +207,7 @@ async def update_product_handler(
                 status_code=400,
                 detail=f"Product with name '{payload.name}' already exists in the company.",
             )
-    
+
     # check if new model creates duplicate when name is not changing
     elif payload.model and payload.model != product.model:
         query_conditions = [
@@ -215,7 +215,7 @@ async def update_product_handler(
             Product.company_id == product.company_id,
             Product.model == payload.model,  # new model
         ]
-        
+
         existing_product = await Product.find_one(*query_conditions)
         if existing_product:
             raise HTTPException(
