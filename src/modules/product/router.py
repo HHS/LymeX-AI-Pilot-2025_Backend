@@ -3,7 +3,9 @@ from datetime import datetime, timezone
 from typing import Annotated, List
 from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Form, status
 from loguru import logger
+from beanie.operators import Set
 
+from src.modules.product.product_profile.model import ProductProfile
 from src.modules.product.product_profile.service import (
     create_audit_record,
     delete_product_profile,
@@ -211,6 +213,17 @@ async def update_product_handler(
         product.updated_by = str(current_user.id)
         product.updated_at = datetime.now(timezone.utc)
         await product.save()
+
+    if payload.description is not None:
+        logger.info(f"Updating product profile description for {product.id}")
+        await ProductProfile.find(ProductProfile.product_id == str(product.id)).update(
+            Set(
+                {
+                    ProductProfile.description: payload.description,
+                },
+            ),
+        )
+
     await create_audit_record(
         product,
         current_user,

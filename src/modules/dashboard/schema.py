@@ -2,6 +2,7 @@ from typing import List, Literal, Optional
 from datetime import datetime
 from pydantic import BaseModel, Field
 
+from src.modules.product.analyzing_status import AnalyzingStatus
 from src.modules.product.feature_status.schema import (
     FeatureStatus,
 )
@@ -23,6 +24,12 @@ class DashboardProductResponse(BaseModel):
     remaining_tasks: int = Field(
         default=0, ge=0, description="Number of remaining tasks"
     )
+    regulatory_background_status: AnalyzingStatus
+    claims_builder_status: AnalyzingStatus
+    competitive_analysis_status: AnalyzingStatus
+    standards_guidance_documents_status: AnalyzingStatus
+    performance_testing_requirements_status: AnalyzingStatus
+    regulatory_pathway_analysis_status: AnalyzingStatus
 
 
 class ProductListResponse(BaseModel):

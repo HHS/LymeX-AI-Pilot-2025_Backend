@@ -40,6 +40,7 @@ class UpdateProductRequest(BaseModel):
     patient_contact: bool | None = Field(
         None, description="Indicates if the product has patient contact"
     )
+    description: str | None = Field(None, description="Description of the product")
 
 
 class CloneProductRetainingOptions(BaseModel):

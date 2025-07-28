@@ -368,6 +368,9 @@ class CompetitiveAnalysisResponse(BaseModel):
     use_system_data: bool | None = Field(
         ..., description="Indicates if system data is used in the analysis"
     )
+    data_source: str = Field(
+        ..., description="Data source used for the competitive analysis"
+    )
     confidence_score: float | None = Field(
         ..., description="Confidence score of the competitive analysis"
     )

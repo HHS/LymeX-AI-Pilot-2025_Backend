@@ -38,7 +38,7 @@ async def get_analyze_regulatory_pathway_progress(
 ) -> AnalyzeRegulatoryPathwayProgress | None:
     analyze_regulatory_pathway_progress = (
         await AnalyzeRegulatoryPathwayProgress.find_one(
-            AnalyzeRegulatoryPathwayProgress.product_id == product_id,
+            AnalyzeRegulatoryPathwayProgress.product_id == str(product_id),
         )
     )
     if not analyze_regulatory_pathway_progress:

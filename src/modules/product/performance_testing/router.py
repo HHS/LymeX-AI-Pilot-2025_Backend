@@ -181,6 +181,29 @@ async def analyze_all_performance_testings_handler(
     )
 
 
+@router.post("/analyze-all")
+async def analyze_all_performance_testings_handler_post(
+    product: Annotated[Product, Depends(get_current_product)],
+    current_user: Annotated[User, Depends(get_current_user)],
+    _: Annotated[bool, Depends(check_product_edit_allowed)],
+) -> None:
+    performance_test_plan = await get_performance_test_plan(
+        product_id=product.id,
+    )
+    if not performance_test_plan:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Performance test plan not found for product {product.id}.",
+        )
+    analyze_performance_testing_task.delay(str(product.id), None)
+    await create_audit_record(
+        product,
+        current_user,
+        "Analyze all performance testing",
+        {},
+    )
+
+
 @router.get("/{performance_testing_id}")
 async def get_performance_testing_handler(
     performance_testing_id: str,
