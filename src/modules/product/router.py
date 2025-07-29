@@ -214,14 +214,35 @@ async def update_product_handler(
     ]
     # check if new name is existing
     if payload.name and payload.name != product.name:
-        existing_product = await Product.find_one(
+        query_conditions = [
             Product.name == payload.name,
             Product.company_id == product.company_id,
-        )
+        ]
+
+        # Add model to query if provided
+        if payload.model:
+            query_conditions.append(Product.model == payload.model)
+
+        existing_product = await Product.find_one(*query_conditions)
         if existing_product:
             raise HTTPException(
                 status_code=400,
                 detail=f"Product with name '{payload.name}' already exists in the company.",
+            )
+
+    # check if new model creates duplicate when name is not changing
+    elif payload.model and payload.model != product.model:
+        query_conditions = [
+            Product.name == product.name,  # same name
+            Product.company_id == product.company_id,
+            Product.model == payload.model,  # new model
+        ]
+
+        existing_product = await Product.find_one(*query_conditions)
+        if existing_product:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Product with name '{product.name}' and model '{payload.model}' already exists in the company.",
             )
     for field in possible_fields:
         value = getattr(payload, field)
@@ -372,10 +393,16 @@ async def clone_product_handler(
 
         # Check if product name already exists for this company
         if new_name:
-            product_name_exists = await Product.find_one(
+            query_conditions = [
                 Product.company_id == product.company_id,
                 Product.name == new_name,
-            )
+            ]
+
+            # Add model to query if provided
+            if payload.updated_fields and payload.updated_fields.model:
+                query_conditions.append(Product.model == payload.updated_fields.model)
+
+            product_name_exists = await Product.find_one(*query_conditions)
             if product_name_exists:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
