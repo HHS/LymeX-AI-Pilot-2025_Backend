@@ -492,7 +492,7 @@ async def reject_phrase_conflict_handler(
         product,
         user,
         "Reject phrase conflict",
-        payload.model_dump,
+        payload.model_dump(),
     )
     analyze_claim_builder_progress = await get_analyze_claim_builder_progress(
         product.id,

@@ -69,7 +69,7 @@ async def get_dashboard_products(
         analyze_claim_builder_progress_status = (
             analyze_claim_builder_progress.to_analyze_claim_builder_progress_response().analyzing_status
             if analyze_claim_builder_progress
-            else AnalyzingStatus.PENDING
+            else AnalyzingStatus.IN_PROGRESS
         )
 
         analyze_competitive_analysis_progress = (
@@ -80,7 +80,7 @@ async def get_dashboard_products(
         analyze_competitive_analysis_progress_status = (
             analyze_competitive_analysis_progress.to_analyze_competitive_analysis_progress_response().analyzing_status
             if analyze_competitive_analysis_progress
-            else AnalyzingStatus.PENDING
+            else AnalyzingStatus.IN_PROGRESS
         )
 
         analyze_regulatory_pathway_progress = (
@@ -89,7 +89,7 @@ async def get_dashboard_products(
         analyze_regulatory_pathway_progress_status = (
             analyze_regulatory_pathway_progress.to_analyze_regulatory_pathway_progress_response().analyzing_status
             if analyze_regulatory_pathway_progress
-            else AnalyzingStatus.PENDING
+            else AnalyzingStatus.IN_PROGRESS
         )
 
         analyze_performance_testing_progress = (
@@ -98,7 +98,7 @@ async def get_dashboard_products(
         analyze_performance_testing_progress_status = (
             analyze_performance_testing_progress.to_analyze_performance_testing_progress_response().analyzing_status
             if analyze_performance_testing_progress
-            else AnalyzingStatus.PENDING
+            else AnalyzingStatus.IN_PROGRESS
         )
 
         analyze_regulatory_background_progress = (
@@ -107,7 +107,7 @@ async def get_dashboard_products(
         analyze_regulatory_background_progress_status = (
             analyze_regulatory_background_progress.to_analyze_regulatory_background_progress_response().analyzing_status
             if analyze_regulatory_background_progress
-            else AnalyzingStatus.PENDING
+            else AnalyzingStatus.IN_PROGRESS
         )
 
         dashboard_products.append(
