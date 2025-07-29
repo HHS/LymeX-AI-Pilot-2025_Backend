@@ -70,7 +70,7 @@ class ClaimBuilder(Document):
             analyzing_status=(
                 analyze_progress.to_analyze_claim_builder_progress_response().analyzing_status
                 if analyze_progress
-                else AnalyzingStatus.PENDING
+                else AnalyzingStatus.IN_PROGRESS
             ),
         )
 

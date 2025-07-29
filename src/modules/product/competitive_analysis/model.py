@@ -81,9 +81,6 @@ class CompetitiveAnalysis(Document):
                 url=await generate_get_object_presigned_url(
                     source.key, expiration_seconds=3600
                 ),
-                url=await generate_get_object_presigned_url(
-                    source.key, expiration_seconds=3600
-                ),
             )
             for source in competitive_analysis_detail.sources
         ]
@@ -146,7 +143,7 @@ class CompetitiveAnalysis(Document):
     ) -> CompetitiveDeviceAnalysisResponse:
         self_product_competitive_analysis = await CompetitiveAnalysis.find_one(
             CompetitiveAnalysis.product_id == self.product_id,
-            CompetitiveAnalysis.is_self_analysis,
+            CompetitiveAnalysis.is_self_analysis == True,
         )
         if not self_product_competitive_analysis:
             raise HTTPException(

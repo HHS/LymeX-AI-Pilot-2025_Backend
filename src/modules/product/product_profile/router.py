@@ -110,6 +110,11 @@ async def get_product_profile_handler(
         # Exclude is_active_profile from product_response since we're passing it explicitly
         product_data = product_response.model_dump()
         product_data.pop("is_active_profile", None)
+        product_data["analyzing_status"] = (
+            AnalyzingStatus.IN_PROGRESS
+            if product_data.get("analyzing_status") == "In_Progress"
+            else product_data.get("analyzing_status")
+        )
 
         return ProductProfileResponse(
             **product_data,
