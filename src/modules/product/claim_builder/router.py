@@ -45,16 +45,17 @@ async def get_claim_builder_handler(
     analyze_claim_builder_progress = await get_analyze_claim_builder_progress(
         product.id,
     )
-    print("====================================")
-    print("====================================")
-    print("====================================")
-    print(analyze_claim_builder_progress)
-    profile_response = claim_builder.to_claim_builder_response(
+    claim_builder_response = claim_builder.to_claim_builder_response(
         product,
         company,
         analyze_claim_builder_progress,
     )
-    return profile_response
+    claim_builder_response.missing_elements = [
+        element
+        for element in claim_builder_response.missing_elements
+        if element.accepted is None
+    ]
+    return claim_builder_response
 
 
 @router.get("/analyze-progress")
@@ -155,6 +156,11 @@ async def update_claim_builder_draft_handler(
         company,
         analyze_claim_builder_progress,
     )
+    claim_builder.missing_elements = [
+        element
+        for element in claim_builder.missing_elements
+        if element.accepted is None
+    ]
     return claim_builder_response
 
 
@@ -205,6 +211,11 @@ async def submit_claim_builder_draft_handler(
         company,
         analyze_claim_builder_progress,
     )
+    claim_builder.missing_elements = [
+        element
+        for element in claim_builder.missing_elements
+        if element.accepted is None
+    ]
     return claim_builder_response
 
 
@@ -256,6 +267,11 @@ async def reject_claim_builder_draft_handler(
         company,
         analyze_claim_builder_progress,
     )
+    claim_builder.missing_elements = [
+        element
+        for element in claim_builder.missing_elements
+        if element.accepted is None
+    ]
     return claim_builder_response
 
 
@@ -301,12 +317,17 @@ async def accept_claim_builder_draft_handler(
     analyze_claim_builder_progress = await get_analyze_claim_builder_progress(
         product.id,
     )
-    profile_response = claim_builder.to_claim_builder_response(
+    claim_builder_response = claim_builder.to_claim_builder_response(
         product,
         company,
         analyze_claim_builder_progress,
     )
-    return profile_response
+    claim_builder_response.missing_elements = [
+        element
+        for element in claim_builder_response.missing_elements
+        if element.accepted is None
+    ]
+    return claim_builder_response
 
 
 @router.post("/missing-element/decide")
@@ -344,12 +365,17 @@ async def decide_missing_element_handler(
     analyze_claim_builder_progress = await get_analyze_claim_builder_progress(
         product.id,
     )
-    profile_response = claim_builder.to_claim_builder_response(
+    claim_builder_response = claim_builder.to_claim_builder_response(
         product,
         company,
         analyze_claim_builder_progress,
     )
-    return profile_response
+    claim_builder_response.missing_elements = [
+        element
+        for element in claim_builder_response.missing_elements
+        if element.accepted is None
+    ]
+    return claim_builder_response
 
 
 @router.post("/phrase-conflict/accept")
@@ -383,12 +409,17 @@ async def accept_phrase_conflict_handler(
     analyze_claim_builder_progress = await get_analyze_claim_builder_progress(
         product.id,
     )
-    profile_response = claim_builder.to_claim_builder_response(
+    claim_builder_response = claim_builder.to_claim_builder_response(
         product,
         company,
         analyze_claim_builder_progress,
     )
-    return profile_response
+    claim_builder_response.missing_elements = [
+        element
+        for element in claim_builder_response.missing_elements
+        if element.accepted is None
+    ]
+    return claim_builder_response
 
 
 @router.post("/phrase-conflict/accept-all")
@@ -422,12 +453,17 @@ async def accept_all_phrase_conflict_handler(
     analyze_claim_builder_progress = await get_analyze_claim_builder_progress(
         product.id,
     )
-    profile_response = claim_builder.to_claim_builder_response(
+    claim_builder_response = claim_builder.to_claim_builder_response(
         product,
         company,
         analyze_claim_builder_progress,
     )
-    return profile_response
+    claim_builder_response.missing_elements = [
+        element
+        for element in claim_builder_response.missing_elements
+        if element.accepted is None
+    ]
+    return claim_builder_response
 
 
 @router.post("/phrase-conflict/reject")
@@ -461,12 +497,17 @@ async def reject_phrase_conflict_handler(
     analyze_claim_builder_progress = await get_analyze_claim_builder_progress(
         product.id,
     )
-    profile_response = claim_builder.to_claim_builder_response(
+    claim_builder_response = claim_builder.to_claim_builder_response(
         product,
         company,
         analyze_claim_builder_progress,
     )
-    return profile_response
+    claim_builder_response.missing_elements = [
+        element
+        for element in claim_builder_response.missing_elements
+        if element.accepted is None
+    ]
+    return claim_builder_response
 
 
 @router.post("/accept")
@@ -488,9 +529,14 @@ async def accept_claim_builder_handler(
     analyze_claim_builder_progress = await get_analyze_claim_builder_progress(
         product.id,
     )
-    profile_response = claim_builder.to_claim_builder_response(
+    claim_builder_response = claim_builder.to_claim_builder_response(
         product,
         company,
         analyze_claim_builder_progress,
     )
-    return profile_response
+    claim_builder_response.missing_elements = [
+        element
+        for element in claim_builder_response.missing_elements
+        if element.accepted is None
+    ]
+    return claim_builder_response

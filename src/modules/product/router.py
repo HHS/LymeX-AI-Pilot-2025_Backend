@@ -2,6 +2,7 @@ import asyncio
 from datetime import datetime, timezone
 from typing import Annotated, List
 from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Form, status
+import httpx
 from loguru import logger
 from beanie.operators import Set
 
@@ -18,6 +19,9 @@ from src.modules.product.dependencies import (
     get_current_product,
 )
 from src.modules.product.models import Product
+from src.modules.product.product_profile.storage import (
+    get_upload_product_profile_document_url,
+)
 from src.modules.product.storage import (
     get_update_product_avatar_url,
 )
@@ -127,6 +131,7 @@ async def create_product_handler(
     code: str | None = Form(None, description="Product code"),
     model: str | None = Form(None, description="Product model"),
     revision: str | None = Form(None, description="Product revision"),
+    description: str | None = Form(None, description="Description of the product"),
     category: str | None = Form(None, description="Product category"),
     intend_use: str | None = Form(None, description="Intended use of the product"),
     patient_contact: bool | None = Form(
@@ -156,6 +161,21 @@ async def create_product_handler(
     # Upload files if provided
     if files:
         await upload_product_files(str(created_product.id), files, current_user)
+
+    if description:
+        upload_url = await get_upload_product_profile_document_url(
+            str(created_product.id),
+            {
+                "file_name": "TextInput.txt",
+                "author": current_user.email,
+            },
+        )
+        async with httpx.AsyncClient() as client:
+            await client.put(
+                upload_url,
+                data=description,
+                headers={"Content-Type": "text/plain"},
+            )
 
     created_product_response = await created_product.to_product_response()
     await create_audit_record(

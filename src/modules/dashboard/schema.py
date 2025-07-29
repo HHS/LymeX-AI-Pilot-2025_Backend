@@ -1,11 +1,8 @@
-from typing import List, Literal, Optional
+from typing import List
 from datetime import datetime
 from pydantic import BaseModel, Field
 
 from src.modules.product.analyzing_status import AnalyzingStatus
-from src.modules.product.feature_status.schema import (
-    FeatureStatus,
-)
 
 
 class DashboardProductResponse(BaseModel):
