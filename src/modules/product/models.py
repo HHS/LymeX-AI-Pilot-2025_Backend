@@ -236,14 +236,12 @@ class Product(Document):
         )
 
         analyzing_status = (
-            AnalyzingStatus.COMPLETED
-            if is_analyzing_complete
-            else AnalyzingStatus.IN_PROGRESS
+            AnalyzingStatus.COMPLETED if is_analyzing_complete else "In_Progress"
         )
 
         return ProductResponse(
             id=str(self.id),
-            code=self.code,
+            code=product_profile.product_code if product_profile else None,
             name=self.name,
             model=self.model,
             revision=self.revision,

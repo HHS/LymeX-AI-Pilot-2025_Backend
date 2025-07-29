@@ -95,9 +95,6 @@ class ProductResponse(BaseModel):
         default=False,
         description="Indicates if this is the active profile for the company",
     )
-    analyzing_status: AnalyzingStatus = Field(
-        ..., description="Current status of the product analysis"
-    )
     # Product Profile fields
     description: str | None = Field(None, description="Description of the product")
     fda_approved: bool | None = Field(

@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 
 class AnalyzingStatus(str, Enum):
     PENDING = "Pending"
-    IN_PROGRESS = "In_Progress"
+    IN_PROGRESS = "In Progress"
     COMPLETED = "Completed"
 
 
