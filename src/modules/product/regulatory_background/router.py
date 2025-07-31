@@ -148,7 +148,9 @@ async def get_analyze_regulatory_background_progress_handler(
         return AnalyzingStatusResponse(
             analyzing_status=AnalyzingStatus.IN_PROGRESS,
         )
-    return analyze_regulatory_background_progress.to_analyze_regulatory_background_progress_response()
+    return (
+        analyze_regulatory_background_progress.to_analyze_regulatory_background_progress_response()
+    )
 
 
 @router.get("/")

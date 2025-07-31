@@ -1,10 +1,9 @@
-
-
-
 from datetime import datetime
 from beanie import Document, PydanticObjectId
 from src.modules.product.analyzing_status import AnalyzingStatus
-from src.modules.product.regulatory_background.schema import AnalyzeRegulatoryBackgroundProgressResponse
+from src.modules.product.regulatory_background.schema import (
+    AnalyzeRegulatoryBackgroundProgressResponse,
+)
 
 
 class AnalyzeRegulatoryBackgroundProgress(Document):
@@ -35,7 +34,7 @@ class AnalyzeRegulatoryBackgroundProgress(Document):
                 else AnalyzingStatus.COMPLETED
             ),
         )
-    
+
 
 async def get_analyze_regulatory_background_progress(
     product_id: str,

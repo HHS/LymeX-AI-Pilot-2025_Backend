@@ -47,5 +47,3 @@ async def get_analyze_competitive_analysis_progress(
     if not analyze_competitive_analysis_progress:
         return None
     return analyze_competitive_analysis_progress
-
-

@@ -22,10 +22,12 @@ async def clone_regulatory_background(
         RegulatoryBackground.product_id == str(product_id),
     ).to_list()
     if existing_regulatory_backgrounds:
-        await RegulatoryBackground.insert_many([
-            RegulatoryBackground(
-                **background.model_dump(exclude={"id", "product_id"}),
-                product_id=str(new_product_id),
-            )
-            for background in existing_regulatory_backgrounds
-        ])
+        await RegulatoryBackground.insert_many(
+            [
+                RegulatoryBackground(
+                    **background.model_dump(exclude={"id", "product_id"}),
+                    product_id=str(new_product_id),
+                )
+                for background in existing_regulatory_backgrounds
+            ]
+        )
