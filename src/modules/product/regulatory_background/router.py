@@ -5,12 +5,11 @@ import httpx
 from src.modules.authentication.dependencies import get_current_user
 from src.modules.product.analyzing_status import AnalyzingStatusResponse
 from src.modules.product.product_profile.service import create_audit_record
-from src.modules.product.regulatory_background.model import (
-    AnalyzeRegulatoryBackgroundProgressResponse,
-    RegulatoryBackground,
-)
-from src.modules.product.regulatory_background.service import (
+from src.modules.product.regulatory_background.analyze_regulatory_background_progress import (
     get_analyze_regulatory_background_progress,
+)
+from src.modules.product.regulatory_background.model import (
+    RegulatoryBackground,
 )
 from src.modules.product.regulatory_background.storage import (
     delete_regulatory_background_document,
@@ -23,6 +22,7 @@ from src.celery.tasks.analyze_regulatory_background import (
 )
 from src.modules.product.service import upload_product_files
 from src.modules.product.regulatory_background.schema import (
+    AnalyzeRegulatoryBackgroundProgressResponse,
     AnalyzingStatus,
     RegulatoryBackgroundDocumentResponse,
     RegulatoryBackgroundResponse,
@@ -138,12 +138,16 @@ async def analyze_regulatory_background_handler(
 @router.get("/analyze-progress")
 async def get_analyze_regulatory_background_progress_handler(
     product: Annotated[Product, Depends(get_current_product)],
-) -> AnalyzeRegulatoryBackgroundProgressResponse:
+) -> AnalyzeRegulatoryBackgroundProgressResponse | AnalyzingStatusResponse:
     analyze_regulatory_background_progress = (
         await get_analyze_regulatory_background_progress(
             str(product.id),
         )
     )
+    if not analyze_regulatory_background_progress:
+        return AnalyzingStatusResponse(
+            analyzing_status=AnalyzingStatus.IN_PROGRESS,
+        )
     return (
         analyze_regulatory_background_progress.to_analyze_regulatory_background_progress_response()
     )
@@ -160,4 +164,4 @@ async def get_regulatory_background_handler(
         return AnalyzingStatusResponse(
             analyzing_status=AnalyzingStatus.IN_PROGRESS,
         )
-    return regulatory_background.to_regulatory_background_response()
+    return await regulatory_background.to_regulatory_background_response()

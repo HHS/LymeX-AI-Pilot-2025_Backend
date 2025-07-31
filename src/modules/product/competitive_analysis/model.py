@@ -1,10 +1,8 @@
-from datetime import datetime
 from beanie import Document, PydanticObjectId
 from fastapi import HTTPException
 from src.infrastructure.minio import generate_get_object_presigned_url
 from src.modules.product.analyzing_status import AnalyzingStatus
 from src.modules.product.competitive_analysis.schema import (
-    AnalyzeCompetitiveAnalysisProgressResponse,
     CompetitiveAnalysisCompareItemResponse,
     CompetitiveAnalysisCompareResponse,
     CompetitiveAnalysisDetailBase,
@@ -14,6 +12,9 @@ from src.modules.product.competitive_analysis.schema import (
     CompetitiveDeviceAnalysisItemResponse,
     CompetitiveDeviceAnalysisResponse,
     SourceWithUrl,
+)
+from src.modules.product.competitive_analysis.analyze_competitive_analysis_progress import (
+    get_analyze_competitive_analysis_progress,
 )
 
 
@@ -85,6 +86,17 @@ class CompetitiveAnalysis(Document):
             for source in competitive_analysis_detail.sources
         ]
 
+        analyze_competitive_analysis_progress = (
+            await get_analyze_competitive_analysis_progress(
+                str(self.id),
+            )
+        )
+        analyze_competitive_analysis_progress_status = (
+            analyze_competitive_analysis_progress.to_analyze_competitive_analysis_progress_response().analyzing_status
+            if analyze_competitive_analysis_progress
+            else AnalyzingStatus.PENDING
+        )
+
         return CompetitiveAnalysisResponse(
             id=str(self.id),
             product_id=self.product_id if self.is_self_analysis else None,
@@ -111,14 +123,18 @@ class CompetitiveAnalysis(Document):
             accept_reject_reason=competitive_analysis_detail.accept_reject_reason,
             accept_reject_by=competitive_analysis_detail.accept_reject_by,
             comparison=self.to_competitive_compare_response(
-                self_product_detail, competitive_analysis_detail
+                self_product_detail,
+                competitive_analysis_detail,
+                analyze_competitive_analysis_progress_status,
             ),
+            analyzing_status=analyze_competitive_analysis_progress_status,
         )
 
     def to_competitive_compare_response(
         self,
         self_product_detail: CompetitiveAnalysisDetail,
         competitor_product_detail: CompetitiveAnalysisDetail,
+        analyze_competitive_analysis_progress_status: AnalyzingStatus,
     ) -> CompetitiveAnalysisCompareResponse:
         your_product = CompetitiveAnalysisCompareItemResponse(
             product_name=self_product_detail.product_name,
@@ -136,6 +152,7 @@ class CompetitiveAnalysis(Document):
             accepted=competitor_product_detail.accepted,
             accept_reject_reason=competitor_product_detail.accept_reject_reason,
             accept_reject_by=competitor_product_detail.accept_reject_by,
+            analyzing_status=analyze_competitive_analysis_progress_status,
         )
 
     async def to_competitive_device_analysis_response(
@@ -170,35 +187,5 @@ class CompetitiveAnalysis(Document):
                 type_of_use=competitive_analysis_detail.type_of_use,
                 fda_approved=competitive_analysis_detail.fda_approved,
                 ce_marked=competitive_analysis_detail.ce_marked,
-            ),
-        )
-
-
-class AnalyzeCompetitiveAnalysisProgress(Document):
-    product_id: str
-    total_files: int
-    processed_files: int
-    updated_at: datetime
-
-    class Settings:
-        name = "analyze_competitive_analysis_progress"
-
-    class Config:
-        json_encoders = {
-            PydanticObjectId: str,
-        }
-
-    def to_analyze_competitive_analysis_progress_response(
-        self,
-    ) -> AnalyzeCompetitiveAnalysisProgressResponse:
-        return AnalyzeCompetitiveAnalysisProgressResponse(
-            product_id=self.product_id,
-            total_files=self.total_files,
-            processed_files=self.processed_files,
-            updated_at=self.updated_at,
-            analyzing_status=(
-                AnalyzingStatus.IN_PROGRESS
-                if self.processed_files == 0
-                else AnalyzingStatus.COMPLETED
             ),
         )

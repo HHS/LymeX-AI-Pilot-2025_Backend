@@ -1,8 +1,8 @@
 from beanie import PydanticObjectId
-from src.modules.product.regulatory_background.model import (
+from src.modules.product.regulatory_background.analyze_regulatory_background_progress import (
     AnalyzeRegulatoryBackgroundProgress,
-    RegulatoryBackground,
 )
+from src.modules.product.regulatory_background.model import RegulatoryBackground
 
 
 async def get_product_regulatory_backgrounds(
@@ -31,16 +31,3 @@ async def clone_regulatory_background(
                 for background in existing_regulatory_backgrounds
             ]
         )
-
-
-async def get_analyze_regulatory_background_progress(
-    product_id: str,
-) -> AnalyzeRegulatoryBackgroundProgress | None:
-    analyze_regulatory_background_progress = (
-        await AnalyzeRegulatoryBackgroundProgress.find_one(
-            AnalyzeRegulatoryBackgroundProgress.product_id == str(product_id),
-        )
-    )
-    if not analyze_regulatory_background_progress:
-        return None
-    return analyze_regulatory_background_progress

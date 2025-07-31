@@ -1,9 +1,9 @@
 from beanie import PydanticObjectId
 from fastapi import HTTPException, status
-from src.modules.product.competitive_analysis.model import (
+from src.modules.product.competitive_analysis.analyze_competitive_analysis_progress import (
     AnalyzeCompetitiveAnalysisProgress,
-    CompetitiveAnalysis,
 )
+from src.modules.product.competitive_analysis.model import CompetitiveAnalysis
 from src.modules.product.competitive_analysis.storage import (
     clone_competitive_analysis_documents,
 )
@@ -20,7 +20,7 @@ async def get_all_product_competitive_analysis(
 
 async def get_product_competitive_analysis(
     product_id: str,
-    competitive_analysis_id: PydanticObjectId,
+    competitive_analysis_id: PydanticObjectId | str,
 ) -> CompetitiveAnalysis:
     competitive_analysis = await CompetitiveAnalysis.get(
         competitive_analysis_id,
@@ -94,19 +94,6 @@ async def delete_competitive_analysis(
 #         competitive_analysis.use_system_data = payload.use_system_data
 #     await competitive_analysis.save()
 #     return competitive_analysis
-
-
-async def get_analyze_competitive_analysis_progress(
-    product_id: str,
-) -> AnalyzeCompetitiveAnalysisProgress | None:
-    analyze_competitive_analysis_progress = (
-        await AnalyzeCompetitiveAnalysisProgress.find_one(
-            AnalyzeCompetitiveAnalysisProgress.product_id == str(product_id),
-        )
-    )
-    if not analyze_competitive_analysis_progress:
-        return None
-    return analyze_competitive_analysis_progress
 
 
 async def delete_product_competitive_analysis(

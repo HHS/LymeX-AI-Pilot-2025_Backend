@@ -4,7 +4,7 @@ from pydantic import Field
 
 from src.modules.company.models import Company
 from src.modules.product.claim_builder.service import get_analyze_claim_builder_progress
-from src.modules.product.competitive_analysis.service import (
+from src.modules.product.competitive_analysis.analyze_competitive_analysis_progress import (
     get_analyze_competitive_analysis_progress,
 )
 from src.modules.product.performance_testing.service import (
@@ -170,7 +170,7 @@ class Product(Document):
         analyze_claim_builder_progress_status = (
             analyze_claim_builder_progress.to_analyze_claim_builder_progress_response().analyzing_status
             if analyze_claim_builder_progress
-            else AnalyzingStatus.IN_PROGRESS
+            else AnalyzingStatus.PENDING
         )
 
         analyze_competitive_analysis_progress = (
@@ -181,7 +181,7 @@ class Product(Document):
         analyze_competitive_analysis_progress_status = (
             analyze_competitive_analysis_progress.to_analyze_competitive_analysis_progress_response().analyzing_status
             if analyze_competitive_analysis_progress
-            else AnalyzingStatus.IN_PROGRESS
+            else AnalyzingStatus.PENDING
         )
 
         analyze_product_profile_progress = await get_analyze_product_profile_progress(
@@ -190,7 +190,7 @@ class Product(Document):
         analyze_product_profile_progress_status = (
             analyze_product_profile_progress.to_analyze_product_profile_progress_response().analyzing_status
             if analyze_product_profile_progress
-            else AnalyzingStatus.IN_PROGRESS
+            else AnalyzingStatus.PENDING
         )
 
         analyze_regulatory_pathway_progress = (
@@ -199,7 +199,7 @@ class Product(Document):
         analyze_regulatory_pathway_progress_status = (
             analyze_regulatory_pathway_progress.to_analyze_regulatory_pathway_progress_response().analyzing_status
             if analyze_regulatory_pathway_progress
-            else AnalyzingStatus.IN_PROGRESS
+            else AnalyzingStatus.PENDING
         )
 
         analyze_performance_testing_progress = (
@@ -208,7 +208,7 @@ class Product(Document):
         analyze_performance_testing_progress_status = (
             analyze_performance_testing_progress.to_analyze_performance_testing_progress_response().analyzing_status
             if analyze_performance_testing_progress
-            else AnalyzingStatus.IN_PROGRESS
+            else AnalyzingStatus.PENDING
         )
 
         is_analyzing_complete = (
