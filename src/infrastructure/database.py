@@ -4,6 +4,9 @@ from loguru import logger
 from src.infrastructure.init.init_email_template_data import init_email_template_data
 from src.infrastructure.init.init_system_admin_user import init_system_admin_user
 from src.modules.product.clinical_trial.model import ClinicalTrial
+from src.modules.product.competitive_analysis.analyze_competitive_analysis_progress import (
+    AnalyzeCompetitiveAnalysisProgress,
+)
 from src.modules.product.feature_status.model import FeaturesStatus
 from src.modules.product.performance_testing.model import (
     PerformanceTestPlan,
@@ -12,10 +15,10 @@ from src.modules.product.performance_testing.model import (
 from src.modules.product.product_profile.analyze_product_profile_progress import (
     AnalyzeProductProfileProgress,
 )
-from src.modules.product.regulatory_background.model import (
+from src.modules.product.regulatory_background.analyze_regulatory_background_progress import (
     AnalyzeRegulatoryBackgroundProgress,
-    RegulatoryBackground,
 )
+from src.modules.product.regulatory_background.model import RegulatoryBackground
 from src.modules.product.regulatory_pathway.model import (
     AnalyzeRegulatoryPathwayProgress,
     RegulatoryPathway,
@@ -34,7 +37,6 @@ from src.modules.product.product_profile.model import (
 )
 from src.modules.product.competitive_analysis.model import (
     CompetitiveAnalysis,
-    AnalyzeCompetitiveAnalysisProgress,
     CompetitiveAnalysisDetail,
 )
 from src.modules.product.cost_estimation.model import CostEstimation

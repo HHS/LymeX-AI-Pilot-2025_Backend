@@ -1,9 +1,9 @@
 from beanie import PydanticObjectId
 from fastapi import HTTPException, status
-from src.modules.product.competitive_analysis.model import (
+from src.modules.product.competitive_analysis.analyze_competitive_analysis_progress import (
     AnalyzeCompetitiveAnalysisProgress,
-    CompetitiveAnalysis,
 )
+from src.modules.product.competitive_analysis.model import CompetitiveAnalysis
 from src.modules.product.competitive_analysis.storage import (
     clone_competitive_analysis_documents,
 )
@@ -20,7 +20,7 @@ async def get_all_product_competitive_analysis(
 
 async def get_product_competitive_analysis(
     product_id: str,
-    competitive_analysis_id: PydanticObjectId,
+    competitive_analysis_id: PydanticObjectId | str,
 ) -> CompetitiveAnalysis:
     competitive_analysis = await CompetitiveAnalysis.get(
         competitive_analysis_id,
@@ -96,19 +96,6 @@ async def delete_competitive_analysis(
 #     return competitive_analysis
 
 
-async def get_analyze_competitive_analysis_progress(
-    product_id: str,
-) -> AnalyzeCompetitiveAnalysisProgress | None:
-    analyze_competitive_analysis_progress = (
-        await AnalyzeCompetitiveAnalysisProgress.find_one(
-            AnalyzeCompetitiveAnalysisProgress.product_id == str(product_id),
-        )
-    )
-    if not analyze_competitive_analysis_progress:
-        return None
-    return analyze_competitive_analysis_progress
-
-
 async def delete_product_competitive_analysis(
     product_id: str,
 ) -> None:
@@ -119,7 +106,6 @@ async def delete_product_competitive_analysis(
         AnalyzeCompetitiveAnalysisProgress.product_id == product_id,
     ).delete_many()
 
-
 async def clone_competitive_analysis(
     product_id: str | PydanticObjectId,
     new_product_id: str | PydanticObjectId,
@@ -128,15 +114,13 @@ async def clone_competitive_analysis(
         CompetitiveAnalysis.product_id == product_id,
     ).to_list()
     if competitive_analysis:
-        await CompetitiveAnalysis.insert_many(
-            [
-                CompetitiveAnalysis(
-                    **analysis.model_dump(exclude={"id", "product_id"}),
-                    product_id=str(new_product_id),
-                )
-                for analysis in competitive_analysis
-            ]
-        )
+        await CompetitiveAnalysis.insert_many([
+            CompetitiveAnalysis(
+                **analysis.model_dump(exclude={"id", "product_id"}),
+                product_id=str(new_product_id),
+            )
+            for analysis in competitive_analysis
+        ])
 
     analyze_competitive_analysis_progress = (
         await AnalyzeCompetitiveAnalysisProgress.find_one(

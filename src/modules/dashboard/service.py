@@ -1,14 +1,10 @@
 from src.modules.product.analyzing_status import AnalyzingStatus
 from src.modules.product.claim_builder.service import get_analyze_claim_builder_progress
-from src.modules.product.competitive_analysis.service import (
-    get_analyze_competitive_analysis_progress,
-)
+from src.modules.product.competitive_analysis.analyze_competitive_analysis_progress import get_analyze_competitive_analysis_progress
 from src.modules.product.performance_testing.service import (
     get_analyze_performance_testing_progress,
 )
-from src.modules.product.regulatory_background.service import (
-    get_analyze_regulatory_background_progress,
-)
+from src.modules.product.regulatory_background.analyze_regulatory_background_progress import get_analyze_regulatory_background_progress
 from src.modules.product.regulatory_pathway.service import (
     get_analyze_regulatory_pathway_progress,
 )
@@ -69,7 +65,7 @@ async def get_dashboard_products(
         analyze_claim_builder_progress_status = (
             analyze_claim_builder_progress.to_analyze_claim_builder_progress_response().analyzing_status
             if analyze_claim_builder_progress
-            else AnalyzingStatus.IN_PROGRESS
+            else AnalyzingStatus.PENDING
         )
 
         analyze_competitive_analysis_progress = (
@@ -80,7 +76,7 @@ async def get_dashboard_products(
         analyze_competitive_analysis_progress_status = (
             analyze_competitive_analysis_progress.to_analyze_competitive_analysis_progress_response().analyzing_status
             if analyze_competitive_analysis_progress
-            else AnalyzingStatus.IN_PROGRESS
+            else AnalyzingStatus.PENDING
         )
 
         analyze_regulatory_pathway_progress = (
@@ -89,7 +85,7 @@ async def get_dashboard_products(
         analyze_regulatory_pathway_progress_status = (
             analyze_regulatory_pathway_progress.to_analyze_regulatory_pathway_progress_response().analyzing_status
             if analyze_regulatory_pathway_progress
-            else AnalyzingStatus.IN_PROGRESS
+            else AnalyzingStatus.PENDING
         )
 
         analyze_performance_testing_progress = (
@@ -98,7 +94,7 @@ async def get_dashboard_products(
         analyze_performance_testing_progress_status = (
             analyze_performance_testing_progress.to_analyze_performance_testing_progress_response().analyzing_status
             if analyze_performance_testing_progress
-            else AnalyzingStatus.IN_PROGRESS
+            else AnalyzingStatus.PENDING
         )
 
         analyze_regulatory_background_progress = (
@@ -107,7 +103,7 @@ async def get_dashboard_products(
         analyze_regulatory_background_progress_status = (
             analyze_regulatory_background_progress.to_analyze_regulatory_background_progress_response().analyzing_status
             if analyze_regulatory_background_progress
-            else AnalyzingStatus.IN_PROGRESS
+            else AnalyzingStatus.PENDING
         )
 
         dashboard_products.append(

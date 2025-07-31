@@ -324,6 +324,9 @@ class CompetitiveAnalysisCompareResponse(BaseModel):
     accept_reject_by: str | None = Field(
         None, description="User who accepted or rejected the competitive analysis"
     )
+    analyzing_status: AnalyzingStatus = Field(
+        ..., description="Current status of the product analysis"
+    )
 
 
 class AcceptCompetitiveAnalysisRequest(BaseModel):
@@ -392,4 +395,7 @@ class CompetitiveAnalysisResponse(BaseModel):
     )
     comparison: CompetitiveAnalysisCompareResponse | None = Field(
         None, description="Comparison details of the competitive analysis"
+    )
+    analyzing_status: AnalyzingStatus = Field(
+        ..., description="Current status of the product analysis"
     )

@@ -76,7 +76,7 @@ class ProductProfile(Document, ProductProfileSchemaBase):
             analyzing_status=(
                 analyze_progress.analyzing_status
                 if analyze_progress
-                else AnalyzingStatus.IN_PROGRESS
+                else AnalyzingStatus.PENDING
             ),
             detail=(
                 CompetitiveAnalysisDetailSchema(**detail.model_dump())
@@ -114,7 +114,7 @@ class ProductProfile(Document, ProductProfileSchemaBase):
             analyzing_status=(
                 analyze_progress.analyzing_status
                 if analyze_progress
-                else AnalyzingStatus.IN_PROGRESS
+                else AnalyzingStatus.PENDING
             ),
             detail=(
                 CompetitiveAnalysisDetailSchema(**detail.model_dump())

@@ -3,8 +3,11 @@ from datetime import datetime, timezone
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from src.modules.product.competitive_analysis.model import (
+from src.modules.product.competitive_analysis.analyze_competitive_analysis_progress import (
     AnalyzeCompetitiveAnalysisProgress,
+    get_analyze_competitive_analysis_progress,
+)
+from src.modules.product.competitive_analysis.model import (
     CompetitiveAnalysis,
     CompetitiveAnalysisDetail,
 )
@@ -44,7 +47,6 @@ from src.modules.product.competitive_analysis.schema import (
 from src.modules.product.competitive_analysis.service import (
     delete_competitive_analysis,
     get_all_product_competitive_analysis,
-    get_analyze_competitive_analysis_progress,
     get_product_competitive_analysis,
 )
 import httpx
@@ -58,15 +60,17 @@ router = APIRouter()
 @router.get("/analyze-progress")
 async def get_analyze_competitive_analysis_progress_handler(
     product: Annotated[Product, Depends(get_current_product)],
-) -> AnalyzeCompetitiveAnalysisProgressResponse:
+) -> AnalyzeCompetitiveAnalysisProgressResponse | AnalyzingStatusResponse:
     analyze_competitive_analysis_progress = (
         await get_analyze_competitive_analysis_progress(
             str(product.id),
         )
     )
-    return (
-        analyze_competitive_analysis_progress.to_analyze_competitive_analysis_progress_response()
-    )
+    if not analyze_competitive_analysis_progress:
+        return AnalyzingStatusResponse(
+            analyzing_status=AnalyzingStatus.IN_PROGRESS,
+        )
+    return analyze_competitive_analysis_progress.to_analyze_competitive_analysis_progress_response()
 
 
 @router.post("/analyze")
