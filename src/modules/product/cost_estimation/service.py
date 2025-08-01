@@ -17,9 +17,9 @@ async def get_product_cost_estimation(
     product_name = product.name if product else ""
     product_code = product.code if product else None
 
-    product_cost_estimations = await CostEstimation.find(
-        {"product_id": str(product_id)}
-    ).to_list()
+    product_cost_estimations = await CostEstimation.find({
+        "product_id": str(product_id)
+    }).to_list()
 
     if not product_cost_estimations:
         # Create dummy data
@@ -30,31 +30,31 @@ async def get_product_cost_estimation(
                 Pathway(
                     pathway="510(k)",
                     costAnalysis=CostAnalysis(
-                        base_mdufa_fee="19870",
-                        sbd_fee_reduction="75",
+                        base_mdufa_fee="24335",
+                        sbd_fee_reduction="6084",
                         estimated_consulting_costs="10",
                         clinical_trial_costs="10",
-                        total_estimated_cost="4968",
+                        total_estimated_cost="30439",
                     ),
                 ),
                 Pathway(
                     pathway="DeNovo",
                     costAnalysis=CostAnalysis(
-                        base_mdufa_fee="19870",
-                        sbd_fee_reduction="75",
+                        base_mdufa_fee="173782",
+                        sbd_fee_reduction="43446",
                         estimated_consulting_costs="10",
                         clinical_trial_costs="10",
-                        total_estimated_cost="4968",
+                        total_estimated_cost="217248",
                     ),
                 ),
                 Pathway(
                     pathway="PMA",
                     costAnalysis=CostAnalysis(
-                        base_mdufa_fee="19870",
-                        sbd_fee_reduction="75",
+                        base_mdufa_fee="579272",
+                        sbd_fee_reduction="144818",
                         estimated_consulting_costs="10",
                         clinical_trial_costs="10",
-                        total_estimated_cost="4968",
+                        total_estimated_cost="724110",
                     ),
                 ),
             ],
@@ -113,12 +113,10 @@ async def clone_cost_estimation(
         CostEstimation.product_id == str(product_id)
     ).to_list()
     if existing_estimation:
-        await CostEstimation.insert_many(
-            [
-                CostEstimation(
-                    **estimation.model_dump(exclude={"id", "product_id"}),
-                    product_id=str(new_product_id),
-                )
-                for estimation in existing_estimation
-            ]
-        )
+        await CostEstimation.insert_many([
+            CostEstimation(
+                **estimation.model_dump(exclude={"id", "product_id"}),
+                product_id=str(new_product_id),
+            )
+            for estimation in existing_estimation
+        ])
