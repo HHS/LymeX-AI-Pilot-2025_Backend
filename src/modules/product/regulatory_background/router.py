@@ -1,6 +1,8 @@
 from typing import Annotated, List
 from fastapi import APIRouter, Depends, Form, File, UploadFile
 import httpx
+from loguru import logger
+from pydantic import BaseModel
 
 from src.modules.authentication.dependencies import get_current_user
 from src.modules.product.analyzing_status import AnalyzingStatusResponse
@@ -32,6 +34,7 @@ from src.modules.product.dependencies import (
     get_current_product,
 )
 from src.modules.product.models import Product
+from fastapi import Body
 
 
 router = APIRouter()
@@ -64,16 +67,19 @@ async def get_upload_regulatory_background_document_url_handler(
     return upload_url
 
 
+class TextInputRequest(BaseModel):
+    text: str = Form(..., description="Text input for regulatory background")
+
+
 @router.put("/documents/text-input")
 async def upload_regulatory_background_text_input_handler(
     product: Annotated[Product, Depends(get_current_product)],
     current_user: Annotated[User, Depends(get_current_user)],
     _: Annotated[bool, Depends(check_product_edit_allowed)],
-    text: str | None = Form(None, description="Text input for the documents"),
-    files: List[UploadFile] = File([], description="Files to upload"),
+    payload: TextInputRequest,
 ) -> None:
     # Upload text if provided
-    if text:
+    if payload.text:
         upload_url = await get_upload_regulatory_background_document_url(
             str(product.id),
             {
@@ -81,22 +87,18 @@ async def upload_regulatory_background_text_input_handler(
                 "author": current_user.email,
             },
         )
+        logger.info(f"Uploading text input to {upload_url}")
         async with httpx.AsyncClient() as client:
             await client.put(
                 upload_url,
-                data=text,
+                data=payload.text,
                 headers={"Content-Type": "text/plain"},
             )
-
-    # Upload files if provided
-    if files:
-        await upload_product_files(str(product.id), files, current_user)
-
     await create_audit_record(
         product,
         current_user,
         "Upload product profile text input and files",
-        {"text_provided": text is not None, "files_count": len(files)},
+        {"text_provided": payload.text is not None},
     )
 
 
@@ -164,4 +166,4 @@ async def get_regulatory_background_handler(
         return AnalyzingStatusResponse(
             analyzing_status=AnalyzingStatus.IN_PROGRESS,
         )
-    return await regulatory_background.to_regulatory_background_response()
+    return await regulatory_background.to_regulatory_background_response(product)

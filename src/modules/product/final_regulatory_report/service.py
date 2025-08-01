@@ -1,3 +1,4 @@
+from src.modules.product.product_profile.model import ProductProfile
 from src.modules.product.regulatory_pathway.model import RegulatoryPathway
 from src.modules.product.milestone_planning.model import MilestonePlanning
 from src.modules.product.review_program.model import ReviewProgram
@@ -20,10 +21,26 @@ async def get_final_regulatory_report(product_id: str) -> FinalRegulatoryReportR
 
     # Fetch regulatory pathway
     reg_pathway = await RegulatoryPathway.find_one({"product_id": product_id})
+    product_profile = await ProductProfile.find_one({"product_id": product_id})
+
+    all_device_classes = (
+        product_profile.regulatory_classifications if product_profile else []
+    )
+    fda_device_classes = [
+        device_class
+        for device_class in all_device_classes
+        if device_class.organization.upper().startswith("FDA")
+    ]
+    if fda_device_classes:
+        device_class = fda_device_classes[0].classification
+    elif all_device_classes:
+        device_class = all_device_classes[0].classification
+    else:
+        device_class = "Unknown"
 
     regulatory_pathway_summary = RegulatoryPathwaySummary(
         recommended_pathway=reg_pathway.recommended_pathway if reg_pathway else "",
-        device_class="Class 1",
+        device_class=device_class,
         review_type="Traditional",
         description=getattr(reg_pathway, "description", None) if reg_pathway else None,
     )

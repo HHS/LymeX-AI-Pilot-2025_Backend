@@ -37,7 +37,7 @@ async def save_product_cost_estimation_handler(
         current_user,
         "Save product cost estimation",
         {
-            "cost_estimation_id": saved_estimation.id,
+            "cost_estimation_id": str(saved_estimation.id),
             "payload": cost_estimation.model_dump(),
         },
     )

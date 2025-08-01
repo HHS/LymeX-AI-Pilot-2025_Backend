@@ -37,7 +37,7 @@ async def save_product_custom_test_plan_handler(
         current_user,
         "Save custom test plan",
         {
-            "custom_test_plan_id": saved_plan.id,
+            "custom_test_plan_id": str(saved_plan.id),
             "payload": test_plan.model_dump(),
         },
     )
