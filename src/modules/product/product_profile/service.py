@@ -85,13 +85,15 @@ async def clone_product_profile(
     ).to_list()
 
     if existing_profile:
-        await ProductProfile.insert_many([
-            ProductProfile(
-                **profile.model_dump(exclude={"id", "product_id"}),
-                product_id=str(new_product_id),
-            )
-            for profile in existing_profile
-        ])
+        await ProductProfile.insert_many(
+            [
+                ProductProfile(
+                    **profile.model_dump(exclude={"id", "product_id"}),
+                    product_id=str(new_product_id),
+                )
+                for profile in existing_profile
+            ]
+        )
 
     analyze_progress = await AnalyzeProductProfileProgress.find_one(
         AnalyzeProductProfileProgress.product_id == str(product_id),
@@ -151,13 +153,17 @@ async def get_product_documents(product_id: str) -> list[dict]:
             original_filename = document_name
             author = "Unknown"
 
-        documents.append({
-            "document_name": original_filename,
-            "file_name": original_filename,
-            "url": url,
-            "uploaded_at": (obj.last_modified.isoformat() if obj.last_modified else ""),
-            "author": author,
-            "size": obj.size,
-        })
+        documents.append(
+            {
+                "document_name": original_filename,
+                "file_name": original_filename,
+                "url": url,
+                "uploaded_at": (
+                    obj.last_modified.isoformat() if obj.last_modified else ""
+                ),
+                "author": author,
+                "size": obj.size,
+            }
+        )
 
     return documents

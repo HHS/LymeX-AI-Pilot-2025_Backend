@@ -23,7 +23,8 @@ class RegulatoryBackground(Document, RegulatoryBackgroundBase):
         }
 
     async def to_regulatory_background_response(
-        self, product: Product,
+        self,
+        product: Product,
     ) -> RegulatoryBackgroundResponse:
         analyze_regulatory_background_progress = (
             await get_analyze_regulatory_background_progress(
