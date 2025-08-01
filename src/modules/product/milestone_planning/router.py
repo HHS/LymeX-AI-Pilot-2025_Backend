@@ -62,7 +62,7 @@ async def save_milestone_planning_handler(
         current_user,
         "Save milestone planning",
         {
-            "milestone_planning_id": milestone_planning.id,
+            "milestone_planning_id": str(milestone_planning.id),
             "payload": payload.model_dump(),
         },
     )

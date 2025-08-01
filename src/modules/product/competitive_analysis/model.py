@@ -88,7 +88,7 @@ class CompetitiveAnalysis(Document):
 
         analyze_competitive_analysis_progress = (
             await get_analyze_competitive_analysis_progress(
-                str(self.id),
+                self.product_id,
             )
         )
         analyze_competitive_analysis_progress_status = (

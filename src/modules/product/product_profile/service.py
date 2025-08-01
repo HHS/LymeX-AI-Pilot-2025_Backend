@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from typing import Any
 from beanie import PydanticObjectId
-from fastapi import HTTPException, status
+from loguru import logger
 from src.modules.product.models import Product
 from src.modules.product.product_profile.analyze_product_profile_progress import (
     AnalyzeProductProfileProgress,
@@ -12,32 +12,9 @@ from src.modules.product.product_profile.model import (
 )
 import asyncio
 from src.modules.product.product_profile.storage import clone_product_profile_documents
-from src.modules.product.storage import get_product_folder
 from src.modules.user.models import User
 from src.infrastructure.minio import minio_client, generate_get_object_presigned_url
 from src.environment import environment
-
-
-def get_profile_folder(
-    company_id: str,
-    product_id: str,
-) -> str:
-    product_folder = get_product_folder(company_id, product_id)
-    return f"{product_folder}/profile"
-
-
-# async def get_analyze_product_profile_progress(
-#     product_id: str | PydanticObjectId,
-# ) -> AnalyzeProductProfileProgress:
-#     analyze_product_profile_progress = await AnalyzeProductProfileProgress.find_one(
-#         AnalyzeProductProfileProgress.product_id == str(product_id),
-#     )
-#     if not analyze_product_profile_progress:
-#         raise HTTPException(
-#             status_code=status.HTTP_404_NOT_FOUND,
-#             detail="Analyze product profile progress not found",
-#         )
-#     return analyze_product_profile_progress
 
 
 async def get_analyze_product_profile_progress_or_default(
@@ -94,6 +71,7 @@ async def create_audit_record(
         data=data,
         timestamp=datetime.now(timezone.utc),
     )
+    logger.info(f"Creating audit record: {audit_record}")
     await audit_record.insert()
     return audit_record
 
@@ -107,15 +85,13 @@ async def clone_product_profile(
     ).to_list()
 
     if existing_profile:
-        await ProductProfile.insert_many(
-            [
-                ProductProfile(
-                    **profile.model_dump(exclude={"id", "product_id"}),
-                    product_id=str(new_product_id),
-                )
-                for profile in existing_profile
-            ]
-        )
+        await ProductProfile.insert_many([
+            ProductProfile(
+                **profile.model_dump(exclude={"id", "product_id"}),
+                product_id=str(new_product_id),
+            )
+            for profile in existing_profile
+        ])
 
     analyze_progress = await AnalyzeProductProfileProgress.find_one(
         AnalyzeProductProfileProgress.product_id == str(product_id),
@@ -175,17 +151,13 @@ async def get_product_documents(product_id: str) -> list[dict]:
             original_filename = document_name
             author = "Unknown"
 
-        documents.append(
-            {
-                "document_name": original_filename,
-                "file_name": original_filename,
-                "url": url,
-                "uploaded_at": (
-                    obj.last_modified.isoformat() if obj.last_modified else ""
-                ),
-                "author": author,
-                "size": obj.size,
-            }
-        )
+        documents.append({
+            "document_name": original_filename,
+            "file_name": original_filename,
+            "url": url,
+            "uploaded_at": (obj.last_modified.isoformat() if obj.last_modified else ""),
+            "author": author,
+            "size": obj.size,
+        })
 
     return documents

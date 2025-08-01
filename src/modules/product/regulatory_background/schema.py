@@ -51,6 +51,9 @@ class RegulatoryBackgroundResponse(BaseModel, RegulatoryBackgroundBase):
     product_id: str = Field(
         ..., description="ID of the product this regulatory background belongs to"
     )
+    product_name: str = Field(
+        ..., description="Name of the product this regulatory background belongs to"
+    )
     analyzing_status: AnalyzingStatus = Field(
         ..., description="Current status of the product analysis"
     )
