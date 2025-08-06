@@ -22,11 +22,13 @@ def start_celery_worker() -> None:
         "celery.analyze_checklist",
     ]
     queues = ",".join(queues)
-    celery.worker_main([
-        "worker",
-        f"-Q {queues}",
-        f"-c {number_of_workers}",
-    ])
+    celery.worker_main(
+        [
+            "worker",
+            f"-Q {queues}",
+            f"-c {number_of_workers}",
+        ]
+    )
 
 
 if __name__ == "__main__":
