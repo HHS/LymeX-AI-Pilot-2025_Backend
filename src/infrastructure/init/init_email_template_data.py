@@ -74,12 +74,14 @@ async def init_email_template_data() -> None:
         )
         if existing_template:
             # Update existing template by setting new values
-            await existing_template.set({
-                "subject": template.subject,
-                "body": template.body,
-                "from_name": template.from_name,
-                "from_email": template.from_email
-            })
+            await existing_template.set(
+                {
+                    "subject": template.subject,
+                    "body": template.body,
+                    "from_name": template.from_name,
+                    "from_email": template.from_email,
+                }
+            )
         else:
             # Create new template
             await template.insert()
