@@ -3,6 +3,7 @@ from typing import Literal, TypedDict
 
 class QuestionJson(TypedDict):
     section: str
+    question_number: int
     question: str
     question_type: Literal["checkbox", "radio", "text", "boolean"]
     options: list[str] | None
@@ -12,6 +13,7 @@ class QuestionJson(TypedDict):
 questions: list[QuestionJson] = [
     {
         "section": "product_profile",
+        "question_number": 1,
         "question": "This device could be described as (check all that apply):",
         "question_type": "checkbox",
         "options": [
@@ -32,6 +34,7 @@ Instrument (device used to perform the assay):
     },
     {
         "section": "product_profile",
+        "question_number": 2,
         "question": "What disease(s) or conditions does your product treat/diagnose, and what is the incidence of prevalence of the disease/condition?",
         "question_type": "text",
         "options": None,
@@ -48,6 +51,7 @@ Key Phrases [Lyme Disease]:
     },
     {
         "section": "product_profile",
+        "question_number": 3,
         "question": "What is the intended patient population?",
         "question_type": "text",
         "options": None,
@@ -90,6 +94,7 @@ Key Phrases [Lyme Disease]:
     },
     {
         "section": "product_profile",
+        "question_number": 4,
         "question": "Where is this product intended to be used?",
         "question_type": "text",
         "options": None,
@@ -142,6 +147,7 @@ Key Phrases [Lyme Disease]:
     },
     {
         "section": "product_profile",
+        "question_number": 5,
         "question": "Is this product intended to be used in combination with a drug ,biological therapy, or other medical device?",
         "question_type": "text",
         "options": None,
@@ -191,6 +197,7 @@ Key Phrases [Lyme Disease]:
     },
     {
         "section": "product_profile",
+        "question_number": 6,
         "question": "Is the device life-supporting or life-sustaining?",
         "question_type": "boolean",
         "options": None,
@@ -210,6 +217,7 @@ Key Phrases [Lyme Disease]:
     },
     {
         "section": "product_profile",
+        "question_number": 7,
         "question": "What is the specimen type?",
         "question_type": "radio",
         "options": [
@@ -224,6 +232,7 @@ Key Phrases [Lyme Disease]:
     },
     {
         "section": "product_profile",
+        "question_number": 8,
         "question": "Does the following apply to your device (check all that apply)",
         "question_type": "checkbox",
         "options": [
@@ -263,6 +272,7 @@ Key Phrases [Lyme Disease]:
     },
     {
         "section": "performance_testing",
+        "question_number": 9,
         "question": "Did you perform Precision (Repeatability/Reproducibility) study?",
         "question_type": "boolean",
         "options": None,
@@ -270,6 +280,7 @@ Key Phrases [Lyme Disease]:
     },
     {
         "section": "performance_testing",
+        "question_number": 10,
         "question": "Did you perform Linearity Study?",
         "question_type": "boolean",
         "options": None,
@@ -277,6 +288,7 @@ Key Phrases [Lyme Disease]:
     },
     {
         "section": "performance_testing",
+        "question_number": 11,
         "question": "Did you perform Analytical Sensitivity/Detection Limit(s) study?",
         "question_type": "boolean",
         "options": None,
@@ -284,6 +296,7 @@ Key Phrases [Lyme Disease]:
     },
     {
         "section": "performance_testing",
+        "question_number": 12,
         "question": "Did you have Assay Measuring Range information to include in this submission?",
         "question_type": "boolean",
         "options": None,
@@ -291,6 +304,7 @@ Key Phrases [Lyme Disease]:
     },
     {
         "section": "performance_testing",
+        "question_number": 13,
         "question": "Did you perform Assay Cut-off Study?",
         "question_type": "boolean",
         "options": None,
@@ -298,6 +312,7 @@ Key Phrases [Lyme Disease]:
     },
     {
         "section": "performance_testing",
+        "question_number": 14,
         "question": "Do you have Traceability Information to include in this submission?",
         "question_type": "boolean",
         "options": None,
@@ -305,6 +320,7 @@ Key Phrases [Lyme Disease]:
     },
     {
         "section": "performance_testing",
+        "question_number": 15,
         "question": "Do you have Stability information to include in this submission?",
         "question_type": "boolean",
         "options": None,
@@ -312,6 +328,7 @@ Key Phrases [Lyme Disease]:
     },
     {
         "section": "performance_testing",
+        "question_number": 16,
         "question": "Do you have Usability/Human Factors Studies specifically assessing the instructions and/or the device design in terms of impact to human behavior, abilities, limitations, and other characteristics on the ability of the device to perform as intended?",
         "question_type": "boolean",
         "options": None,
@@ -319,6 +336,7 @@ Key Phrases [Lyme Disease]:
     },
     {
         "section": "performance_testing",
+        "question_number": 17,
         "question": "Do you have other Analytical Performance Supportive Data to include in this submission?",
         "question_type": "boolean",
         "options": None,
@@ -326,6 +344,7 @@ Key Phrases [Lyme Disease]:
     },
     {
         "section": "performance_testing",
+        "question_number": 18,
         "question": "Did you perform Method comparison Study?",
         "question_type": "boolean",
         "options": None,
@@ -333,6 +352,7 @@ Key Phrases [Lyme Disease]:
     },
     {
         "section": "performance_testing",
+        "question_number": 19,
         "question": "Did you perform Matrix Comparison study?",
         "question_type": "boolean",
         "options": None,
@@ -340,6 +360,7 @@ Key Phrases [Lyme Disease]:
     },
     {
         "section": "performance_testing",
+        "question_number": 20,
         "question": "Do you have Clinical Sensitivity and/or Clinical Specificity to include in this submission?",
         "question_type": "boolean",
         "options": None,
@@ -347,6 +368,7 @@ Key Phrases [Lyme Disease]:
     },
     {
         "section": "performance_testing",
+        "question_number": 21,
         "question": "Do you have Clinical Cut-off information to include in this submission?",
         "question_type": "boolean",
         "options": None,
@@ -354,6 +376,7 @@ Key Phrases [Lyme Disease]:
     },
     {
         "section": "performance_testing",
+        "question_number": 22,
         "question": "Do you have other Clinical Supportive Data to include in this submission?",
         "question_type": "boolean",
         "options": None,
@@ -361,6 +384,7 @@ Key Phrases [Lyme Disease]:
     },
     {
         "section": "performance_testing",
+        "question_number": 23,
         "question": "Do you have Reference Range/Expected values information to include in this submission?",
         "question_type": "boolean",
         "options": None,
@@ -368,6 +392,7 @@ Key Phrases [Lyme Disease]:
     },
     {
         "section": "performance_testing",
+        "question_number": 24,
         "question": "Do you have clinical testing in this submission that includes patient-reported outcomes (PROs) or patient preference information?",
         "question_type": "checkbox",
         "options": [
@@ -437,6 +462,7 @@ Key Phrases [Lyme Disease]:
     },
     {
         "section": "performance_testing",
+        "question_number": 25,
         "question": "Please identify the attachment(s) and page number(s) of any information provided related to patient-reported outcomes (PROs) for this section, such as the PRO questionnaire, dossier, and/or other supportive documents.",
         "question_type": "text",
         "options": None,
@@ -444,6 +470,7 @@ Key Phrases [Lyme Disease]:
     },
     {
         "section": "performance_testing",
+        "question_number": 26,
         "question": "Please identify the attachment(s) and page number(s) of any information provided related to patient preference information (PPI) for this section, such as the PPI survey, protocol, attribute table, and/or other supportive documents as appropriate.",
         "question_type": "text",
         "options": None,
@@ -451,6 +478,7 @@ Key Phrases [Lyme Disease]:
     },
     {
         "section": "performance_testing",
+        "question_number": 27,
         "question": "Is one or more of the included clinical investigations intended to support this submission subject to the requirements governing FDA acceptance of data from clinical investigations?",
         "question_type": "boolean",
         "options": None,
@@ -458,6 +486,7 @@ Key Phrases [Lyme Disease]:
     },
     {
         "section": "performance_testing",
+        "question_number": 28,
         "question": "Where the supporting clinical investigations included in this submission conducted?",
         "question_type": "radio",
         "options": [
@@ -469,6 +498,7 @@ Key Phrases [Lyme Disease]:
     },
     {
         "section": "performance_testing",
+        "question_number": 29,
         "question": "Do you have Animal Testing to include in this submission?",
         "question_type": "boolean",
         "options": None,
@@ -476,6 +506,7 @@ Key Phrases [Lyme Disease]:
     },
     {
         "section": "performance_testing",
+        "question_number": 30,
         "question": "Please include a study protocol which includes all elements as outlined in 21 CFR 58.120.",
         "question_type": "text",
         "options": None,
@@ -483,6 +514,7 @@ Key Phrases [Lyme Disease]:
     },
     {
         "section": "performance_testing",
+        "question_number": 31,
         "question": "Please include a final study report which includes all elements as outlined in 21CFR 58.185.",
         "question_type": "text",
         "options": None,
@@ -493,6 +525,7 @@ Key Phrases [Lyme Disease]:
     },
     {
         "section": "performance_testing",
+        "question_number": 32,
         "question": "Provide the predicate device submission number (e.g., K180001) that is the best comparator for the testing attached.",
         "question_type": "text",
         "options": None,
@@ -502,6 +535,7 @@ AI should summarize the Electrical, Mechanical and Thermal Safety Testing of the
     },
     {
         "section": "performance_testing",
+        "question_number": 33,
         "question": "Is the device electrical (battery or mains powered)?",
         "question_type": "boolean",
         "options": None,
@@ -509,6 +543,7 @@ AI should summarize the Electrical, Mechanical and Thermal Safety Testing of the
     },
     {
         "section": "performance_testing",
+        "question_number": 34,
         "question": "How many devices/accessories/components were subjected to EMC testing (max 4)?",
         "question_type": "text",
         "options": None,
@@ -516,6 +551,7 @@ AI should summarize the Electrical, Mechanical and Thermal Safety Testing of the
     },
     {
         "section": "performance_testing",
+        "question_number": 35,
         "question": "Please select the most severe harm that could be caused to the patient, user, or operator as a result of potential malfunction, disruption, or degradation due to electromagnetic interference (EMI).",
         "question_type": "radio",
         "options": [
@@ -527,6 +563,7 @@ AI should summarize the Electrical, Mechanical and Thermal Safety Testing of the
     },
     {
         "section": "performance_testing",
+        "question_number": 36,
         "question": "Was testing performed according to a recognized edition of IEC 60601-1-2 or IEC 61326-2-6 and, if so, was an ASCA test summary report provided",
         "question_type": "radio",
         "options": [
@@ -539,6 +576,7 @@ AI should summarize the Electrical, Mechanical and Thermal Safety Testing of the
     },
     {
         "section": "performance_testing",
+        "question_number": 37,
         "question": "If the device under test is not the final finished version, please provide a justification for why the differences don't affect EMC. If the device under test is the final finished version, please state this",
         "question_type": "text",
         "options": None,
@@ -548,6 +586,7 @@ AI Should prompt the user to confirm that the testing was completed on the final
     },
     {
         "section": "performance_testing",
+        "question_number": 38,
         "question": "Please list the Essential Performance Characteristics that are specific to the device, or provide a rationale why the device has no Essential Performance.",
         "question_type": "text",
         "options": None,
@@ -558,6 +597,7 @@ If the report states something like, “not applicable”, or “No Essential Pe
     },
     {
         "section": "performance_testing",
+        "question_number": 39,
         "question": "Please provide specific page number(s) in the summary/report that include pass/fail criteria specific to the device that are based on device functions, intended use, and Essential Performance. It is recommended that all device functions that are associated with basic safety or Essential Performance be tested and include device-specific pass/fail criteria.",
         "question_type": "text",
         "options": None,
@@ -570,6 +610,7 @@ Key Phrases:
     },
     {
         "section": "performance_testing",
+        "question_number": 40,
         "question": "If wireless technology is used in the medical device to achieve its intended use, was it “on” and communicating with other medical device subsystems or ancillary equipment during EMC",
         "question_type": "radio",
         "options": [
@@ -587,6 +628,7 @@ Key Phrases:
     },
     {
         "section": "performance_testing",
+        "question_number": 41,
         "question": "If the device includes any smart batteries that can be removed from the device for recharging, were the batteries tested as a standalone component during ESD testing?",
         "question_type": "radio",
         "options": [
@@ -598,6 +640,7 @@ Key Phrases:
     },
     {
         "section": "performance_testing",
+        "question_number": 42,
         "question": "If there were any degradations or observations noted during the testing, describe how the device(s) continued to meet the device-specific pass/fail criteria during these degradations or observations.",
         "question_type": "text",
         "options": None,
@@ -611,6 +654,7 @@ Key Phrases:
     },
     {
         "section": "performance_testing",
+        "question_number": 43,
         "question": "If any of the referenced standard's allowances were used during the testing (e.g. lowered ESD immunity), please provide these below.",
         "question_type": "text",
         "options": None,
@@ -618,6 +662,7 @@ Key Phrases:
     },
     {
         "section": "performance_testing",
+        "question_number": 44,
         "question": "If there were any deviations from the referenced standard, please describe these below.",
         "question_type": "text",
         "options": None,
@@ -627,6 +672,7 @@ Should be able to provide examples to the user of the referenced standards allow
     },
     {
         "section": "performance_testing",
+        "question_number": 45,
         "question": "Please add an attachment that includes descriptions of all modifications, as well as a statement indicating that all changes or modifications will be incorporated in the device intended for marketing. Not providing an attachment indicates no modifications were made in order to pass any of the EMC tests. In addition, be sure you include an adequate assessment of whether these modifications might impact other aspects of the device (e.g., performance, biocompatibility). It is recommended that the attachment contain information to demonstrate that the modifications would have no impact on the other aspects or that the modified device was used for the other performance tests.",
         "question_type": "text",
         "options": None,
@@ -637,6 +683,7 @@ If attachment is provided, the AI should parse the document for references to ot
     },
     {
         "section": "performance_testing",
+        "question_number": 46,
         "question": "Please add an attachment that addresses the risks associated with exposure to specific EM emitters that are not adequately addressed by IEC 60601-1-2 (risk analysis with appropriate mitigation that might include testing or labeling) foreseeable in the intended use vicinity (e.g., RFID, security systems such as metal detectors and EAS, diathermy, electrocautery, MRI, electrosurgical units)",
         "question_type": "text",
         "options": None,
@@ -644,6 +691,7 @@ If attachment is provided, the AI should parse the document for references to ot
     },
     {
         "section": "performance_testing",
+        "question_number": 47,
         "question": "How many separate wireless functions are there (max 5). For each device/accessory listed in the question above, the following data should be parsed:",
         "question_type": "text",
         "options": None,
@@ -651,6 +699,7 @@ If attachment is provided, the AI should parse the document for references to ot
     },
     {
         "section": "performance_testing",
+        "question_number": 48,
         "question": "Specify the device function to be implemented wirelessly and risks associated with failure, disruption, or delay of communication. Please consider inherent risks due to complete wireless communication loss as well as risks identified by the sponsor during their risk analysis process. Additionally, please consider the safeguards and redundancies that might be built into the wireless function when considering the risk.",
         "question_type": "text",
         "options": None,
@@ -658,6 +707,7 @@ If attachment is provided, the AI should parse the document for references to ot
     },
     {
         "section": "performance_testing",
+        "question_number": 49,
         "question": "Please choose the most appropriate choice for the risk of the wireless function (which may not be the same as the risk of the device). The risks of the wireless function are defined in AAMI TIR69.",
         "question_type": "radio",
         "options": [
@@ -670,6 +720,7 @@ If attachment is provided, the AI should parse the document for references to ot
     },
     {
         "section": "performance_testing",
+        "question_number": 50,
         "question": "What is the Quality of Service (QoS) of the device?",
         "question_type": "text",
         "options": None,
@@ -706,6 +757,7 @@ If attachment is provided, the AI should parse the document for references to ot
     },
     {
         "section": "performance_testing",
+        "question_number": 51,
         "question": "Please select all the technologies that apply to this wireless function.",
         "question_type": "radio",
         "options": [
@@ -720,6 +772,7 @@ If attachment is provided, the AI should parse the document for references to ot
     },
     {
         "section": "performance_testing",
+        "question_number": 52,
         "question": "What is the intended range when using RFID to implement the wireless function?",
         "question_type": "radio",
         "options": [
@@ -735,6 +788,7 @@ If attachment is provided, the AI should parse the document for references to ot
     },
     {
         "section": "performance_testing",
+        "question_number": 53,
         "question": "Did you address mitigations to poor or no cellular network coverage, and managing the subscription to cellular network access?",
         "question_type": "boolean",
         "options": None,
@@ -742,6 +796,7 @@ If attachment is provided, the AI should parse the document for references to ot
     },
     {
         "section": "performance_testing",
+        "question_number": 54,
         "question": "Attach the Wireless Coexistence Testing Protocol/Report",
         "question_type": "text",
         "options": None,
@@ -749,6 +804,7 @@ If attachment is provided, the AI should parse the document for references to ot
     },
     {
         "section": "performance_testing",
+        "question_number": 55,
         "question": "Please describe the Functional Wireless Performance (FWP).",
         "question_type": "text",
         "options": None,
@@ -758,6 +814,7 @@ Should generate a summary of the FWP Results and Conclusions.
     },
     {
         "section": "performance_testing",
+        "question_number": 56,
         "question": "Please describe the pass/fail criteria for the FWP and be sure to clarify how each criterion was quantified and measured.",
         "question_type": "text",
         "options": None,
@@ -767,6 +824,7 @@ Should parse the pass/fail criteria, and prompt the user to clarify how each cri
     },
     {
         "section": "performance_testing",
+        "question_number": 57,
         "question": "Was the coexistence testing conducted to Tier X (per the risk category chosen above)?",
         "question_type": "boolean",
         "options": None,
@@ -774,6 +832,7 @@ Should parse the pass/fail criteria, and prompt the user to clarify how each cri
     },
     {
         "section": "performance_testing",
+        "question_number": 58,
         "question": "Were the Equipment Under Test (EUT) and its companion device both exposed to the unintended signal?",
         "question_type": "boolean",
         "options": None,
@@ -781,6 +840,7 @@ Should parse the pass/fail criteria, and prompt the user to clarify how each cri
     },
     {
         "section": "performance_testing",
+        "question_number": 59,
         "question": "Was the functional wireless performance (FWP) maintained during the testing? If not, were adequate mitigations provided?",
         "question_type": "boolean",
         "options": None,
@@ -788,6 +848,7 @@ Should parse the pass/fail criteria, and prompt the user to clarify how each cri
     },
     {
         "section": "performance_testing",
+        "question_number": 60,
         "question": "Does this product contain software elements?",
         "question_type": "boolean",
         "options": None,
@@ -827,6 +888,7 @@ Should parse the pass/fail criteria, and prompt the user to clarify how each cri
     },
     {
         "section": "performance_testing",
+        "question_number": 61,
         "question": "Does the device contain digital health technology?",
         "question_type": "boolean",
         "options": None,
@@ -834,6 +896,7 @@ Should parse the pass/fail criteria, and prompt the user to clarify how each cri
     },
     {
         "section": "performance_testing",
+        "question_number": 62,
         "question": "Please select the Documentation Level based on the device's intended use, the design of the device, and the risks of the device software function(s) in the context of the device's intended use.",
         "question_type": "radio",
         "options": [
@@ -857,6 +920,7 @@ Should parse the pass/fail criteria, and prompt the user to clarify how each cri
     },
     {
         "section": "performance_testing",
+        "question_number": 63,
         "question": "Please attach your security risk management report detailing a separate, parallel, and interconnected security risk management process. This is different from your safety risk management process.",
         "question_type": "text",
         "options": None,
@@ -864,6 +928,7 @@ Should parse the pass/fail criteria, and prompt the user to clarify how each cri
     },
     {
         "section": "performance_testing",
+        "question_number": 64,
         "question": "Please attach your threat model addressing all the end-to-end elements of the system.",
         "question_type": "text",
         "options": None,
@@ -871,6 +936,7 @@ Should parse the pass/fail criteria, and prompt the user to clarify how each cri
     },
     {
         "section": "performance_testing",
+        "question_number": 65,
         "question": "List the Threat Methodology (e.g. STRIDE, Attack Trees, Kill Chain, DREAD) that you used.",
         "question_type": "text",
         "options": None,
@@ -878,6 +944,7 @@ Should parse the pass/fail criteria, and prompt the user to clarify how each cri
     },
     {
         "section": "performance_testing",
+        "question_number": 66,
         "question": "Does the threat model documentation include Architecture Views (Global System View, Multi-Patient Harm View, Updateability/Patchability View, and Security Use Case Views)?",
         "question_type": "boolean",
         "options": None,
@@ -885,6 +952,7 @@ Should parse the pass/fail criteria, and prompt the user to clarify how each cri
     },
     {
         "section": "performance_testing",
+        "question_number": 67,
         "question": "Please attach your Cybersecurity Risk Assessment",
         "question_type": "text",
         "options": None,
@@ -894,6 +962,7 @@ Should cite the page number(s) of the cybersecurity risk assessment where the me
     },
     {
         "section": "performance_testing",
+        "question_number": 68,
         "question": "Does the Cybersecurity Risk Assessment avoid using probabilities for the likelihood assessment and use exploitability instead?",
         "question_type": "boolean",
         "options": None,
@@ -901,6 +970,7 @@ Should cite the page number(s) of the cybersecurity risk assessment where the me
     },
     {
         "section": "performance_testing",
+        "question_number": 69,
         "question": "Please attach your Software Bill of Materials (SBOM).",
         "question_type": "text",
         "options": None,
@@ -908,6 +978,7 @@ Should cite the page number(s) of the cybersecurity risk assessment where the me
     },
     {
         "section": "performance_testing",
+        "question_number": 70,
         "question": "Please attach a document to provide the software level of support and end-of support date for each software component (e.g. OTS software) identified in the SBOM. For any component where this information was not available, provide a justification.",
         "question_type": "text",
         "options": None,
@@ -915,6 +986,7 @@ Should cite the page number(s) of the cybersecurity risk assessment where the me
     },
     {
         "section": "performance_testing",
+        "question_number": 71,
         "question": 'List the supported operating system(s) and associated version(s) your device(s)/system uses. Be aware that if you list any operating systems that are no longer supported (e.g. Windows 7, Mac OS 9) or nearing end of support, this will generally be considered an inaccurate response. Type "N/A" if your device(s) does not use an operating system.',
         "question_type": "text",
         "options": None,
@@ -931,6 +1003,7 @@ Should cite the page number(s) of the cybersecurity risk assessment where the me
     },
     {
         "section": "performance_testing",
+        "question_number": 72,
         "question": "Please attach a safety and security assessment of cybersecurity vulnerabilities in the component software used by the device for all software components in the SBOM and a description of any controls that address the vulnerability.",
         "question_type": "text",
         "options": None,
@@ -938,6 +1011,7 @@ Should cite the page number(s) of the cybersecurity risk assessment where the me
     },
     {
         "section": "performance_testing",
+        "question_number": 73,
         "question": "Please attach an assessment of any unresolved anomalies for cybersecurity impact. If none exist, attach a document stating that no unresolved anomalies exist.",
         "question_type": "text",
         "options": None,
@@ -945,6 +1019,7 @@ Should cite the page number(s) of the cybersecurity risk assessment where the me
     },
     {
         "section": "performance_testing",
+        "question_number": 74,
         "question": "Please attach data from monitoring cybersecurity metrics. If metric data are unavailable, please attach a justification.",
         "question_type": "text",
         "options": None,
@@ -952,6 +1027,7 @@ Should cite the page number(s) of the cybersecurity risk assessment where the me
     },
     {
         "section": "performance_testing",
+        "question_number": 75,
         "question": "Please attach information on the security controls categories included in the device.",
         "question_type": "text",
         "options": None,
@@ -969,6 +1045,7 @@ AI should parse the following page numbers from this attachment for the referenc
     },
     {
         "section": "performance_testing",
+        "question_number": 76,
         "question": "Please attach a document(s) that contains a Global System View, Multi-Patient Harm View, Updatability/Patchability View, and Security Use Case Views. ",
         "question_type": "text",
         "options": None,
@@ -978,6 +1055,7 @@ Should prompt the user if attachment is not added to justify why testing was not
     },
     {
         "section": "performance_testing",
+        "question_number": 77,
         "question": "Please attach a document(s) that describes the cybersecurity testing performed and the associated test reports.",
         "question_type": "text",
         "options": None,
@@ -985,6 +1063,7 @@ Should prompt the user if attachment is not added to justify why testing was not
     },
     {
         "section": "performance_testing",
+        "question_number": 78,
         "question": "Please attach a Cybersecurity Management Plan.",
         "question_type": "text",
         "options": None,
@@ -997,6 +1076,7 @@ Should cite the page numbers of the following references:
     },
     {
         "section": "performance_testing",
+        "question_number": 79,
         "question": "How many Electronic interfaces are there (max 20)?",
         "question_type": "text",
         "options": None,
@@ -1004,6 +1084,7 @@ Should cite the page numbers of the following references:
     },
     {
         "section": "performance_testing",
+        "question_number": 80,
         "question": "What is the name of the electronic interface?",
         "question_type": "text",
         "options": None,
@@ -1011,6 +1092,7 @@ Should cite the page numbers of the following references:
     },
     {
         "section": "performance_testing",
+        "question_number": 81,
         "question": "Is the electronic interface inactive (i.e. not meant to connect, exchange, or use data with or from other medical devices, products, technologies, or systems)?",
         "question_type": "boolean",
         "options": None,
@@ -1018,6 +1100,7 @@ Should cite the page numbers of the following references:
     },
     {
         "section": "performance_testing",
+        "question_number": 82,
         "question": "Are the interfaces only meant for service or maintenance?",
         "question_type": "boolean",
         "options": None,
@@ -1025,6 +1108,7 @@ Should cite the page numbers of the following references:
     },
     {
         "section": "performance_testing",
+        "question_number": 83,
         "question": "Is the data flow only meant for transferring, storing, converting formats, or displaying clinical laboratory test and not intended to interpret or analyze clinical laboratory test or other device data, results, and findings?",
         "question_type": "boolean",
         "options": None,
@@ -1032,6 +1116,7 @@ Should cite the page numbers of the following references:
     },
     {
         "section": "performance_testing",
+        "question_number": 84,
         "question": "Describe the Electronic Interface.",
         "question_type": "text",
         "options": None,
@@ -1041,6 +1126,7 @@ Should prompt the user to describe the electronic interface (i.e., smartphone, d
     },
     {
         "section": "performance_testing",
+        "question_number": 85,
         "question": "Attach the Interoperability Risk Assessment / Verification and Validation",
         "question_type": "text",
         "options": None,
@@ -1048,6 +1134,7 @@ Should prompt the user to describe the electronic interface (i.e., smartphone, d
     },
     {
         "section": "performance_testing",
+        "question_number": 86,
         "question": "Are there any direct or indirect tissue contacting components (i.e. does any part come in contact with a patient)?",
         "question_type": "boolean",
         "options": None,
@@ -1062,6 +1149,7 @@ Should prompt the user to describe the electronic interface (i.e., smartphone, d
     },
     {
         "section": "performance_testing",
+        "question_number": 87,
         "question": "Is the device or a component implanted?",
         "question_type": "boolean",
         "options": None,
@@ -1078,6 +1166,7 @@ Should prompt the user to describe the electronic interface (i.e., smartphone, d
     },
     {
         "section": "performance_testing",
+        "question_number": 88,
         "question": "How many tissue contacting products/components/materials are there (max 50)?",
         "question_type": "text",
         "options": None,
@@ -1085,6 +1174,7 @@ Should prompt the user to describe the electronic interface (i.e., smartphone, d
     },
     {
         "section": "performance_testing",
+        "question_number": 89,
         "question": "Identify the tissue contacting device/accessory/component.",
         "question_type": "text",
         "options": None,
@@ -1092,6 +1182,7 @@ Should prompt the user to describe the electronic interface (i.e., smartphone, d
     },
     {
         "section": "performance_testing",
+        "question_number": 90,
         "question": "Please list the exact names and any identifiable information for the material(s) used.",
         "question_type": "text",
         "options": None,
@@ -1099,6 +1190,7 @@ Should prompt the user to describe the electronic interface (i.e., smartphone, d
     },
     {
         "section": "performance_testing",
+        "question_number": 91,
         "question": "If color additives are included, please list, or state N/A.",
         "question_type": "text",
         "options": None,
@@ -1106,6 +1198,7 @@ Should prompt the user to describe the electronic interface (i.e., smartphone, d
     },
     {
         "section": "performance_testing",
+        "question_number": 92,
         "question": "Choose the intended contact of the particular material.",
         "question_type": "radio",
         "options": [
@@ -1141,6 +1234,7 @@ Should prompt the user to describe the electronic interface (i.e., smartphone, d
     },
     {
         "section": "performance_testing",
+        "question_number": 93,
         "question": "Are the listed components in contact with intact skin only AND are all the component materials included in Attachment G, Section B of the FDA Biocompatibility Guidance?",
         "question_type": "boolean",
         "options": None,
@@ -1148,6 +1242,7 @@ Should prompt the user to describe the electronic interface (i.e., smartphone, d
     },
     {
         "section": "performance_testing",
+        "question_number": 94,
         "question": "Is there a potential for repeat exposure?",
         "question_type": "boolean",
         "options": None,
@@ -1155,6 +1250,7 @@ Should prompt the user to describe the electronic interface (i.e., smartphone, d
     },
     {
         "section": "performance_testing",
+        "question_number": 95,
         "question": "Choose the type of tissue contact of your materials listed.",
         "question_type": "radio",
         "options": [
@@ -1171,6 +1267,7 @@ Should prompt the user to describe the electronic interface (i.e., smartphone, d
     },
     {
         "section": "performance_testing",
+        "question_number": 96,
         "question": "What is the duration of exposure/contact?",
         "question_type": "radio",
         "options": [
@@ -1182,6 +1279,7 @@ Should prompt the user to describe the electronic interface (i.e., smartphone, d
     },
     {
         "section": "performance_testing",
+        "question_number": 97,
         "question": "Please attach any documentation (e.g., test reports) pertaining to the biocompatibility of your device. ",
         "question_type": "text",
         "options": None,
@@ -1189,6 +1287,7 @@ Should prompt the user to describe the electronic interface (i.e., smartphone, d
     },
     {
         "section": "performance_testing",
+        "question_number": 98,
         "question": "Is the device or a component packaged as sterile?",
         "question_type": "boolean",
         "options": None,
@@ -1212,6 +1311,7 @@ Should prompt the user to describe the electronic interface (i.e., smartphone, d
     },
     {
         "section": "performance_testing",
+        "question_number": 99,
         "question": "How many sterilization methods are there (max 4)?",
         "question_type": "text",
         "options": None,
@@ -1219,6 +1319,7 @@ Should prompt the user to describe the electronic interface (i.e., smartphone, d
     },
     {
         "section": "performance_testing",
+        "question_number": 100,
         "question": "Identify the device(s) / accessory(ies) / component(s) that is sterilized.",
         "question_type": "text",
         "options": None,
@@ -1226,6 +1327,7 @@ Should prompt the user to describe the electronic interface (i.e., smartphone, d
     },
     {
         "section": "performance_testing",
+        "question_number": 101,
         "question": "What is the Sterilization Method?",
         "question_type": "text",
         "options": [
@@ -1296,6 +1398,7 @@ Should prompt the user to describe the electronic interface (i.e., smartphone, d
     },
     {
         "section": "performance_testing",
+        "question_number": 102,
         "question": "What is the dose?",
         "question_type": "text",
         "options": None,
@@ -1305,6 +1408,7 @@ Should parse the radiation dose (should be in units of kGy)
     },
     {
         "section": "performance_testing",
+        "question_number": 103,
         "question": "What standard(s) were used for validation?",
         "question_type": "text",
         "options": None,
@@ -1314,6 +1418,7 @@ Should parse this from the attached sterility validation reports.
     },
     {
         "section": "performance_testing",
+        "question_number": 104,
         "question": "What are the maximum levels of sterilant residuals that remain on the device, and what is your explanation for why those levels are acceptable for the device type and the expected duration of patient contact?",
         "question_type": "text",
         "options": None,
@@ -1323,6 +1428,7 @@ Should parse the maximum residual levels from the provided sterility validation,
     },
     {
         "section": "performance_testing",
+        "question_number": 105,
         "question": "What validation method was used for the sterilization cycle?",
         "question_type": "radio",
         "options": [
@@ -1335,6 +1441,7 @@ Should parse the maximum residual levels from the provided sterility validation,
     },
     {
         "section": "performance_testing",
+        "question_number": 106,
         "question": "What validation method was used for the sterilization cycle?",
         "question_type": "radio",
         "options": [
@@ -1349,6 +1456,7 @@ Should parse the maximum residual levels from the provided sterility validation,
     },
     {
         "section": "performance_testing",
+        "question_number": 107,
         "question": "What is the Sterility Assurance Level (SAL)?",
         "question_type": "radio",
         "options": [
@@ -1360,6 +1468,7 @@ Should parse the maximum residual levels from the provided sterility validation,
     },
     {
         "section": "performance_testing",
+        "question_number": 108,
         "question": 'If a device within the submission should be "Non- Pyrogenic," or if you are asserting a device is "Non-Pyrogenic," what is the pyrogenicity test method?',
         "question_type": "radio",
         "options": [
@@ -1371,6 +1480,7 @@ Should parse the maximum residual levels from the provided sterility validation,
     },
     {
         "section": "performance_testing",
+        "question_number": 109,
         "question": "Please provide a description of the packaging, the materials used, and a description of the package test methods.",
         "question_type": "text",
         "options": None,
@@ -1378,6 +1488,7 @@ Should parse the maximum residual levels from the provided sterility validation,
     },
     {
         "section": "performance_testing",
+        "question_number": 110,
         "question": "Has the device/components been previously assessed for shelf-life (accelerated aging, etc.)",
         "question_type": "boolean",
         "options": None,
@@ -1385,6 +1496,7 @@ Should parse the maximum residual levels from the provided sterility validation,
     },
     {
         "section": "performance_testing",
+        "question_number": 111,
         "question": "If yes, what is the proposed shelf-life?",
         "question_type": "text",
         "options": None,
@@ -1395,6 +1507,7 @@ Should analyse attachment and provide summary of the methods used to support the
     },
     {
         "section": "claims_builder",
+        "question_number": 112,
         "question": "What is the Magnetic Resonance (MR) safety status for the device(s) in the submission?",
         "question_type": "radio",
         "options": [
@@ -1407,6 +1520,7 @@ Should analyse attachment and provide summary of the methods used to support the
     },
     {
         "section": "claims_builder",
+        "question_number": 113,
         "question": "Is literature referenced in the submission?",
         "question_type": "boolean",
         "options": None,

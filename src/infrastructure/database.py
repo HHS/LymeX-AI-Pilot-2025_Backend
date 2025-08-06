@@ -3,6 +3,9 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from loguru import logger
 from src.infrastructure.init.init_email_template_data import init_email_template_data
 from src.infrastructure.init.init_system_admin_user import init_system_admin_user
+from src.modules.product.checklist.analyze_checklist_progress import (
+    AnalyzeChecklistProgress,
+)
 from src.modules.product.clinical_trial.model import ClinicalTrial
 from src.modules.product.competitive_analysis.analyze_competitive_analysis_progress import (
     AnalyzeCompetitiveAnalysisProgress,
@@ -50,8 +53,10 @@ from src.environment import environment
 from src.modules.product.milestone_planning.model import MilestonePlanning
 from src.modules.product.custom_test_plan.model import CustomTestPlan
 from src.modules.notification.model import Notification
-from src.modules.checklist.master_checklist_model import MasterChecklist
-from src.modules.checklist.model import Checklist
+
+# from src.modules.checklist.master_checklist_model import MasterChecklist
+# from src.modules.checklist.model import Checklist
+from src.modules.product.checklist.model import Checklist
 
 # from src.modules.product.regulatory_background.model import RegulatoryBackground
 
@@ -91,8 +96,8 @@ async def init_db() -> None:
             ReviewProgram,
             CustomTestPlan,
             Notification,
-            MasterChecklist,
             Checklist,
+            AnalyzeChecklistProgress,
             RegulatoryBackground,
             AnalyzeRegulatoryBackgroundProgress,
         ],
