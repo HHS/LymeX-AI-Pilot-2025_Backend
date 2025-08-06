@@ -19,6 +19,7 @@ def start_celery_worker() -> None:
         "celery.analyze_regulatory_background",
         "celery.analyze_regulatory_pathway",
         "celery.analyze_milestone_planning",
+        "celery.analyze_checklist",
     ]
     queues = ",".join(queues)
     celery.worker_main(

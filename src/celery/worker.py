@@ -30,6 +30,7 @@ celery_queues = [
     "src.celery.tasks.analyze_regulatory_pathway",
     "src.celery.tasks.analyze_regulatory_background",
     "src.celery.tasks.analyze_milestone_planning",
+    "src.celery.tasks.analyze_checklist",
     "src.celery.tasks.index_system_data",
 ]
 
@@ -67,6 +68,7 @@ celery.conf.task_routes = {
     "src.celery.tasks.analyze_milestone_planning": {
         "queue": "celery.analyze_milestone_planning"
     },
+    "src.celery.tasks.analyze_checklist": {"queue": "celery.analyze_checklist"},
     "src.celery.tasks.index_system_data": {"queue": "celery.index_system_data"},
     "src.celery.tasks.*": {"queue": "celery.default"},
 }

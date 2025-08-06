@@ -93,7 +93,7 @@ from src.modules.product.custom_test_plan.router import (
 from src.modules.product.regulatory_background.router import (
     router as regulatory_background_router,
 )
-from src.modules.checklist.router import (
+from src.modules.product.checklist.router import (
     router as checklist_router,
 )
 
@@ -292,8 +292,20 @@ async def get_update_avatar_url_handler(
 async def delete_product_handler(
     product: Annotated[Product, Depends(get_current_product)],
     current_user: Annotated[User, Depends(get_current_user)],
+    current_company: Annotated[Company, Depends(get_current_company)],
     _: Annotated[bool, Depends(check_product_edit_allowed)],
 ) -> None:
+    if current_company.active_product_id == str(product.id):
+        next_current_product = await Product.find_one(
+            Product.company_id == current_company.id,
+            Product.id != product.id,
+        )
+        if next_current_product:
+            current_company.active_product_id = str(next_current_product.id)
+            await current_company.save()
+        else:
+            current_company.active_product_id = None
+            await current_company.save()
     await delete_product_competitive_analysis(
         str(product.id),
     )
