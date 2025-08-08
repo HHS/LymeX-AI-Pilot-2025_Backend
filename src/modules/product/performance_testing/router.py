@@ -14,6 +14,7 @@ from src.celery.tasks.analyze_performance_testing import (
     analyze_performance_testing_task,
 )
 from src.modules.product.performance_testing.service import (
+    get_analyze_performance_testing_progress,
     get_performance_test_plan,
 )
 from src.modules.authentication.dependencies import get_current_user
@@ -23,6 +24,7 @@ from src.modules.product.performance_testing.schema import (
     PerformanceTestCard,
     PerformanceTestingDocumentResponse,
     PerformanceTestingResponse,
+    PerformanceTestingWithProgressResponse,
     RejectedPerformanceTestingRequest,
     UploadTextInputDocumentRequest,
     map_to_performance_testing_response,
@@ -42,17 +44,34 @@ router = APIRouter()
 @router.get("/")
 async def get_product_performance_testings_handler(
     product: Annotated[Product, Depends(get_current_product)],
-) -> list[PerformanceTestingResponse]:
+) -> PerformanceTestingWithProgressResponse:
     performance_test_plan = await get_performance_test_plan(
         product_id=product.id,
     )
-    return (
+    
+    # Get progress information
+    analyze_performance_testing_progress = (
+        await get_analyze_performance_testing_progress(
+            str(product.id),
+        )
+    )
+    
+    performance_testing_results = (
         [
             map_to_performance_testing_response(test)
             for test in performance_test_plan.tests
         ]
         if performance_test_plan
         else []
+    )
+    
+    return PerformanceTestingWithProgressResponse(
+        performance_testing=performance_testing_results,
+        analyze_performance_testing_progress=(
+            analyze_performance_testing_progress.to_analyze_performance_testing_progress_response()
+            if analyze_performance_testing_progress
+            else None
+        ),
     )
 
 
