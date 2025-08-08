@@ -399,3 +399,12 @@ class CompetitiveAnalysisResponse(BaseModel):
     analyzing_status: AnalyzingStatus = Field(
         ..., description="Current status of the product analysis"
     )
+
+
+class CompetitiveAnalysisWithProgressResponse(BaseModel):
+    competitive_analysis: list[CompetitiveAnalysisResponse] = Field(
+        ..., description="List of competitive analysis results"
+    )
+    analyze_competitive_analysis_progress: AnalyzeCompetitiveAnalysisProgressResponse | None = Field(
+        None, description="Progress information for competitive analysis"
+    )
