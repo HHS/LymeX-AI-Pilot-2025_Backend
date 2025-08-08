@@ -64,5 +64,5 @@ async def send_email_task_async(
     logger.info(f"Sending email: {email}")
     logger.info(f"to_email: {to_email}")
     logger.info(f"attachments: {attachments}")
-    send_email(email, to_email, cc, bcc, attachments)
+    await send_email(email, to_email, cc, bcc, attachments)
     logger.info(f"Email sent successfully: {email_template_name}")
