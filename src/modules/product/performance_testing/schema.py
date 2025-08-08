@@ -188,6 +188,6 @@ class PerformanceTestingWithProgressResponse(BaseModel):
     performance_testing: list[PerformanceTestingResponse] = Field(
         ..., description="List of performance testing results"
     )
-    analyze_performance_testing_progress: AnalyzePerformanceTestingProgressResponse | None = Field(
-        None, description="Progress information for performance testing"
-    )
+    analyze_performance_testing_progress: (
+        AnalyzePerformanceTestingProgressResponse | None
+    ) = Field(None, description="Progress information for performance testing")

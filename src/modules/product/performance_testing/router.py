@@ -48,14 +48,14 @@ async def get_product_performance_testings_handler(
     performance_test_plan = await get_performance_test_plan(
         product_id=product.id,
     )
-    
+
     # Get progress information
     analyze_performance_testing_progress = (
         await get_analyze_performance_testing_progress(
             str(product.id),
         )
     )
-    
+
     performance_testing_results = (
         [
             map_to_performance_testing_response(test)
@@ -64,7 +64,7 @@ async def get_product_performance_testings_handler(
         if performance_test_plan
         else []
     )
-    
+
     return PerformanceTestingWithProgressResponse(
         performance_testing=performance_testing_results,
         analyze_performance_testing_progress=(
