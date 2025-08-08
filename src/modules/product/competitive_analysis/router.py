@@ -39,6 +39,7 @@ from src.modules.product.competitive_analysis.schema import (
     AcceptCompetitiveAnalysisRequest,
     AnalyzeCompetitiveAnalysisProgressResponse,
     CompetitiveAnalysisCompareResponse,
+    CompetitiveAnalysisCompareWithProgressResponse,
     CompetitiveAnalysisDocumentResponse,
     CompetitiveAnalysisResponse,
     CompetitiveAnalysisWithProgressResponse,
@@ -216,7 +217,7 @@ async def get_all_competitive_analysis_handler(
 async def competitive_analysis_compare_handler(
     competitive_analysis_id: str,
     product: Annotated[Product, Depends(get_current_product)],
-) -> CompetitiveAnalysisCompareResponse | AnalyzingStatusResponse:
+) -> CompetitiveAnalysisCompareWithProgressResponse | AnalyzingStatusResponse:
     competitive_analysis = await get_product_competitive_analysis(
         str(product.id),
         competitive_analysis_id,
@@ -224,7 +225,22 @@ async def competitive_analysis_compare_handler(
     competitive_analysis_response = (
         await competitive_analysis.to_competitive_analysis_response(product=product)
     )
-    return competitive_analysis_response.comparison
+    
+    # Get progress information
+    analyze_competitive_analysis_progress = (
+        await get_analyze_competitive_analysis_progress(
+            str(product.id),
+        )
+    )
+    
+    return CompetitiveAnalysisCompareWithProgressResponse(
+        comparison=competitive_analysis_response.comparison,
+        analyze_competitive_analysis_progress=(
+            analyze_competitive_analysis_progress.to_analyze_competitive_analysis_progress_response()
+            if analyze_competitive_analysis_progress
+            else None
+        ),
+    )
 
 
 @router.get("/compare-device-analysis-result")
