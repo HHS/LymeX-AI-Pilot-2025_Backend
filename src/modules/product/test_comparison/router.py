@@ -8,11 +8,15 @@ from src.modules.product.dependencies import (
 )
 from src.modules.product.models import Product
 from src.modules.product.product_profile.service import create_audit_record
-from src.modules.product.test_comparison.schema import TestComparisonResponse
+from src.modules.product.test_comparison.schema import (
+    TestComparisonWithProgressResponse,
+    TestComparisonSingleWithProgressResponse,
+)
 from src.modules.product.test_comparison.service import (
     get_product_all_test_comparison,
     get_product_test_comparison,
 )
+from src.modules.product.performance_testing.service import get_analyze_performance_testing_progress
 from src.modules.user.models import User
 
 
@@ -22,21 +26,55 @@ router = APIRouter()
 @router.get("/")
 async def get_product_all_test_comparison_handler(
     product: Annotated[Product, Depends(get_current_product)],
-) -> list[TestComparisonResponse]:
+) -> TestComparisonWithProgressResponse:
     test_comparisons = await get_product_all_test_comparison(product.id)
-    return [
+    
+    # Get progress information
+    analyze_performance_testing_progress = (
+        await get_analyze_performance_testing_progress(
+            str(product.id),
+        )
+    )
+    
+    test_comparison_responses = [
         await test_comparison.to_test_comparison_response()
         for test_comparison in test_comparisons
     ]
+    
+    return TestComparisonWithProgressResponse(
+        test_comparisons=test_comparison_responses,
+        analyze_performance_testing_progress=(
+            analyze_performance_testing_progress.to_analyze_performance_testing_progress_response()
+            if analyze_performance_testing_progress
+            else None
+        ),
+    )
 
 
 @router.get("/{comparison_id}")
 async def get_product_test_comparison_handler(
     comparison_id: str,
     product: Annotated[Product, Depends(get_current_product)],
-) -> TestComparisonResponse:
+) -> TestComparisonSingleWithProgressResponse:
     test_comparison = await get_product_test_comparison(comparison_id, product.id)
-    return await test_comparison.to_test_comparison_response()
+    
+    # Get progress information
+    analyze_performance_testing_progress = (
+        await get_analyze_performance_testing_progress(
+            str(product.id),
+        )
+    )
+    
+    test_comparison_response = await test_comparison.to_test_comparison_response()
+    
+    return TestComparisonSingleWithProgressResponse(
+        test_comparison=test_comparison_response,
+        analyze_performance_testing_progress=(
+            analyze_performance_testing_progress.to_analyze_performance_testing_progress_response()
+            if analyze_performance_testing_progress
+            else None
+        ),
+    )
 
 
 @router.post("/")
