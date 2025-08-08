@@ -45,7 +45,7 @@ async def send_email(
             file_content = await download_file(object_name)
             filename = os.path.basename(object_name)
             logger.info(f"Downloaded {len(file_content)} bytes from MinIO: {filename}")
-            
+
             # Add to email
             message.add_attachment(
                 file_content,
@@ -53,14 +53,14 @@ async def send_email(
                 subtype="octet-stream",
                 filename=filename,
             )
-            
+
             # Clean up the file from MinIO
             try:
                 await remove_object(object_name)
                 logger.info(f"Removed file from MinIO: {object_name}")
             except Exception as e:
                 logger.warning(f"Failed to remove file from MinIO {object_name}: {e}")
-                
+
         except Exception as e:
             logger.error(f"Failed to process attachment {object_name}: {e}")
 

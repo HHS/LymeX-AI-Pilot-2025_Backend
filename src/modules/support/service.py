@@ -68,7 +68,7 @@ async def create_enhanced_support_ticket(
             await upload_file(
                 object_name=object_name,
                 file_content=content,
-                content_type=attachment.content_type or "application/octet-stream"
+                content_type=attachment.content_type or "application/octet-stream",
             )
             attachment_object_names.append(object_name)
             logger.info(f"Uploaded {attachment.filename} to MinIO: {object_name}")
