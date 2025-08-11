@@ -70,7 +70,9 @@ async def get_analyze_competitive_analysis_progress_handler(
         return AnalyzingStatusResponse(
             analyzing_status=AnalyzingStatus.IN_PROGRESS,
         )
-    return analyze_competitive_analysis_progress.to_analyze_competitive_analysis_progress_response()
+    return (
+        analyze_competitive_analysis_progress.to_analyze_competitive_analysis_progress_response()
+    )
 
 
 @router.post("/analyze")

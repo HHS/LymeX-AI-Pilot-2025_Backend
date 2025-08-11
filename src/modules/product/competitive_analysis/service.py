@@ -86,13 +86,15 @@ async def clone_competitive_analysis(
         CompetitiveAnalysis.product_id == product_id,
     ).to_list()
     if competitive_analysis:
-        await CompetitiveAnalysis.insert_many([
-            CompetitiveAnalysis(
-                **analysis.model_dump(exclude={"id", "product_id"}),
-                product_id=str(new_product_id),
-            )
-            for analysis in competitive_analysis
-        ])
+        await CompetitiveAnalysis.insert_many(
+            [
+                CompetitiveAnalysis(
+                    **analysis.model_dump(exclude={"id", "product_id"}),
+                    product_id=str(new_product_id),
+                )
+                for analysis in competitive_analysis
+            ]
+        )
 
     analyze_competitive_analysis_progress = (
         await AnalyzeCompetitiveAnalysisProgress.find_one(

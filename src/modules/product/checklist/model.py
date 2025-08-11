@@ -108,9 +108,11 @@ class Checklist(Document, ChecklistBase):
             product_name=product.name,
             revision=product.revision,
             created_at=self.created_at,
-            analyzing_status=analyze_progress.analyzing_status
-            if analyze_progress
-            else AnalyzingStatus.PENDING,
+            analyzing_status=(
+                analyze_progress.analyzing_status
+                if analyze_progress
+                else AnalyzingStatus.PENDING
+            ),
             updated_at=self.updated_at,
             answers=[
                 ChecklistAnswerResponse(
