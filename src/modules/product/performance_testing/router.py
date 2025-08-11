@@ -56,6 +56,24 @@ async def get_product_performance_testings_handler(
     )
 
 
+@router.get("/section-keys")
+def get_performance_testing_section_keys_handler() -> list[str]:
+    return [
+        "analytical",
+        "comparison",
+        "clinical",
+        "animal_testing",
+        "emc_safety",
+        "wireless",
+        "software",
+        "interoperability",
+        "biocompatibility",
+        "sterility",
+        "shelf_life",
+        "cybersecurity",
+    ]
+
+
 @router.post("/")
 async def create_performance_testing_handler(
     payload: CreatePerformanceTestingRequest,

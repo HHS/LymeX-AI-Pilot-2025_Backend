@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 from beanie import Document, PydanticObjectId
 from pydantic import Field
 

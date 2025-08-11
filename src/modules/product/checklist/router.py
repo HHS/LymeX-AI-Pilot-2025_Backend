@@ -63,4 +63,14 @@ async def get_checklist_handler(
         return AnalyzingStatusResponse(
             analyzing_status=AnalyzingStatus.IN_PROGRESS,
         )
-    return checklist.to_checklist_response()
+    analyze_checklist_progress = await get_analyze_checklist_progress(
+        product.id,
+    )
+    return checklist.to_checklist_response(
+        product=product,
+        analyze_progress=(
+            analyze_checklist_progress.to_analyze_checklist_progress_response()
+            if analyze_checklist_progress
+            else None
+        ),
+    )
