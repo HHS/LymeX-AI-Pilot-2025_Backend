@@ -1,4 +1,7 @@
 from pydantic import BaseModel, Field
+from src.modules.product.performance_testing.schema import (
+    AnalyzePerformanceTestingProgressResponse,
+)
 
 
 class TestInfo(BaseModel):
@@ -51,3 +54,21 @@ class TestComparisonResponse(BaseModel):
         ...,
         description="List of identified gaps and suggested adjustments in the test comparison",
     )
+
+
+class TestComparisonWithProgressResponse(BaseModel):
+    test_comparisons: list[TestComparisonResponse] = Field(
+        ..., description="List of test comparison results"
+    )
+    analyze_performance_testing_progress: (
+        AnalyzePerformanceTestingProgressResponse | None
+    ) = Field(None, description="Progress information for performance testing")
+
+
+class TestComparisonSingleWithProgressResponse(BaseModel):
+    test_comparison: TestComparisonResponse = Field(
+        ..., description="Test comparison result"
+    )
+    analyze_performance_testing_progress: (
+        AnalyzePerformanceTestingProgressResponse | None
+    ) = Field(None, description="Progress information for performance testing")

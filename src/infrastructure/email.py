@@ -3,6 +3,7 @@ from loguru import logger
 from email.message import EmailMessage
 import smtplib
 from src.environment import environment
+from src.infrastructure.minio import download_file, remove_object
 import os
 
 
@@ -13,7 +14,7 @@ class Email(TypedDict):
     body: str
 
 
-def send_email(
+async def send_email(
     email: Email,
     to_email: str,
     cc: list[str] = [],
@@ -23,7 +24,7 @@ def send_email(
     logger.info(f"Sending email to: {to_email}")
     logger.info(f"Email subject: {email['subject']}")
     logger.info(f"Number of attachments: {len(attachments)}")
-    logger.info(f"Attachment paths: {attachments}")
+    logger.info(f"Attachment object names: {attachments}")
 
     message = EmailMessage()
     message["From"] = f"{email['from_name']} <{email['from_email']}>"
@@ -36,36 +37,32 @@ def send_email(
     if bcc:
         message["Bcc"] = ", ".join(bcc)
 
-    # Add attachments
-    for attachment_path in attachments:
-        logger.info(f"Processing attachment: {attachment_path}")
-        if os.path.exists(attachment_path):
-            logger.info(f"Attachment file exists: {attachment_path}")
+    # Add attachments from MinIO
+    for object_name in attachments:
+        logger.info(f"Processing attachment from MinIO: {object_name}")
+        try:
+            # Download file from MinIO
+            file_content = await download_file(object_name)
+            filename = os.path.basename(object_name)
+            logger.info(f"Downloaded {len(file_content)} bytes from MinIO: {filename}")
+
+            # Add to email
+            message.add_attachment(
+                file_content,
+                maintype="application",
+                subtype="octet-stream",
+                filename=filename,
+            )
+
+            # Clean up the file from MinIO
             try:
-                with open(attachment_path, "rb") as f:
-                    file_data = f.read()
-                    filename = os.path.basename(attachment_path)
-                    logger.info(
-                        f"Adding attachment: {filename} ({len(file_data)} bytes)"
-                    )
-                    message.add_attachment(
-                        file_data,
-                        maintype="application",
-                        subtype="octet-stream",
-                        filename=filename,
-                    )
-                # Clean up the temporary file
-                try:
-                    os.remove(attachment_path)
-                    logger.info(f"Removed temporary file: {attachment_path}")
-                except Exception as e:
-                    logger.warning(
-                        f"Failed to remove temporary file {attachment_path}: {e}"
-                    )
+                await remove_object(object_name)
+                logger.info(f"Removed file from MinIO: {object_name}")
             except Exception as e:
-                logger.error(f"Failed to process attachment {attachment_path}: {e}")
-        else:
-            logger.error(f"Attachment file does not exist: {attachment_path}")
+                logger.warning(f"Failed to remove file from MinIO {object_name}: {e}")
+
+        except Exception as e:
+            logger.error(f"Failed to process attachment {object_name}: {e}")
 
     recipients = [to_email] + cc + bcc
 
