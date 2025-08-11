@@ -1,4 +1,5 @@
 import asyncio
+import io
 from datetime import timedelta
 from fastapi import FastAPI
 from minio import Minio
@@ -132,3 +133,26 @@ async def copy_objects(source_prefix: str, destination_prefix: str) -> None:
         logger.info("Copy operation completed.")
     else:
         logger.info("No objects to copy.")
+
+
+async def upload_file(
+    object_name: str,
+    file_content: bytes,
+    content_type: str = "application/octet-stream",
+) -> str:
+    """Upload a file to MinIO and return the object name"""
+    await asyncio.to_thread(
+        minio_client.put_object,
+        bucket_name=environment.minio_bucket,
+        object_name=object_name,
+        length=len(file_content),
+        data=io.BytesIO(file_content),
+        content_type=content_type,
+    )
+    logger.info(f"Uploaded file to MinIO: {object_name}")
+    return object_name
+
+
+async def download_file(object_name: str) -> bytes:
+    """Download a file from MinIO and return its content"""
+    return await get_object(object_name)

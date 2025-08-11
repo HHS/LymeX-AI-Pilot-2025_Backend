@@ -39,8 +39,10 @@ from src.modules.product.competitive_analysis.schema import (
     AcceptCompetitiveAnalysisRequest,
     AnalyzeCompetitiveAnalysisProgressResponse,
     CompetitiveAnalysisCompareResponse,
+    CompetitiveAnalysisCompareWithProgressResponse,
     CompetitiveAnalysisDocumentResponse,
     CompetitiveAnalysisResponse,
+    CompetitiveAnalysisWithProgressResponse,
     CompetitiveDeviceAnalysisResponse,
     UploadTextInputDocumentRequest,
 )
@@ -180,26 +182,42 @@ async def delete_competitive_analysis_document_handler(
 @router.get("/result")
 async def get_all_competitive_analysis_handler(
     product: Annotated[Product, Depends(get_current_product)],
-) -> list[CompetitiveAnalysisResponse] | AnalyzingStatusResponse:
+) -> CompetitiveAnalysisWithProgressResponse | AnalyzingStatusResponse:
     competitive_analysis = await get_all_product_competitive_analysis(str(product.id))
     product_profile = await get_product_profile(product.id)
     if not product_profile:
         return AnalyzingStatusResponse(
             analyzing_status=AnalyzingStatus.IN_PROGRESS,
         )
+
+    # Get progress information
+    analyze_competitive_analysis_progress = (
+        await get_analyze_competitive_analysis_progress(
+            str(product.id),
+        )
+    )
+
     competitive_analysis_tasks = [
         i.to_competitive_analysis_response(product=product)
         for i in competitive_analysis
     ]
     competitive_analysis_responses = await asyncio.gather(*competitive_analysis_tasks)
-    return competitive_analysis_responses
+
+    return CompetitiveAnalysisWithProgressResponse(
+        competitive_analysis=competitive_analysis_responses,
+        analyze_competitive_analysis_progress=(
+            analyze_competitive_analysis_progress.to_analyze_competitive_analysis_progress_response()
+            if analyze_competitive_analysis_progress
+            else None
+        ),
+    )
 
 
 @router.get("/result/{competitive_analysis_id}/compare")
 async def competitive_analysis_compare_handler(
     competitive_analysis_id: str,
     product: Annotated[Product, Depends(get_current_product)],
-) -> CompetitiveAnalysisCompareResponse | AnalyzingStatusResponse:
+) -> CompetitiveAnalysisCompareWithProgressResponse | AnalyzingStatusResponse:
     competitive_analysis = await get_product_competitive_analysis(
         str(product.id),
         competitive_analysis_id,
@@ -207,7 +225,22 @@ async def competitive_analysis_compare_handler(
     competitive_analysis_response = (
         await competitive_analysis.to_competitive_analysis_response(product=product)
     )
-    return competitive_analysis_response.comparison
+
+    # Get progress information
+    analyze_competitive_analysis_progress = (
+        await get_analyze_competitive_analysis_progress(
+            str(product.id),
+        )
+    )
+
+    return CompetitiveAnalysisCompareWithProgressResponse(
+        comparison=competitive_analysis_response.comparison,
+        analyze_competitive_analysis_progress=(
+            analyze_competitive_analysis_progress.to_analyze_competitive_analysis_progress_response()
+            if analyze_competitive_analysis_progress
+            else None
+        ),
+    )
 
 
 @router.get("/compare-device-analysis-result")
