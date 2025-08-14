@@ -292,42 +292,6 @@ async def delete_competitive_analysis_handler(
     )
 
 
-# @router.patch("/result/{competitive_analysis_id}")
-# async def update_competitive_analysis_handler(
-#     competitive_analysis_id: str,
-#     payload: UpdateCompetitiveAnalysisRequest,
-#     product: Annotated[Product, Depends(get_current_product)],
-#     current_user: Annotated[User, Depends(get_current_user)],
-#     _: Annotated[bool, Depends(check_product_edit_allowed)],
-# ) -> CompetitiveAnalysisResponse | AnalyzingStatusResponse:
-#     competitive_analysis = await update_competitive_analysis(
-#         str(product.id),
-#         competitive_analysis_id,
-#         payload,
-#     )
-#     product_profile = await get_product_profile(product.id)
-#     if not product_profile:
-#         return AnalyzingStatusResponse(
-#             analyzing_status=AnalyzingStatus.IN_PROGRESS,
-#         )
-#     competitive_analysis_response = (
-#         competitive_analysis.to_competitive_analysis_response(
-#             product,
-#             product_profile,
-#         )
-#     )
-#     await create_audit_record(
-#         product,
-#         current_user,
-#         "Update competitive analysis",
-#         {
-#             "competitive_analysis_id": competitive_analysis_id,
-#             "payload": payload.model_dump(),
-#         },
-#     )
-#     return competitive_analysis_response
-
-
 @router.post("/accept/{competitive_analysis_id}")
 async def accept_competitive_analysis_handler(
     payload: AcceptCompetitiveAnalysisRequest,
@@ -348,6 +312,11 @@ async def accept_competitive_analysis_handler(
     competitive_analysis_detail = await CompetitiveAnalysisDetail.get(
         competitive_analysis.competitive_analysis_detail_id
     )
+    if not competitive_analysis_detail:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Competitive analysis detail not found",
+        )
     competitive_analysis_detail.accepted = payload.accepted
     competitive_analysis_detail.accept_reject_reason = payload.accept_reject_reason
     competitive_analysis_detail.accept_reject_by = (

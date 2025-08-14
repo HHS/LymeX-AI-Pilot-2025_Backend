@@ -56,48 +56,8 @@ class PerformanceTestCard(BaseModel):
     references: list[PerformanceTestingReference] | None = None
     associated_standards: list[PerformanceTestingAssociatedStandard] | None = None
     rejected_justification: str | None = None
-    id: PydanticObjectId = Field(default_factory=PydanticObjectId, alias="_id")
     created_at: datetime = Field(default_factory=datetime.utcnow)
     created_by: str = "ai@crowdplat.com"
-
-
-class PerformanceTestingResponse(BaseModel):
-    id: str = Field(..., description="Unique identifier for the performance test")
-    product_id: str = Field(..., description="Associated product identifier")
-    test_name: str = Field(..., description="Name of the performance test")
-    test_description: str = Field(
-        ..., description="Description of the performance test"
-    )
-    status: ModuleStatus = Field(
-        ..., description="Current status of the performance test"
-    )
-    risk_level: RiskLevel | None = Field(
-        None, description="Risk level of the performance test"
-    )
-    ai_confident: int | None = Field(
-        None, description="AI confidence score for the performance test"
-    )
-    confident_level: PerformanceTestingConfidentLevel | None = Field(
-        None, description="Confidence level of the performance test results"
-    )
-    ai_rationale: str | None = Field(
-        None, description="AI rationale for the performance test results"
-    )
-    references: list[PerformanceTestingReference] | None = Field(
-        None, description="List of references for the performance test"
-    )
-    associated_standards: list[PerformanceTestingAssociatedStandard] | None = Field(
-        None, description="List of associated standards for the performance test"
-    )
-    rejected_justification: str | None = Field(
-        None, description="Justification for rejection, if applicable"
-    )
-    created_at: datetime = Field(
-        ..., description="Timestamp when the performance test was created"
-    )
-    created_by: str = Field(
-        ..., description="Email of the user who created the performance test"
-    )
 
 
 class CreatePerformanceTestingRequest(BaseModel):
@@ -145,27 +105,6 @@ class UploadTextInputDocumentRequest(BaseModel):
     )
 
 
-def map_to_performance_testing_response(
-    performance_test_card: PerformanceTestCard,
-) -> PerformanceTestingResponse:
-    return PerformanceTestingResponse(
-        id=str(performance_test_card.id),
-        product_id=performance_test_card.product_id,
-        test_name=performance_test_card.section_key,
-        test_description=performance_test_card.test_description,
-        status=performance_test_card.status,
-        risk_level=performance_test_card.risk_level,
-        ai_confident=performance_test_card.ai_confident,
-        confident_level=performance_test_card.confident_level,
-        ai_rationale=performance_test_card.ai_rationale,
-        references=performance_test_card.references,
-        associated_standards=performance_test_card.associated_standards,
-        rejected_justification=performance_test_card.rejected_justification,
-        created_at=performance_test_card.created_at,
-        created_by=performance_test_card.created_by,
-    )
-
-
 class RejectedPerformanceTestingRequest(BaseModel):
     rejected_justification: str
 
@@ -184,6 +123,48 @@ class AnalyzePerformanceTestingProgressResponse(BaseModel):
     )
 
 
+class PerformanceTestingResponse(BaseModel):
+    id: str = Field(..., description="Unique identifier for the performance test")
+    product_id: str = Field(..., description="Associated product identifier")
+    test_name: str = Field(..., description="Name of the performance test")
+    test_description: str = Field(
+        ..., description="Description of the performance test"
+    )
+    status: ModuleStatus = Field(
+        ..., description="Current status of the performance test"
+    )
+    documents: list[PerformanceTestingDocumentResponse] = Field(
+        ..., description="List of documents associated with the performance test"
+    )
+    risk_level: RiskLevel | None = Field(
+        None, description="Risk level of the performance test"
+    )
+    ai_confident: int | None = Field(
+        None, description="AI confidence score for the performance test"
+    )
+    confident_level: PerformanceTestingConfidentLevel | None = Field(
+        None, description="Confidence level of the performance test results"
+    )
+    ai_rationale: str | None = Field(
+        None, description="AI rationale for the performance test results"
+    )
+    references: list[PerformanceTestingReference] | None = Field(
+        None, description="List of references for the performance test"
+    )
+    associated_standards: list[PerformanceTestingAssociatedStandard] | None = Field(
+        None, description="List of associated standards for the performance test"
+    )
+    rejected_justification: str | None = Field(
+        None, description="Justification for rejection, if applicable"
+    )
+    created_at: datetime = Field(
+        ..., description="Timestamp when the performance test was created"
+    )
+    created_by: str = Field(
+        ..., description="Email of the user who created the performance test"
+    )
+
+
 class PerformanceTestingWithProgressResponse(BaseModel):
     performance_testing: list[PerformanceTestingResponse] = Field(
         ..., description="List of performance testing results"
@@ -191,3 +172,30 @@ class PerformanceTestingWithProgressResponse(BaseModel):
     analyze_performance_testing_progress: (
         AnalyzePerformanceTestingProgressResponse | None
     ) = Field(None, description="Progress information for performance testing")
+
+
+def map_to_performance_testing_response(
+    performance_test_card: PerformanceTestCard,
+    documents: list[PerformanceTestingDocumentResponse],
+) -> PerformanceTestingResponse:
+    return PerformanceTestingResponse(
+        id=str(performance_test_card.id),
+        product_id=performance_test_card.product_id,
+        test_name=performance_test_card.section_key,
+        test_description=performance_test_card.test_description,
+        status=performance_test_card.status,
+        documents=[
+            document
+            for document in documents
+            if document.performance_testing_id == str(performance_test_card.id)
+        ],
+        risk_level=performance_test_card.risk_level,
+        ai_confident=performance_test_card.ai_confident,
+        confident_level=performance_test_card.confident_level,
+        ai_rationale=performance_test_card.ai_rationale,
+        references=performance_test_card.references,
+        associated_standards=performance_test_card.associated_standards,
+        rejected_justification=performance_test_card.rejected_justification,
+        created_at=performance_test_card.created_at,
+        created_by=performance_test_card.created_by,
+    )

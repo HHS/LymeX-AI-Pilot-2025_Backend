@@ -41,6 +41,7 @@ class MissingElementLevel(str, Enum):
 
 class MissingElement(BaseModel):
     id: int
+    title: str
     description: str
     suggested_fix: str
     level: MissingElementLevel
