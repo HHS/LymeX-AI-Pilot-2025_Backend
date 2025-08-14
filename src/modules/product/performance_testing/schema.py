@@ -184,7 +184,11 @@ def map_to_performance_testing_response(
         test_name=performance_test_card.section_key,
         test_description=performance_test_card.test_description,
         status=performance_test_card.status,
-        documents=[document for document in documents if document.performance_testing_id == str(performance_test_card.id)],
+        documents=[
+            document
+            for document in documents
+            if document.performance_testing_id == str(performance_test_card.id)
+        ],
         risk_level=performance_test_card.risk_level,
         ai_confident=performance_test_card.ai_confident,
         confident_level=performance_test_card.confident_level,
