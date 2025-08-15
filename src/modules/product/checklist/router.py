@@ -79,6 +79,7 @@ async def get_checklist_handler(
         ),
     )
 
+
 @router.post("/upload-file")
 async def upload_checklist_image(
     product: Annotated[Product, Depends(get_current_product)],

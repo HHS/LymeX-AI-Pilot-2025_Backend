@@ -196,7 +196,9 @@ async def upload_checklist_file(
 
     # Generate a unique filename to prevent overwriting
     unique_filename = f"{uuid.uuid4()}_{file.filename}"
-    object_name = f"{get_checklist_folder(product_id, question_number)}/{unique_filename}"
+    object_name = (
+        f"{get_checklist_folder(product_id, question_number)}/{unique_filename}"
+    )
     file_content = await file.read()
 
     minio_client.put_object(
