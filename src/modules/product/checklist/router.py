@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
 
 from src.celery.tasks.analyze_checklist import analyze_checklist_task
 from src.modules.authentication.dependencies import get_current_user
@@ -9,6 +9,10 @@ from src.modules.product.analyzing_status import (
 )
 from src.modules.product.checklist.analyze_checklist_progress import (
     get_analyze_checklist_progress,
+)
+from src.modules.product.checklist.service import (
+    upload_checklist_file,
+    get_checklist_documents,
 )
 from src.modules.product.checklist.model import Checklist
 from src.modules.product.checklist.schema import (
@@ -74,3 +78,31 @@ async def get_checklist_handler(
             else None
         ),
     )
+
+@router.post("/upload-file")
+async def upload_checklist_image(
+    product: Annotated[Product, Depends(get_current_product)],
+    question_number: str = Query(..., description="Question number to upload file for"),
+    file: UploadFile = File(...),
+):
+    """Upload a checklist file for a specific question"""
+    try:
+        return await upload_checklist_file(str(product.id), question_number, file)
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/documents")
+async def get_checklist_documents_endpoint(
+    product: Annotated[Product, Depends(get_current_product)],
+    question_number: str = Query(
+        None, description="Optional question ID to filter documents"
+    ),
+):
+    """Get all checklist documents for a product, optionally filtered by question"""
+    try:
+        return await get_checklist_documents(str(product.id), question_number)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
