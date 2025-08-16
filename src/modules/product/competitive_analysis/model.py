@@ -119,9 +119,13 @@ class CompetitiveAnalysis(Document):
             is_ai_generated=competitive_analysis_detail.is_ai_generated,
             use_system_data=competitive_analysis_detail.use_system_data,
             data_source=(
-                "System Data"
-                if competitive_analysis_detail.use_system_data
-                else "Internal Product"
+                "Internal Product"
+                if self.is_self_analysis
+                else (
+                    "System Data"
+                    if competitive_analysis_detail.use_system_data
+                    else "User Uploaded"
+                )
             ),
             confidence_score=competitive_analysis_detail.confidence_score,
             sources=[source.name for source in competitive_analysis_detail.sources],
