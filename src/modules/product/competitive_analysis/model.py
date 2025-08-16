@@ -124,7 +124,7 @@ class CompetitiveAnalysis(Document):
                 else (
                     "System Data"
                     if competitive_analysis_detail.use_system_data
-                    else "User Upload"
+                    else "User Uploaded"
                 )
             ),
             confidence_score=competitive_analysis_detail.confidence_score,
