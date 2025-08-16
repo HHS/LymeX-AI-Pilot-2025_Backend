@@ -174,6 +174,20 @@ async def create_performance_testing_handler(
     )
     if not performance_test_plan:
         performance_test_plan = PerformanceTestPlan(product_id=str(product.id))
+
+    # Check if (test_name, test_description) already exists (as (section_key, test_code))
+    if any(
+        (
+            test.section_key == payload.test_name
+            and test.test_code == payload.test_description
+        )
+        for test in performance_test_plan.tests
+    ):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Test with name '{payload.test_name}' and description '{payload.test_description}' already exists.",
+        )
+
     created_performance_test_card = PerformanceTestCard(
         product_id=str(product.id),
         section_key=payload.test_name,
