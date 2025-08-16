@@ -2,7 +2,12 @@ from datetime import datetime, timezone
 from typing import Any
 from beanie import PydanticObjectId
 from loguru import logger
+from fastapi import HTTPException, UploadFile
+import io
+import uuid
+import asyncio
 from src.modules.product.models import Product
+from src.modules.product.checklist.model import Checklist
 from src.modules.product.product_profile.analyze_product_profile_progress import (
     AnalyzeProductProfileProgress,
 )
@@ -10,7 +15,6 @@ from src.modules.product.product_profile.model import (
     ProductProfile,
     ProductProfileAudit,
 )
-import asyncio
 from src.modules.product.product_profile.storage import clone_product_profile_documents
 from src.modules.user.models import User
 from src.infrastructure.minio import minio_client, generate_get_object_presigned_url
@@ -167,3 +171,88 @@ async def get_product_documents(product_id: str) -> list[dict]:
         )
 
     return documents
+
+
+def get_checklist_folder(product_id: str, question_number: str) -> str:
+    """Get the folder path for checklist files"""
+    return f"product/{product_id}/checklist/{question_number}"
+
+
+async def upload_checklist_file(
+    product_id: str, question_number: str, file: UploadFile
+) -> dict[str, Any]:
+    """Upload a checklist file to MinIO storage for a specific question"""
+    # Validate that the question exists in the checklist
+    checklist = await Checklist.find_one({"product_id": product_id})
+    if not checklist:
+        raise HTTPException(
+            status_code=404, detail="Checklist not found for this product"
+        )
+
+    # Check if the question exists in the checklist
+    question_exists = any(q.id == question_number for q in checklist.questions)
+    if not question_exists:
+        raise HTTPException(status_code=404, detail="Question not found in checklist")
+
+    # Generate a unique filename to prevent overwriting
+    unique_filename = f"{uuid.uuid4()}_{file.filename}"
+    object_name = (
+        f"{get_checklist_folder(product_id, question_number)}/{unique_filename}"
+    )
+    file_content = await file.read()
+
+    minio_client.put_object(
+        bucket_name=environment.minio_bucket,
+        object_name=object_name,
+        length=len(file_content),
+        data=io.BytesIO(file_content),
+        content_type=file.content_type,
+    )
+
+    url = await generate_get_object_presigned_url(object_name)
+    return {
+        "object_name": object_name,
+        "url": url,
+        "question_number": question_number,
+        "message": "File uploaded successfully for question",
+    }
+
+
+async def get_checklist_documents(
+    product_id: str, question_number: str = None
+) -> dict[str, Any]:
+    """Get checklist documents for a product, optionally filtered by question_number"""
+    if question_number:
+        # Get documents for a specific question
+        prefix = f"{get_checklist_folder(product_id, question_number)}/"
+    else:
+        # Get all documents for the product
+        prefix = f"product/{product_id}/checklist/"
+
+    objects = await asyncio.to_thread(
+        minio_client.list_objects,
+        bucket_name=environment.minio_bucket,
+        prefix=prefix,
+        recursive=True,
+    )
+
+    documents = []
+    for obj in objects:
+        url = await generate_get_object_presigned_url(obj.object_name)
+        documents.append(
+            {
+                "object_name": obj.object_name,
+                "url": url,
+                "question_number": (
+                    question_number
+                    if question_number
+                    else (
+                        obj.object_name.split("/")[2]
+                        if len(obj.object_name.split("/")) > 2
+                        else None
+                    )
+                ),
+            }
+        )
+
+    return {"documents": documents}
