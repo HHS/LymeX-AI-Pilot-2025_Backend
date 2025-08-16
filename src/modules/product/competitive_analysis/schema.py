@@ -346,6 +346,7 @@ class CompetitiveAnalysisSource(BaseModel):
 
 class SourceWithUrl(BaseModel):
     name: str = Field(..., description="Name of the source")
+    document_name: str = Field(..., description="Name of the source document")
     url: str = Field(..., description="URL of the source document")
 
 
