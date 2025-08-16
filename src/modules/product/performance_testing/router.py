@@ -179,7 +179,7 @@ async def create_performance_testing_handler(
     if any(
         (
             test.section_key == payload.test_name
-            and test.test_code == payload.test_description
+            and test.test_description == payload.test_description
         )
         for test in performance_test_plan.tests
     ):
