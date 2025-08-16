@@ -38,6 +38,18 @@ class CompetitiveAnalysisDetail(Document, CompetitiveAnalysisDetailBase):
         }
 
 
+async def create_source_with_url(source: CompetitiveAnalysisSource) -> SourceWithUrl:
+    url = await generate_get_object_presigned_url(
+        source.key,
+        expiration_seconds=3600,
+    )
+    return SourceWithUrl(
+        name=source.name,
+        document_name=url.split("?")[0].split("/")[-1],
+        url=url,
+    )
+
+
 class CompetitiveAnalysis(Document):
     product_id: str
     competitive_analysis_detail_id: str
@@ -77,12 +89,7 @@ class CompetitiveAnalysis(Document):
             )
 
         sources_with_urls = [
-            SourceWithUrl(
-                name=source.name,
-                url=await generate_get_object_presigned_url(
-                    source.key, expiration_seconds=3600
-                ),
-            )
+            await create_source_with_url(source)
             for source in competitive_analysis_detail.sources
         ]
 
@@ -114,7 +121,7 @@ class CompetitiveAnalysis(Document):
             data_source=(
                 "System Data"
                 if competitive_analysis_detail.use_system_data
-                else "User Uploaded"
+                else "Internal Product"
             ),
             confidence_score=competitive_analysis_detail.confidence_score,
             sources=[source.name for source in competitive_analysis_detail.sources],
