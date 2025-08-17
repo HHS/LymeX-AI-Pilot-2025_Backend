@@ -10,6 +10,7 @@ from src.modules.authentication.dependencies import get_current_user
 from src.modules.user.models import User
 from src.celery.tasks.analyze_claim_builder import analyze_claim_builder_task
 from src.modules.product.claim_builder.service import (
+    filter_accepted_missing_elements_and_phrase_conflicts,
     get_analyze_claim_builder_progress,
     get_claim_builder,
 )
@@ -50,11 +51,7 @@ async def get_claim_builder_handler(
         company,
         analyze_claim_builder_progress,
     )
-    claim_builder_response.missing_elements = [
-        element
-        for element in claim_builder_response.missing_elements
-        if element.accepted is None
-    ]
+    filter_accepted_missing_elements_and_phrase_conflicts(claim_builder_response)
     return claim_builder_response
 
 
@@ -322,11 +319,7 @@ async def accept_claim_builder_draft_handler(
         company,
         analyze_claim_builder_progress,
     )
-    claim_builder_response.missing_elements = [
-        element
-        for element in claim_builder_response.missing_elements
-        if element.accepted is None
-    ]
+    filter_accepted_missing_elements_and_phrase_conflicts(claim_builder_response)
     return claim_builder_response
 
 
@@ -370,11 +363,7 @@ async def decide_missing_element_handler(
         company,
         analyze_claim_builder_progress,
     )
-    claim_builder_response.missing_elements = [
-        element
-        for element in claim_builder_response.missing_elements
-        if element.accepted is None
-    ]
+    filter_accepted_missing_elements_and_phrase_conflicts(claim_builder_response)
     return claim_builder_response
 
 
@@ -414,11 +403,7 @@ async def accept_phrase_conflict_handler(
         company,
         analyze_claim_builder_progress,
     )
-    claim_builder_response.missing_elements = [
-        element
-        for element in claim_builder_response.missing_elements
-        if element.accepted is None
-    ]
+    filter_accepted_missing_elements_and_phrase_conflicts(claim_builder_response)
     return claim_builder_response
 
 
@@ -458,11 +443,7 @@ async def accept_all_phrase_conflict_handler(
         company,
         analyze_claim_builder_progress,
     )
-    claim_builder_response.missing_elements = [
-        element
-        for element in claim_builder_response.missing_elements
-        if element.accepted is None
-    ]
+    filter_accepted_missing_elements_and_phrase_conflicts(claim_builder_response)
     return claim_builder_response
 
 
@@ -502,11 +483,7 @@ async def reject_phrase_conflict_handler(
         company,
         analyze_claim_builder_progress,
     )
-    claim_builder_response.missing_elements = [
-        element
-        for element in claim_builder_response.missing_elements
-        if element.accepted is None
-    ]
+    filter_accepted_missing_elements_and_phrase_conflicts(claim_builder_response)
     return claim_builder_response
 
 
@@ -534,9 +511,5 @@ async def accept_claim_builder_handler(
         company,
         analyze_claim_builder_progress,
     )
-    claim_builder_response.missing_elements = [
-        element
-        for element in claim_builder_response.missing_elements
-        if element.accepted is None
-    ]
+    filter_accepted_missing_elements_and_phrase_conflicts(claim_builder_response)
     return claim_builder_response

@@ -4,6 +4,7 @@ from src.modules.product.claim_builder.model import (
     AnalyzeClaimBuilderProgress,
     ClaimBuilder,
 )
+from src.modules.product.claim_builder.schema import ClaimBuilderResponse
 
 
 async def get_analyze_claim_builder_progress(
@@ -56,3 +57,18 @@ async def clone_claim_builder(
         product_id=str(new_product_id),
     )
     await new_analyze_claim_builder_progress.insert()
+
+
+def filter_accepted_missing_elements_and_phrase_conflicts(
+    claim_builder_response: ClaimBuilderResponse,
+):
+    claim_builder_response.missing_elements = [
+        element
+        for element in claim_builder_response.missing_elements
+        if element.accepted is None
+    ]
+    claim_builder_response.phrase_conflicts = [
+        conflict
+        for conflict in claim_builder_response.phrase_conflicts
+        if conflict.accepted_fix is None and conflict.rejected_reason is None
+    ]
