@@ -183,11 +183,13 @@ async def upload_product_files(
             content_type=file.content_type,
         )
 
-        uploaded_files.append({
-            "original_filename": file.filename,
-            "object_name": object_name,
-            "content_type": file.content_type,
-            "size": len(file_content),
-        })
+        uploaded_files.append(
+            {
+                "original_filename": file.filename,
+                "object_name": object_name,
+                "content_type": file.content_type,
+                "size": len(file_content),
+            }
+        )
 
     return uploaded_files
