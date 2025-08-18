@@ -190,7 +190,9 @@ async def upload_checklist_file(
         )
 
     # Check if the question exists in the checklist
-    question_exists = any(q.id == question_number for q in checklist.questions)
+    question_exists = any(
+        q.question_number == question_number for q in checklist.answers
+    )
     if not question_exists:
         raise HTTPException(status_code=404, detail="Question not found in checklist")
 
