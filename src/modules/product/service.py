@@ -14,6 +14,7 @@ from src.celery.tasks.analyze_performance_testing import (
 from src.celery.tasks.analyze_product_profile import analyze_product_profile_task
 from src.celery.tasks.analyze_regulatory_pathway import analyze_regulatory_pathway_task
 from src.celery.tasks.analyze_test_comparison import analyze_test_comparison_task
+from src.celery.tasks.analyze_checklist import analyze_checklist_task
 import io
 import base64
 import fastavro
@@ -148,6 +149,7 @@ def analyze_all(
     analyze_performance_testing_task.delay(product_id)
     analyze_regulatory_pathway_task.delay(product_id)
     analyze_test_comparison_task.delay(product_id)
+    analyze_checklist_task.delay(product_id)
 
 
 async def upload_product_files(
