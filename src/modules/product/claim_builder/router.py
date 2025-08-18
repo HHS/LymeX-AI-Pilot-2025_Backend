@@ -4,6 +4,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from src.modules.authorization.dependencies import get_current_company
 from src.modules.company.models import Company
+from src.modules.product.analyzing_status import (
+    AnalyzingStatus,
+    AnalyzingStatusResponse,
+)
 from src.modules.product.product_profile.service import create_audit_record
 from src.modules.product.version_control.service import snapshot_minor_version
 from src.modules.authentication.dependencies import get_current_user
@@ -41,8 +45,13 @@ router = APIRouter()
 async def get_claim_builder_handler(
     company: Annotated[Company, Depends(get_current_company)],
     product: Annotated[Product, Depends(get_current_product)],
-) -> ClaimBuilderResponse:
-    claim_builder = await get_claim_builder(product.id)
+) -> ClaimBuilderResponse | AnalyzingStatusResponse:
+    try:
+        claim_builder = await get_claim_builder(product.id)
+    except HTTPException as e:
+        return AnalyzingStatusResponse(
+            analyzing_status=AnalyzingStatus.IN_PROGRESS,
+        )
     analyze_claim_builder_progress = await get_analyze_claim_builder_progress(
         product.id,
     )
