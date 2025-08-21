@@ -1,9 +1,8 @@
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List
 
 
 class CostAnalysis(BaseModel):
-    base_mdufa_fee: str
     sbd_fee_reduction: str
     estimated_consulting_costs: str
     clinical_trial_costs: str
