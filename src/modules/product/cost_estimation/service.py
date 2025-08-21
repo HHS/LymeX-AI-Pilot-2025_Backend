@@ -30,31 +30,28 @@ async def get_product_cost_estimation(
                 Pathway(
                     pathway="510(k)",
                     costAnalysis=CostAnalysis(
-                        base_mdufa_fee="24335",
                         sbd_fee_reduction="6084",
                         estimated_consulting_costs="10",
                         clinical_trial_costs="10",
-                        total_estimated_cost="30439",
+                        total_estimated_cost="6104",
                     ),
                 ),
                 Pathway(
                     pathway="DeNovo",
                     costAnalysis=CostAnalysis(
-                        base_mdufa_fee="173782",
                         sbd_fee_reduction="43446",
                         estimated_consulting_costs="10",
                         clinical_trial_costs="10",
-                        total_estimated_cost="217248",
+                        total_estimated_cost="43466",
                     ),
                 ),
                 Pathway(
                     pathway="PMA",
                     costAnalysis=CostAnalysis(
-                        base_mdufa_fee="579272",
                         sbd_fee_reduction="144818",
                         estimated_consulting_costs="10",
                         clinical_trial_costs="10",
-                        total_estimated_cost="724110",
+                        total_estimated_cost="144838",
                     ),
                 ),
             ],

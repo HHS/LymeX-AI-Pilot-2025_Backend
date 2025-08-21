@@ -46,11 +46,19 @@ async def get_claim_builder_handler(
     company: Annotated[Company, Depends(get_current_company)],
     product: Annotated[Product, Depends(get_current_product)],
 ) -> ClaimBuilderResponse | AnalyzingStatusResponse:
+    analyze_claim_builder_progress = await get_analyze_claim_builder_progress(
+        str(product.id),
+    )
+    analyze_claim_builder_progress_status = (
+        analyze_claim_builder_progress.to_analyze_claim_builder_progress_response().analyzing_status
+        if analyze_claim_builder_progress
+        else AnalyzingStatus.PENDING
+    )
     try:
         claim_builder = await get_claim_builder(product.id)
     except HTTPException as e:
         return AnalyzingStatusResponse(
-            analyzing_status=AnalyzingStatus.IN_PROGRESS,
+            analyzing_status=analyze_claim_builder_progress_status,
         )
     analyze_claim_builder_progress = await get_analyze_claim_builder_progress(
         product.id,
