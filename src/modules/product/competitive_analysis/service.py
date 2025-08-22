@@ -9,6 +9,7 @@ from src.modules.product.competitive_analysis.model import (
 )
 from src.modules.product.competitive_analysis.storage import (
     clone_competitive_analysis_documents,
+    delete_competitive_analysis_document,
 )
 
 
@@ -61,7 +62,15 @@ async def delete_competitive_analysis(
     competitive_analysis_detail = await CompetitiveAnalysisDetail.get(
         competitive_analysis.competitive_analysis_detail_id,
     )
+    source_object_keys = (
+        [source.key for source in competitive_analysis_detail.sources]
+        if competitive_analysis_detail
+        else []
+    )
     await competitive_analysis.delete()
+
+    for source_object_key in source_object_keys:
+        await delete_competitive_analysis_document(source_object_key)
 
     if competitive_analysis_detail:
         await competitive_analysis_detail.delete()
