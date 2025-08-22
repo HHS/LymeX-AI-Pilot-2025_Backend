@@ -130,7 +130,7 @@ async def update_claim_builder_draft_handler(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Cannot update draft after user acceptance.",
         )
-    if not claim_builder.draft[0].submitted:
+    if claim_builder.draft[0].submitted:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Cannot update draft after submission.",
