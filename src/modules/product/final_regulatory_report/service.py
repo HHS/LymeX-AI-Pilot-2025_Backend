@@ -56,6 +56,7 @@ async def get_final_regulatory_report(product_id: str) -> FinalRegulatoryReportR
                 break
 
     cost_breakdown = CostBreakdown(
+        base_mdufa_fee=cost_analysis.base_mdufa_fee if cost_analysis else "",
         sbd_fee_reduction=cost_analysis.sbd_fee_reduction if cost_analysis else "",
         estimated_consulting_costs=(
             cost_analysis.estimated_consulting_costs if cost_analysis else ""
