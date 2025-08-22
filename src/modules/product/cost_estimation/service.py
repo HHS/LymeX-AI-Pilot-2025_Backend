@@ -1,3 +1,4 @@
+from datetime import date
 from beanie import PydanticObjectId
 from src.modules.product.cost_estimation.model import CostEstimation
 from src.modules.product.cost_estimation.schema import (
@@ -17,12 +18,13 @@ async def get_product_cost_estimation(
     product_name = product.name if product else ""
     product_code = product.code if product else None
 
-    product_cost_estimations = await CostEstimation.find(
-        {"product_id": str(product_id)}
-    ).to_list()
+    product_cost_estimations = await CostEstimation.find({
+        "product_id": str(product_id)
+    }).to_list()
 
     if not product_cost_estimations:
         # Create dummy data
+        new_price = date.today() >= date(2025, 10, 1)
         dummy_cost_estimation = CostEstimation(
             product_id=str(product_id),
             can_apply_for_sbd=True,
@@ -30,28 +32,31 @@ async def get_product_cost_estimation(
                 Pathway(
                     pathway="510(k)",
                     costAnalysis=CostAnalysis(
-                        sbd_fee_reduction="6084",
+                        base_mdufa_fee="26067" if new_price else "24335",
+                        sbd_fee_reduction="6517" if new_price else "6084",
                         estimated_consulting_costs="10",
                         clinical_trial_costs="10",
-                        total_estimated_cost="6104",
+                        total_estimated_cost="6537" if new_price else "6104",
                     ),
                 ),
                 Pathway(
                     pathway="DeNovo",
                     costAnalysis=CostAnalysis(
-                        sbd_fee_reduction="43446",
+                        base_mdufa_fee="173782" if new_price else "162235",
+                        sbd_fee_reduction="43446" if new_price else "40559",
                         estimated_consulting_costs="10",
                         clinical_trial_costs="10",
-                        total_estimated_cost="43466",
+                        total_estimated_cost="43466" if new_price else "40579",
                     ),
                 ),
                 Pathway(
                     pathway="PMA",
                     costAnalysis=CostAnalysis(
-                        sbd_fee_reduction="144818",
+                        base_mdufa_fee="579272" if new_price else "540783",
+                        sbd_fee_reduction="144818" if new_price else "135196",
                         estimated_consulting_costs="10",
                         clinical_trial_costs="10",
-                        total_estimated_cost="144838",
+                        total_estimated_cost="144838" if new_price else "135216",
                     ),
                 ),
             ],
@@ -110,12 +115,10 @@ async def clone_cost_estimation(
         CostEstimation.product_id == str(product_id)
     ).to_list()
     if existing_estimation:
-        await CostEstimation.insert_many(
-            [
-                CostEstimation(
-                    **estimation.model_dump(exclude={"id", "product_id"}),
-                    product_id=str(new_product_id),
-                )
-                for estimation in existing_estimation
-            ]
-        )
+        await CostEstimation.insert_many([
+            CostEstimation(
+                **estimation.model_dump(exclude={"id", "product_id"}),
+                product_id=str(new_product_id),
+            )
+            for estimation in existing_estimation
+        ])
