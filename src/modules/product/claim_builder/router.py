@@ -151,6 +151,17 @@ async def update_claim_builder_draft_handler(
         )
     ]
     await claim_builder.save()
+    await AnalyzeClaimBuilderProgress.find(
+        AnalyzeClaimBuilderProgress.product_id == str(product.id),
+    ).delete_many()
+    analyze_claim_builder_progress = AnalyzeClaimBuilderProgress(
+        product_id=str(product.id),
+        total_files=0,
+        processed_files=0,
+        updated_at=datetime.now(timezone.utc),
+    )
+    await analyze_claim_builder_progress.save()
+    analyze_claim_builder_task.delay(str(product.id))
     await snapshot_minor_version(
         claim_builder,
         "Update claim builder draft",

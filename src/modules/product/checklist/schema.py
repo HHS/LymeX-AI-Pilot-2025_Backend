@@ -20,7 +20,7 @@ class ChecklistAnswerResponse(BaseModel):
     question: str
     module: str
     section: str
-    status: Literal["Completed"]
+    status: Literal["Completed", "Not Completed"]
     answer: str
     question_type: Literal["checkbox", "radio", "text", "boolean"]
     options: list[str] | None

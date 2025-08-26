@@ -120,7 +120,11 @@ class Checklist(Document, ChecklistBase):
                     question=answer.question,
                     module=question_number_to_module(answer.question_number),
                     section=question_number_to_section(answer.question_number),
-                    status="Completed",
+                    status=(
+                        "Not Completed"
+                        if answer.answer == "Not Available"
+                        else "Completed"
+                    ),
                     answer=answer.answer,
                     question_type=question_number_to_question_type(
                         answer.question_number
