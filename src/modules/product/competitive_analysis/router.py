@@ -308,20 +308,12 @@ async def accept_competitive_analysis_handler(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Competitive analysis not found",
         )
-    competitive_analysis_detail = await CompetitiveAnalysisDetail.get(
-        competitive_analysis.competitive_analysis_detail_id
-    )
-    if not competitive_analysis_detail:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Competitive analysis detail not found",
-        )
-    competitive_analysis_detail.accepted = payload.accepted
-    competitive_analysis_detail.accept_reject_reason = payload.accept_reject_reason
-    competitive_analysis_detail.accept_reject_by = (
+    competitive_analysis.accepted = payload.accepted
+    competitive_analysis.accept_reject_reason = payload.accept_reject_reason
+    competitive_analysis.accept_reject_by = (
         f"{current_user.first_name} {current_user.last_name}"
     )
-    await competitive_analysis_detail.save()
+    await competitive_analysis.save()
 
     await create_audit_record(
         product,

@@ -25,10 +25,6 @@ class CompetitiveAnalysisDetail(Document, CompetitiveAnalysisDetailBase):
     is_ai_generated: bool
     use_system_data: bool
 
-    accepted: bool | None = None
-    accept_reject_reason: str | None = None
-    accept_reject_by: str | None = None
-
     class Settings:
         name = "competitive_analysis_detail"
 
@@ -54,6 +50,10 @@ class CompetitiveAnalysis(Document):
     product_id: str
     competitive_analysis_detail_id: str
     is_self_analysis: bool
+
+    accepted: bool | None = None
+    accept_reject_reason: str | None = None
+    accept_reject_by: str | None = None
 
     class Settings:
         name = "competitive_analysis"
@@ -130,9 +130,9 @@ class CompetitiveAnalysis(Document):
             confidence_score=competitive_analysis_detail.confidence_score,
             sources=[source.name for source in competitive_analysis_detail.sources],
             sources_with_urls=sources_with_urls,
-            accepted=competitive_analysis_detail.accepted,
-            accept_reject_reason=competitive_analysis_detail.accept_reject_reason,
-            accept_reject_by=competitive_analysis_detail.accept_reject_by,
+            accepted=self.accepted,
+            accept_reject_reason=self.accept_reject_reason,
+            accept_reject_by=self.accept_reject_by,
             comparison=self.to_competitive_compare_response(
                 self_product_detail,
                 competitive_analysis_detail,
@@ -160,9 +160,9 @@ class CompetitiveAnalysis(Document):
         return CompetitiveAnalysisCompareResponse(
             your_product=your_product,
             competitor=competitor,
-            accepted=competitor_product_detail.accepted,
-            accept_reject_reason=competitor_product_detail.accept_reject_reason,
-            accept_reject_by=competitor_product_detail.accept_reject_by,
+            accepted=self.accepted,
+            accept_reject_reason=self.accept_reject_reason,
+            accept_reject_by=self.accept_reject_by,
             analyzing_status=analyze_competitive_analysis_progress_status,
         )
 
