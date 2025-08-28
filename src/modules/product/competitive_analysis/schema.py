@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Literal
 from pydantic import BaseModel, Field
 
 from src.modules.product.analyzing_status import AnalyzingStatus
@@ -418,3 +419,40 @@ class CompetitiveAnalysisCompareWithProgressResponse(BaseModel):
     analyze_competitive_analysis_progress: (
         AnalyzeCompetitiveAnalysisProgressResponse | None
     ) = Field(None, description="Progress information for competitive analysis")
+
+
+class LLMPredicateRow(BaseModel):
+    section_key: str  # e.g. "analytical", "clinical", ...
+    test_code: str | None = None  # e.g. "precision", "clin_sens"
+    label: str
+    your_value: str | None = None
+    predicate_value: str | None = None
+
+
+class LLMGapFinding(BaseModel):
+    title: str
+    subtitle: str
+    suggested_fix: str
+    severity: Literal["info", "minor", "major", "critical"]
+    section_key: str
+    test_code: str | None = None
+
+
+class PredicateLLMAnalysisResponse(BaseModel):
+    product_id: str
+    competitor_id: str | None = None
+    competitor_name: str | None = None
+    rows: list[LLMPredicateRow]
+    gaps: list[LLMGapFinding]
+    model_used: str | None = None
+    created_at: datetime
+    updated_at: datetime | None = None
+
+
+class PredicateLLMAnalysisWithProgressResponse(BaseModel):
+    predicate_llm_analysis: list[PredicateLLMAnalysisResponse] = Field(
+        ..., description="Predicate LLM analysis details"
+    )
+    analyzing_status: AnalyzingStatus = Field(
+        ..., description="Current status of the product analysis"
+    )

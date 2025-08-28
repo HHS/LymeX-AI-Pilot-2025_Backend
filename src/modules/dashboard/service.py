@@ -1,4 +1,5 @@
 from src.modules.product.analyzing_status import AnalyzingStatus
+from src.modules.product.checklist.model import Checklist
 from src.modules.product.claim_builder.service import get_analyze_claim_builder_progress
 from src.modules.product.competitive_analysis.analyze_competitive_analysis_progress import (
     get_analyze_competitive_analysis_progress,
@@ -17,21 +18,18 @@ from src.modules.company.models import Company
 from src.modules.product.models import Product
 from typing import List
 from src.modules.user.models import User
-from src.modules.checklist.service import get_or_create_checklist
 
 
 async def calculate_remaining_tasks(product_id: str) -> int:
     """Calculate remaining tasks for a product using existing checklist progress data"""
     try:
         # Get or create checklist for the product
-        checklist_response = await get_or_create_checklist(product_id)
-        checklist = checklist_response["checklist"]
+        checklist = await Checklist.find_one(Checklist.product_id == product_id)
+        if not checklist:
+            return 0
 
-        # Use existing checklist progress data
-        # remaining_tasks = total - completed
-        remaining_tasks = checklist.checklist.total - checklist.checklist.completed
-
-        return remaining_tasks
+        not_answered = [a for a in checklist.answers if a.answer == "Not Available"]
+        return len(not_answered)
     except Exception as e:
         # If there's any error getting the checklist, return 0
         print(f"Error calculating remaining tasks for product {product_id}: {e}")

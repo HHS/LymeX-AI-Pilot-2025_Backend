@@ -56,8 +56,10 @@ class PerformanceTestCard(BaseModel):
     references: list[PerformanceTestingReference] | None = None
     associated_standards: list[PerformanceTestingAssociatedStandard] | None = None
     rejected_justification: str | None = None
+    accepted_justification: str | None = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
     created_by: str = "ai@crowdplat.com"
+    ai_decided: bool = False
 
 
 class CreatePerformanceTestingRequest(BaseModel):
@@ -105,8 +107,16 @@ class UploadTextInputDocumentRequest(BaseModel):
     )
 
 
+class AcceptedPerformanceTestingRequest(BaseModel):
+    accepted_justification: str = Field(
+        "", description="Justification for accepting the test"
+    )
+
+
 class RejectedPerformanceTestingRequest(BaseModel):
-    rejected_justification: str
+    rejected_justification: str = Field(
+        "", description="Justification for rejecting the test"
+    )
 
 
 class AnalyzePerformanceTestingProgressResponse(BaseModel):
@@ -163,6 +173,9 @@ class PerformanceTestingResponse(BaseModel):
     created_by: str = Field(
         ..., description="Email of the user who created the performance test"
     )
+    ai_decided: bool = Field(
+        False, description="Indicates if the AI has decided on the test"
+    )
 
 
 class PerformanceTestingWithProgressResponse(BaseModel):
@@ -198,4 +211,5 @@ def map_to_performance_testing_response(
         rejected_justification=performance_test_card.rejected_justification,
         created_at=performance_test_card.created_at,
         created_by=performance_test_card.created_by,
+        ai_decided=performance_test_card.ai_decided,
     )
