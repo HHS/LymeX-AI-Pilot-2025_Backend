@@ -12,6 +12,7 @@ from src.modules.product.performance_testing.schema import (
 class PerformanceTestPlan(Document):
     product_id: str = Field(..., index=True)
     tests: list[PerformanceTestCard] = Field(default_factory=list)
+    rejected_tests: list[PerformanceTestCard] = Field(default_factory=list)
     rationale: str | None = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime | None = None

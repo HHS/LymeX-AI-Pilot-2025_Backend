@@ -10,6 +10,7 @@ from src.modules.product.competitive_analysis.analyze_competitive_analysis_progr
 from src.modules.product.competitive_analysis.model import (
     CompetitiveAnalysis,
     CompetitiveAnalysisDetail,
+    PredicateLLMAnalysis,
 )
 from src.modules.product.analyzing_status import (
     AnalyzingStatus,
@@ -43,6 +44,7 @@ from src.modules.product.competitive_analysis.schema import (
     CompetitiveAnalysisResponse,
     CompetitiveAnalysisWithProgressResponse,
     CompetitiveDeviceAnalysisResponse,
+    PredicateLLMAnalysisWithProgressResponse,
     UploadTextInputDocumentRequest,
 )
 from src.modules.product.competitive_analysis.service import (
@@ -331,3 +333,22 @@ async def accept_competitive_analysis_handler(
         )
 
     return await competitive_analysis.to_competitive_analysis_response(product=product)
+
+
+@router.get("/predicate_llm_analysis")
+async def get_predicate_llm_analysis_handler(
+    product: Annotated[Product, Depends(get_current_product)],
+) -> PredicateLLMAnalysisWithProgressResponse | AnalyzingStatusResponse:
+    predicate_llm_analysis = await PredicateLLMAnalysis.find(
+        PredicateLLMAnalysis.product_id == str(product.id),
+    ).to_list()
+    if not predicate_llm_analysis:
+        return AnalyzingStatusResponse(
+            analyzing_status=AnalyzingStatus.IN_PROGRESS,
+        )
+    return PredicateLLMAnalysisWithProgressResponse(
+        predicate_llm_analysis=[
+            p.to_predicate_llm_analysis_response() for p in predicate_llm_analysis
+        ],
+        analyzing_status=AnalyzingStatus.COMPLETED,
+    )

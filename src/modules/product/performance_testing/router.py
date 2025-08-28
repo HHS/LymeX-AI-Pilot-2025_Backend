@@ -19,6 +19,7 @@ from src.modules.product.performance_testing.service import (
 )
 from src.modules.authentication.dependencies import get_current_user
 from src.modules.product.performance_testing.schema import (
+    AcceptedPerformanceTestingRequest,
     CreatePerformanceTestingRequest,
     ModuleStatus,
     PerformanceTestCard,
@@ -433,6 +434,7 @@ async def analyze_performance_testing_handler(
 
 @router.post("/{performance_testing_id}/accept")
 async def accept_performance_testing_handler(
+    payload: AcceptedPerformanceTestingRequest,
     performance_testing_id: str,
     product: Annotated[Product, Depends(get_current_product)],
     current_user: Annotated[User, Depends(get_current_user)],
@@ -460,12 +462,16 @@ async def accept_performance_testing_handler(
             detail=f"Performance test card with ID {performance_testing_id} not found.",
         )
     performance_test_card.status = ModuleStatus.ACCEPTED
+    performance_test_card.accepted_justification = payload.accepted_justification
     await performance_test_plan.save()
     await create_audit_record(
         product,
         current_user,
         "Accept performance testing",
-        {"performance_testing_id": performance_testing_id},
+        {
+            "performance_testing_id": performance_testing_id,
+            "accepted_justification": performance_test_card.accepted_justification,
+        },
     )
     documents = await get_performance_testing_documents(
         str(product.id),

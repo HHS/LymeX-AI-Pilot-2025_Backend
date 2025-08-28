@@ -41,6 +41,7 @@ from src.modules.product.product_profile.model import (
 from src.modules.product.competitive_analysis.model import (
     CompetitiveAnalysis,
     CompetitiveAnalysisDetail,
+    PredicateLLMAnalysis,
 )
 from src.modules.product.cost_estimation.model import CostEstimation
 from src.modules.product.review_program.model import ReviewProgram
@@ -77,6 +78,7 @@ async def init_db() -> None:
             Product,
             CompetitiveAnalysis,
             CompetitiveAnalysisDetail,
+            PredicateLLMAnalysis,
             AnalyzeCompetitiveAnalysisProgress,
             ProductProfile,
             ProductProfileAudit,

@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from beanie import Document, PydanticObjectId
 from fastapi import HTTPException
 from src.infrastructure.minio import generate_get_object_presigned_url
@@ -11,6 +12,9 @@ from src.modules.product.competitive_analysis.schema import (
     CompetitiveAnalysisSource,
     CompetitiveDeviceAnalysisItemResponse,
     CompetitiveDeviceAnalysisResponse,
+    LLMGapFinding,
+    LLMPredicateRow,
+    PredicateLLMAnalysisResponse,
     SourceWithUrl,
 )
 from src.modules.product.competitive_analysis.analyze_competitive_analysis_progress import (
@@ -32,6 +36,35 @@ class CompetitiveAnalysisDetail(Document, CompetitiveAnalysisDetailBase):
         json_encoders = {
             PydanticObjectId: str,
         }
+
+
+class PredicateLLMAnalysis(Document):
+    product_id: str
+    competitor_id: str | None = None
+    competitor_name: str | None = None
+    rows: list[LLMPredicateRow]
+    gaps: list[LLMGapFinding]
+    model_used: str | None = None
+    created_at: datetime
+    updated_at: datetime | None = None
+
+    class Settings:
+        name = "predicate_llm_analysis"
+
+    def to_predicate_llm_analysis_response(
+        self,
+    ) -> PredicateLLMAnalysisResponse:
+        return PredicateLLMAnalysisResponse(
+            id=str(self.id),
+            product_id=self.product_id,
+            competitor_id=self.competitor_id,
+            competitor_name=self.competitor_name,
+            rows=self.rows,
+            gaps=self.gaps,
+            model_used=self.model_used,
+            created_at=self.created_at,
+            updated_at=self.updated_at,
+        )
 
 
 async def create_source_with_url(source: CompetitiveAnalysisSource) -> SourceWithUrl:
