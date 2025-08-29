@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 from beanie import Document, PydanticObjectId
 from fastapi import HTTPException
 from src.infrastructure.minio import generate_get_object_presigned_url
@@ -40,6 +40,7 @@ class CompetitiveAnalysisDetail(Document, CompetitiveAnalysisDetailBase):
 
 class PredicateLLMAnalysis(Document):
     product_id: str
+    product_name: str
     competitor_id: str | None = None
     competitor_name: str | None = None
     rows: list[LLMPredicateRow]

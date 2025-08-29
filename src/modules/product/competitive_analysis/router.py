@@ -347,6 +347,7 @@ async def get_predicate_llm_analysis_handler(
             analyzing_status=AnalyzingStatus.IN_PROGRESS,
         )
     return PredicateLLMAnalysisWithProgressResponse(
+        product_name=product.name,
         predicate_llm_analysis=[
             p.to_predicate_llm_analysis_response() for p in predicate_llm_analysis
         ],
