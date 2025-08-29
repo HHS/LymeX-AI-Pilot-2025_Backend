@@ -430,7 +430,7 @@ class LLMPredicateRow(BaseModel):
 
 
 class LLMGapFinding(BaseModel):
-    id : int
+    id: int
     title: str
     subtitle: str
     suggested_fix: str
