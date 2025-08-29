@@ -148,6 +148,7 @@ async def update_claim_builder_draft_handler(
             content=payload.content,
             submitted=False,
             accepted=False,
+            user_updated=True,
         )
     ]
     await claim_builder.save()

@@ -59,7 +59,7 @@ class PerformanceTestCard(BaseModel):
     accepted_justification: str | None = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
     created_by: str = "ai@crowdplat.com"
-    ai_decided: bool = False
+    ai_rejected: bool = False
 
 
 class CreatePerformanceTestingRequest(BaseModel):
@@ -173,7 +173,7 @@ class PerformanceTestingResponse(BaseModel):
     created_by: str = Field(
         ..., description="Email of the user who created the performance test"
     )
-    ai_decided: bool = Field(
+    ai_rejected: bool = Field(
         False, description="Indicates if the AI has decided on the test"
     )
 
@@ -209,7 +209,8 @@ def map_to_performance_testing_response(
         references=performance_test_card.references,
         associated_standards=performance_test_card.associated_standards,
         rejected_justification=performance_test_card.rejected_justification,
+        accepted_justification=performance_test_card.accepted_justification,
         created_at=performance_test_card.created_at,
         created_by=performance_test_card.created_by,
-        ai_decided=performance_test_card.ai_decided,
+        ai_rejected=performance_test_card.ai_rejected,
     )
