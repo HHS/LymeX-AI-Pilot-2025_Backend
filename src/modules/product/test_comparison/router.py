@@ -147,7 +147,7 @@ async def reject_test_comparison_suggestion_handler(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Test comparison not found",
         )
-    
+
     test_comparison.identified_gaps_and_suggested_adjustments[
         suggestion_id
     ].accepted = False
