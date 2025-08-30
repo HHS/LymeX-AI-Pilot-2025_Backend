@@ -9,12 +9,14 @@ from src.modules.product.competitive_analysis.analyze_competitive_analysis_progr
 )
 from src.modules.product.competitive_analysis.model import (
     CompetitiveAnalysis,
-    CompetitiveAnalysisDetail,
     PredicateLLMAnalysis,
 )
 from src.modules.product.analyzing_status import (
     AnalyzingStatus,
     AnalyzingStatusResponse,
+)
+from src.modules.product.performance_testing.service import (
+    get_analyze_performance_testing_progress,
 )
 from src.modules.product.product_profile.service import (
     create_audit_record,
@@ -44,6 +46,7 @@ from src.modules.product.competitive_analysis.schema import (
     CompetitiveAnalysisResponse,
     CompetitiveAnalysisWithProgressResponse,
     CompetitiveDeviceAnalysisResponse,
+    PredicateLLMAnalysisResponse,
     PredicateLLMAnalysisWithProgressResponse,
     UploadTextInputDocumentRequest,
 )
@@ -342,14 +345,81 @@ async def get_predicate_llm_analysis_handler(
     predicate_llm_analysis = await PredicateLLMAnalysis.find(
         PredicateLLMAnalysis.product_id == str(product.id),
     ).to_list()
-    if not predicate_llm_analysis:
-        return AnalyzingStatusResponse(
-            analyzing_status=AnalyzingStatus.IN_PROGRESS,
+    analyze_performance_testing_progress = (
+        await get_analyze_performance_testing_progress(
+            str(product.id),
+        )
+    )
+    if not analyze_performance_testing_progress:
+        analyzing_status = AnalyzingStatus.PENDING
+    else:
+        analyzing_status = (
+            AnalyzingStatus.IN_PROGRESS
+            if analyze_performance_testing_progress.processed_files == 0
+            else AnalyzingStatus.COMPLETED
         )
     return PredicateLLMAnalysisWithProgressResponse(
         product_name=product.name,
         predicate_llm_analysis=[
             p.to_predicate_llm_analysis_response() for p in predicate_llm_analysis
         ],
-        analyzing_status=AnalyzingStatus.COMPLETED,
+        analyzing_status=analyzing_status,
     )
+
+
+@router.post("/predicate_llm_analysis/{predicate_analysis_id}/accept/{gap_id}")
+async def accept_predicate_llm_analysis_handler(
+    predicate_analysis_id: str,
+    gap_id: int,
+    product: Annotated[Product, Depends(get_current_product)],
+    current_user: Annotated[User, Depends(get_current_user)],
+    _: Annotated[bool, Depends(check_product_edit_allowed)],
+) -> PredicateLLMAnalysisResponse | AnalyzingStatusResponse:
+    predicate_llm_analysis = await PredicateLLMAnalysis.get(
+        string_to_id(predicate_analysis_id)
+    )
+    if not predicate_llm_analysis or predicate_llm_analysis.product_id != str(
+        product.id
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Predicate LLM Analysis not found",
+        )
+    await create_audit_record(
+        product,
+        current_user,
+        "accept predicate LLM analysis",
+        {"predicate_analysis_id": predicate_analysis_id},
+    )
+    predicate_llm_analysis.gaps[gap_id].accepted = True
+    await predicate_llm_analysis.save()
+    return predicate_llm_analysis.to_predicate_llm_analysis_response()
+
+
+@router.post("/predicate_llm_analysis/{predicate_analysis_id}/reject/{gap_id}")
+async def reject_predicate_llm_analysis_handler(
+    predicate_analysis_id: str,
+    gap_id: int,
+    product: Annotated[Product, Depends(get_current_product)],
+    current_user: Annotated[User, Depends(get_current_user)],
+    _: Annotated[bool, Depends(check_product_edit_allowed)],
+) -> PredicateLLMAnalysisResponse | AnalyzingStatusResponse:
+    predicate_llm_analysis = await PredicateLLMAnalysis.get(
+        string_to_id(predicate_analysis_id)
+    )
+    if not predicate_llm_analysis or predicate_llm_analysis.product_id != str(
+        product.id
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Predicate LLM Analysis not found",
+        )
+    await create_audit_record(
+        product,
+        current_user,
+        "reject predicate LLM analysis",
+        {"predicate_analysis_id": predicate_analysis_id},
+    )
+    predicate_llm_analysis.gaps[gap_id].accepted = False
+    await predicate_llm_analysis.save()
+    return predicate_llm_analysis.to_predicate_llm_analysis_response()

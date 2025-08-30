@@ -58,6 +58,7 @@ class PredicateLLMAnalysis(Document):
         return PredicateLLMAnalysisResponse(
             id=str(self.id),
             product_id=self.product_id,
+            product_name=self.product_name,
             competitor_id=self.competitor_id,
             competitor_name=self.competitor_name,
             rows=self.rows,

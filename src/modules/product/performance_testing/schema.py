@@ -167,6 +167,9 @@ class PerformanceTestingResponse(BaseModel):
     rejected_justification: str | None = Field(
         None, description="Justification for rejection, if applicable"
     )
+    accepted_justification: str | None = Field(
+        None, description="Justification for acceptance, if applicable"
+    )
     created_at: datetime = Field(
         ..., description="Timestamp when the performance test was created"
     )

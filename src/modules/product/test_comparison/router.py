@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from src.celery.tasks.analyze_test_comparison import analyze_test_comparison_task
 from src.modules.authentication.dependencies import get_current_user
@@ -142,6 +142,12 @@ async def reject_test_comparison_suggestion_handler(
     current_user: Annotated[User, Depends(get_current_user)],
 ) -> None:
     test_comparison = await get_product_test_comparison(comparison_id, product.id)
+    if not test_comparison:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Test comparison not found",
+        )
+
     test_comparison.identified_gaps_and_suggested_adjustments[
         suggestion_id
     ].accepted = False

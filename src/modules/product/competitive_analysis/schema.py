@@ -444,6 +444,7 @@ class LLMGapFinding(BaseModel):
 
 
 class PredicateLLMAnalysisResponse(BaseModel):
+    id: str
     product_id: str
     product_name: str
     competitor_id: str | None = None

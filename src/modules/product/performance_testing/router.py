@@ -82,36 +82,38 @@ async def get_product_performance_testings_handler(
 def get_performance_testing_section_keys_handler() -> dict[str, dict[str, str]]:
     return {
         "analytical": {
-            "precision": "Precision (Repeatability / Reproducibility)",
+            "precision": "Precision (Repeatability / Reproducibility Studies)",
             "linearity": "Linearity",
             "sensitivity": "Analytical Sensitivity / Detection Limit(s)",
-            "measuring_range": "Assay Measuring Range",
+            "specificity": "Analytical Specificity / Interference",
             "cut_off": "Assay Cut-off",
-            "traceability": "Traceability",
             "stability": "Stability",
-            "usability": "Usability / Human-Factors",
-            "other_analytical": "Other Analytical supportive data",
+            "other": "Other",
         },
         "comparison": {
             "method": "Method Comparison",
             "matrix": "Matrix Comparison",
+            "other_comparison": "Other Comparison",
         },
         "clinical": {
             "clin_sens_spec": "Clinical Sensitivity / Specificity",
             "clin_cut_off": "Clinical Cut-off",
-            "other_clinical": "Other Clinical supportive data",
+            "other_clinical": "Other Clinical",
         },
         "animal_testing": {
             "glp_animal": "GLP-compliant Animal Testing",
+            "other_animal": "Other Animal Testing",
         },
         "emc_safety": {
             "iec_60601_1_2": "EMC (IEC 60601-1-2 / IEC 61326-2-6)",
             "asca_summary": "ASCA Test Summary Report",
             "design_mods": "Design-modifications-to-pass report",
             "rf_risk_analysis": "EM emitter risk analysis (RFID, 5 G, …)",
+            "other_emc": "Other EMC",
         },
         "wireless": {
             "coexistence": "Wireless Coexistence / FWP",
+            "other_wireless": "Other Wireless",
         },
         "software": {
             "sw_description": "Software / Firmware Description",
@@ -123,6 +125,7 @@ def get_performance_testing_section_keys_handler() -> dict[str, dict[str, str]]:
             "vnv_reports": "V&V Reports",
             "revision_history": "Revision History",
             "unresolved_anom": "Unresolved Anomalies List",
+            "other_software": "Other Software",
         },
         "cybersecurity": {
             "security_rm_report": "Security Risk-Management Report",
@@ -137,28 +140,34 @@ def get_performance_testing_section_keys_handler() -> dict[str, dict[str, str]]:
             "arch_views": "Security Architecture Views",
             "test_reports": "Cybersecurity Testing Reports",
             "cyber_mgmt_plan": "Cybersecurity Management Plan",
+            "other_cybersecurity": "Other Cybersecurity",
         },
         "interoperability": {
             "interop_docs": "Interoperability V&V / Risk docs",
+            "other_interoperability": "Other Interoperability",
         },
         "biocompatibility": {
             "biocomp_tests": "Biocompatibility test reports",
             "biocomp_rationale": "Biocomp rationale (if no testing)",
+            "other_biocompatibility": "Other Biocompatibility",
         },
         "sterility": {
             "steril_validation": "Sterilization Validation",
             "pkg_description": "Packaging Description & Tests",
             "shelf_life": "Shelf-life / Aging Report",
             "pyrogenicity": "Pyrogenicity Test",
+            "other_sterility": "Other Sterility",
         },
         "labeling": {
             "packaging_labels": "Packaging Artwork",
             "ifu": "IFU / Directions for Use",
             "extra_labeling": "Additional labeling pieces",
             "symbols_glossary": "Symbols glossary",
+            "other_labeling": "Other Labeling",
         },
         "literature": {
             "references": "Literature Reference PDFs",
+            "other_literature": "Other Literature",
         },
     }
 
