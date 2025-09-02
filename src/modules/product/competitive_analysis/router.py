@@ -285,7 +285,7 @@ async def delete_competitive_analysis_handler(
     _: Annotated[bool, Depends(check_product_edit_allowed)],
 ):
     await delete_competitive_analysis(
-        str(product.id),
+        product,
         competitive_analysis_id,
     )
     await create_audit_record(

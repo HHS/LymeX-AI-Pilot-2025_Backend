@@ -11,6 +11,7 @@ from src.modules.product.competitive_analysis.storage import (
     clone_competitive_analysis_documents,
     delete_competitive_analysis_document,
 )
+from src.modules.product.models import Product
 
 
 async def get_all_product_competitive_analysis(
@@ -43,9 +44,10 @@ async def get_product_competitive_analysis(
 
 
 async def delete_competitive_analysis(
-    product_id: str,
+    product: Product,
     competitive_analysis_id: str,
 ) -> None:
+    product_id = str(product.id)
     competitive_analysis = await CompetitiveAnalysis.get(
         competitive_analysis_id,
     )
@@ -73,6 +75,14 @@ async def delete_competitive_analysis(
         await delete_competitive_analysis_document(
             product_id, source_object_key.split("/")[-1]
         )
+
+    source_file_names = (
+        [source.name for source in competitive_analysis_detail.sources]
+        if competitive_analysis_detail
+        else []
+    )
+    product.excluded_system_data_files = source_file_names
+    await product.save()
 
     if competitive_analysis_detail:
         await competitive_analysis_detail.delete()
