@@ -70,7 +70,9 @@ async def delete_competitive_analysis(
     await competitive_analysis.delete()
 
     for source_object_key in source_object_keys:
-        await delete_competitive_analysis_document(source_object_key)
+        await delete_competitive_analysis_document(
+            product_id, source_object_key.split("/")[-1]
+        )
 
     if competitive_analysis_detail:
         await competitive_analysis_detail.delete()
