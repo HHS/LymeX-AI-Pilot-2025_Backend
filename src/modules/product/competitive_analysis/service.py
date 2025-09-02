@@ -70,7 +70,9 @@ async def delete_competitive_analysis(
     await competitive_analysis.delete()
 
     for source_object_key in source_object_keys:
-        await delete_competitive_analysis_document(source_object_key)
+        await delete_competitive_analysis_document(
+            product_id, source_object_key.split("/")[-1]
+        )
 
     if competitive_analysis_detail:
         await competitive_analysis_detail.delete()
@@ -95,15 +97,13 @@ async def clone_competitive_analysis(
         CompetitiveAnalysis.product_id == product_id,
     ).to_list()
     if competitive_analysis:
-        await CompetitiveAnalysis.insert_many(
-            [
-                CompetitiveAnalysis(
-                    **analysis.model_dump(exclude={"id", "product_id"}),
-                    product_id=str(new_product_id),
-                )
-                for analysis in competitive_analysis
-            ]
-        )
+        await CompetitiveAnalysis.insert_many([
+            CompetitiveAnalysis(
+                **analysis.model_dump(exclude={"id", "product_id"}),
+                product_id=str(new_product_id),
+            )
+            for analysis in competitive_analysis
+        ])
 
     analyze_competitive_analysis_progress = (
         await AnalyzeCompetitiveAnalysisProgress.find_one(
