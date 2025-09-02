@@ -104,7 +104,7 @@ def get_performance_testing_section_keys_handler() -> dict[str, dict[str, str]]:
             "glp_animal": "GLP-compliant Animal Testing",
             "other_animal": "Other Animal Testing",
         },
-        "emc_safety": {
+        "EMC & Electrical Safety": {
             "iec_60601_1_2": "EMC (IEC 60601-1-2 / IEC 61326-2-6)",
             "asca_summary": "ASCA Test Summary Report",
             "design_mods": "Design-modifications-to-pass report",
@@ -157,17 +157,6 @@ def get_performance_testing_section_keys_handler() -> dict[str, dict[str, str]]:
             "shelf_life": "Shelf-life / Aging Report",
             "pyrogenicity": "Pyrogenicity Test",
             "other_sterility": "Other Sterility",
-        },
-        "labeling": {
-            "packaging_labels": "Packaging Artwork",
-            "ifu": "IFU / Directions for Use",
-            "extra_labeling": "Additional labeling pieces",
-            "symbols_glossary": "Symbols glossary",
-            "other_labeling": "Other Labeling",
-        },
-        "literature": {
-            "references": "Literature Reference PDFs",
-            "other_literature": "Other Literature",
         },
     }
 
