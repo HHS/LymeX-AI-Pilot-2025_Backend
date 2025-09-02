@@ -36,6 +36,7 @@ class Product(Document):
     updated_by: str
     updated_at: datetime
     edit_locked: bool = False
+    excluded_system_data_files: list[str] = []
 
     regulatory_background_percentage: float = Field(default=0.0, ge=0, le=100)
     claims_builder_percentage: float = Field(default=0.0, ge=0, le=100)
