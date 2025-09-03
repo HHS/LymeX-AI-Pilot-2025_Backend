@@ -84,9 +84,11 @@ async def get_checklist_handler(
 async def upload_checklist_image(
     product: Annotated[Product, Depends(get_current_product)],
     question_number: str = Query(..., description="Question number to upload file for"),
-    file: UploadFile = File(...),
+    file: UploadFile | None = File(None),
 ):
-    """Upload a checklist file for a specific question"""
+    """Upload a checklist file for a specific question (file is optional)"""
+    if not file:
+        return {"message": "No file uploaded"}
     try:
         return await upload_checklist_file(str(product.id), question_number, file)
     except HTTPException:
