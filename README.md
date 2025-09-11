@@ -24,7 +24,7 @@ mkdocs serve
 
 ### Contributing
 
-If you'd like to contribute directly to Living HHS Open Data Plan, please follow our contributing guidelines [here](CONTRIBUTING.md).
+If you'd like to contribute directly to LymeX Regulatory Support Backend, please follow our contributing guidelines [here](CONTRIBUTING.md).
 
 ## Policies
 
