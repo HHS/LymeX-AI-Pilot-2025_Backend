@@ -1,10 +1,8 @@
 # How to Contribute
 
-We're so thankful you're considering contributing to an [open source project of the U.S. government](https://code.gov/)! If you're unsure about anything, just ask -- 
-or submit the issue or pull request anyway. The worst that can happen is you'll be politely asked to change something. We appreciate all friendly contributions.
+We're so thankful you're considering contributing to an [open source project of the U.S. government](https://code.gov/)! If you're unsure about anything, just ask -- or submit the issue or pull request anyway. The worst that can happen is you'll be politely asked to change something. We appreciate all friendly contributions.
 
-We encourage you to read this project's CONTRIBUTING policy (you are here), its
-[LICENSE](LICENSE.md), and its [README](README.md).
+We encourage you to read this project's CONTRIBUTING policy (you are here), its [LICENSE](LICENSE.md), and its [README](README.md).
 
 ## Getting Started
 
@@ -16,8 +14,7 @@ To ensure proper repository use, the following guidelines establish how users ar
 
 #### Issues and Discussions  
 * Submit issues and discussion topics within the scope of the project. Pertinent comments, ideas, and feedback are encouraged!
-* When submitting issues or participating in discussions, avoid ad hominem attacks, foul language, and divisive tone; refrain from making derogatory comments,
-  harassing other members, or disrupting the focus of the community and project.
+* When submitting issues or participating in discussions, avoid ad hominem attacks, foul language, and divisive tone; refrain from making derogatory comments, harassing other members, or disrupting the focus of the community and project.
 * Do not share any personally identifiable information (PII), protected health information (PHI), or other sensitive information.
 
 #### Documentation
@@ -47,17 +44,13 @@ Comments should be formatted to a width no greater than 80 columns.
 
 Files should be exempt of trailing spaces.
 
-We adhere to a specific format for commit messages. Please write your commit
-messages along these guidelines. Please keep the line width no greater than 80
-columns (You can use `fmt -n -p -w 80` to accomplish this).
+We adhere to a specific format for commit messages. Please write your commit messages along these guidelines. Please keep the line width no greater than 80 columns (You can use `fmt -n -p -w 80` to accomplish this).
 
     module-name: One line description of your change (less than 72 characters)
 
     Problem
 
-    Explain the context and why you're making that change.  What is the problem
-    you're trying to solve? In some cases there is not a problem and this can be
-    thought of being the motivation for your change.
+    Explain the context and why you're making that change.  What is the problem you're trying to solve? In some cases there is not a problem and this can be thought of being the motivation for your change.
 
     Solution
 
@@ -65,8 +58,7 @@ columns (You can use `fmt -n -p -w 80` to accomplish this).
 
     Result
 
-    What will change as a result of your pull request? Note that sometimes this
-    section is unnecessary because it is self-explanatory based on the solution.
+    What will change as a result of your pull request? Note that sometimes this section is unnecessary because it is self-explanatory based on the solution.
 
 Some important notes regarding the summary line:
 
@@ -81,14 +73,11 @@ Some important notes regarding the summary line:
 
 Pull requests will be reviewed by the LymeX Regulatory Support (AI) team.
 
-
 ## Policies
 
 ### Open Source Policy
 
-We adhere to the [CMS Open Source
-Policy](https://github.com/CMSGov/cms-open-source-policy). If you have any
-questions, just[shoot us an email](mailto:opensource@cms.hhs.gov).
+We adhere to the [HHS Open Source Policy](https://www.hhs.gov/sites/default/files/hhs-open-gov-plan-v4-2016.pdf). If you have any questions, just [send us an email](mailto:cdo@hhs.gov).
 
 ### Security and Responsible Disclosure Policy
 
@@ -98,6 +87,14 @@ For more information about our Security, Vulnerability, and Responsible Disclosu
 
 ## Public domain
 
-This project is in the public domain within the United States, and copyright and related rights in the work worldwide are waived through the [CC0 1.0 Universal public domain dedication](https://creativecommons.org/publicdomain/zero/1.0/) as indicated in [LICENSE](LICENSE).
+Licensed under the Apache License, Version 2.0 (the "License"); 
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-All contributions to this project will be released under the CC0 dedication. By submitting a pull request or issue, you are agreeing to comply with this waiver of copyright interest.
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.

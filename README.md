@@ -16,8 +16,7 @@ This project uses a multi-stage container build.
 `docker-compose up --build -d` 
 
 ## Docs
-This project uses [mkdocs](https://www.mkdocs.org/) with [material](https://squidfunk.github.io/mkdocs-material/) to
-generate project documentation. To preview locally, use:
+This project uses [mkdocs](https://www.mkdocs.org/) with [material](https://squidfunk.github.io/mkdocs-material/) to generate project documentation. To preview locally, use:
 ```bash
 mkdocs serve
 ```
@@ -30,9 +29,7 @@ If you'd like to contribute directly to LymeX Regulatory Support Backend, please
 
 ### Open Source Policy
 
-We adhere to the [HHS Open Source
-Policy](https://www.hhs.gov/sites/default/files/hhs-open-gov-plan-v4-2016.pdf). If you have any
-questions, just [send us an email](mailto:cdo@hhs.gov).
+We adhere to the [HHS Open Source Policy](https://www.hhs.gov/sites/default/files/hhs-open-gov-plan-v4-2016.pdf). If you have any questions, just [send us an email](mailto:cdo@hhs.gov).
 
 ### Security and Responsible Disclosure Policy
 
@@ -50,6 +47,14 @@ For more information and resources about SBOMs, visit: https://www.cisa.gov/sbom
 
 ## Public domain
 
-This project is in the public domain within the United States, and copyright and related rights in the work worldwide are waived through the [Apache License Version 2.0, January 2004](https://www.apache.org/licenses/LICENSE-2.0.txt) as indicated in [LICENSE](LICENSE).
+Licensed under the Apache License, Version 2.0 (the "License"); 
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-All contributions to this project will be released under the CC0 dedication. By submitting a pull request or issue, you are agreeing to comply with this waiver of copyright interest.
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
