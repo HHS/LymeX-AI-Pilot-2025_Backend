@@ -1,5 +1,5 @@
-# NASA-NOIS2-192 Backend
-This repository contains the backend for NOIS2-192 project.
+# LymeX-AI-Pilot-2025_Backend
+This repository contains the backend for the LymeX-AI-Pilot-2025_Backend project.
 
 ## Getting Started
 You will need:
